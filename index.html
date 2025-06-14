@@ -75,7 +75,7 @@
              display: flex;
              justify-content: center;
              align-items: flex-end; 
-             height: 8rem; /* Altura reducida para mejorar precisión de click */
+             height: 11.5rem;
              position: relative;
         }
         .plate-area {
@@ -91,9 +91,14 @@
         }
         .plate-area.locked {
             background: radial-gradient(circle, #d1d5db 70%, #9ca3af 100%);
-            cursor: not-allowed;
+            cursor: pointer;
             opacity: 0.6;
         }
+        .plate-area.locked:hover {
+            opacity: 0.8;
+            box-shadow: 0 10px 25px rgba(250, 204, 21, 0.5);
+        }
+
         .lock-icon {
             position: absolute;
             top: 50%;
@@ -237,6 +242,7 @@
             <div class="flex justify-center items-center gap-6 mt-2 text-lg text-gray-600">
                  <span id="level-display">Nivel: 1</span>
                  <span id="order-progress">Pedidos: 0/0</span>
+                 <span id="star-counter" class="font-bold text-yellow-500">⭐ 0</span>
             </div>
             <div id="order-info" class="mt-4 p-4 bg-white rounded-xl shadow-lg border-2 border-orange-200">
                 <h2 class="text-xl font-semibold">Pedido Actual:</h2>
@@ -254,12 +260,12 @@
                     <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"></div></div></div>
                 </div>
-                 <div class="plate-row flex justify-center gap-x-2 -mb-12" style="z-index: 20;"> <!-- Fila 2 (media): 3 platos -->
+                 <div class="plate-row flex justify-center gap-x-2 -mb-16" style="z-index: 20;"> <!-- Fila 2 (media): 3 platos -->
                     <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"></div></div></div>
                 </div>
-                 <div class="plate-row flex justify-center gap-x-2 -mb-12" style="z-index: 10;"> <!-- Fila 3 (superior): 4 platos -->
+                 <div class="plate-row flex justify-center gap-x-2 -mb-16" style="z-index: 10;"> <!-- Fila 3 (superior): 4 platos -->
                     <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"></div></div></div>
@@ -292,6 +298,7 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             const MAX_INGREDIENTS_PER_PLATE = 20;
+            const TOTAL_PLATES = 11;
             
             const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
@@ -323,6 +330,8 @@
                 selectedStack: null,
                 isAnimating: false,
                 unlockedIngredients: [],
+                stars: 0,
+                platesUnlocked: 3,
             };
             
             const colorMap = {
@@ -356,6 +365,7 @@
             const recipeIngredientsEl = document.getElementById('recipe-ingredients');
             const levelDisplayEl = document.getElementById('level-display');
             const orderProgressEl = document.getElementById('order-progress');
+            const starCounterEl = document.getElementById('star-counter');
             const orderInfoEl = document.getElementById('order-info');
             const animationLayer = document.getElementById('animation-layer');
             const messageBox = document.getElementById('message-box');
@@ -398,21 +408,28 @@
             }
             
             function loadProgress() {
-                const savedLevel = localStorage.getItem('chefCapyHighestLevel');
-                if (savedLevel) {
-                    gameState.highestLevelUnlocked = parseInt(savedLevel, 10);
-                } else {
-                     gameState.highestLevelUnlocked = 0;
+                const savedState = JSON.parse(localStorage.getItem('chefCapyGameState'));
+                if (savedState) {
+                    gameState.highestLevelUnlocked = savedState.highestLevelUnlocked || 0;
+                    gameState.stars = savedState.stars || 0;
+                    gameState.platesUnlocked = savedState.platesUnlocked || 3;
                 }
             }
             
             function saveProgress() {
-                localStorage.setItem('chefCapyHighestLevel', gameState.highestLevelUnlocked);
+                const stateToSave = {
+                    highestLevelUnlocked: gameState.highestLevelUnlocked,
+                    stars: gameState.stars,
+                    platesUnlocked: gameState.platesUnlocked,
+                };
+                localStorage.setItem('chefCapyGameState', JSON.stringify(stateToSave));
             }
             
             function resetProgress() {
-                localStorage.removeItem('chefCapyHighestLevel');
+                localStorage.removeItem('chefCapyGameState');
                 gameState.highestLevelUnlocked = 0;
+                gameState.stars = 0;
+                gameState.platesUnlocked = 3;
                 showMessage("Progreso Reiniciado", "¡Tu aventura culinaria comienza de nuevo!");
                 renderLevelMap();
             }
@@ -532,10 +549,11 @@
                 const shuffledPool = [...unlockedIngredients];
                 shuffleArray(shuffledPool);
 
-                const ingredientsForRecipe = shuffledPool.slice(0, level.ingredientCount);
+                const ingredientCountForRecipe = Math.min(shuffledPool.length, 3);
+                const ingredientsForRecipe = shuffledPool.slice(0, ingredientCountForRecipe);
 
                 ingredientsForRecipe.forEach(ingredient => {
-                    recipeIngredients[ingredient] = Math.floor(Math.random() * 6) + 5;
+                    recipeIngredients[ingredient] = 10; 
                 });
                  
                 return {
@@ -624,6 +642,7 @@
                 const currentLevel = levels[gameState.currentLevelIndex];
                 levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
                 orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel}/${currentLevel.ordersToComplete}`;
+                starCounterEl.innerHTML = `⭐ ${gameState.stars}`;
                 recipeNameEl.textContent = recipe.name;
                 
                 recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
@@ -637,7 +656,7 @@
                 const plateWrappers = document.querySelectorAll('.plate-wrapper');
                 plateWrappers.forEach((wrapper, index) => {
                     const plateArea = wrapper.querySelector('.plate-area');
-                    const isActive = index < currentLevel.platesActive;
+                    const isActive = index < gameState.platesUnlocked;
                     
                     if (isActive) {
                         plateArea.classList.remove('locked');
@@ -688,7 +707,7 @@
                     } else {
                         plateArea.classList.add('locked');
                         plateArea.innerHTML = `<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm-2.5 8V5.5a2.5 2.5 0 115 0V9h-5z" clip-rule="evenodd" /></svg></div>`;
-                        wrapper.onclick = null; // No click on locked plates
+                        wrapper.onclick = () => handleUnlockPlateClick(); 
                     }
                 });
                 
@@ -768,6 +787,9 @@
                 
                 gameState.isAnimating = true;
                 gameState.currentRecipe.needed[type] -= stack.length;
+                gameState.stars += 10;
+                saveProgress();
+
 
                 gameState.selectedStack = null;
                 
@@ -955,6 +977,23 @@
                 showMessage("¡Felicidades!", "¡Has completado todos los niveles y dominado Chef Capy!", () => {
                     showScreen(homeScreenEl);
                 });
+            }
+            
+            function handleUnlockPlateClick() {
+                if (gameState.platesUnlocked >= 11) return;
+                
+                const cost = 50 + (gameState.platesUnlocked - 3) * 25;
+                if (gameState.stars >= cost) {
+                    showMessage("Desbloquear Plato", `¿Quieres gastar ${cost} ⭐ para desbloquear este plato?`, () => {
+                        gameState.stars -= cost;
+                        gameState.platesUnlocked++;
+                        gameState.plates.push([]);
+                        saveProgress();
+                        renderGame();
+                    });
+                } else {
+                    showMessage("¡Estrellas Insuficientes!", `Necesitas ${cost} ⭐ para desbloquear este plato.`);
+                }
             }
             
             // --- INICIALIZACIÓN ---
