@@ -74,7 +74,7 @@
              /* Alinea el plato en la parte inferior para que el espacio de clic crezca hacia arriba */
              align-items: flex-end; 
              /* Aumenta la altura para capturar clics en pilas altas */
-             height: 30rem;
+             height: 20rem;
         }
         
         .plate-area {
@@ -225,16 +225,27 @@
         </header>
 
         <!-- Contenedor ajustado para compensar la altura del wrapper -->
-        <main id="plates-container" class="grid grid-cols-3 gap-x-2 -mt-40 items-center">
-             <div class="plate-wrapper"><div id="plate-0" class="plate-area"></div></div>
-             <div class="plate-wrapper"><div id="plate-1" class="plate-area"></div></div>
-             <div class="plate-wrapper"><div id="plate-2" class="plate-area"></div></div>
-             <div class="plate-wrapper hidden"><div id="plate-3" class="plate-area"></div></div>
-             <div class="plate-wrapper hidden"><div id="plate-4" class="plate-area"></div></div>
-             <div class="plate-wrapper hidden"><div id="plate-5" class="plate-area"></div></div>
+        <main id="plates-container" class="flex flex-col-reverse -mt-64">
+             <div class="flex justify-center gap-x-2"> <!-- Fila 1 (abajo): 4 platos -->
+                <div class="plate-wrapper"><div id="plate-0" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-1" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-2" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-3" class="plate-area"></div></div>
+            </div>
+             <div class="flex justify-center gap-x-2 -mb-28"> <!-- Fila 2 (media): 3 platos -->
+                <div class="plate-wrapper"><div id="plate-4" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-5" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-6" class="plate-area"></div></div>
+            </div>
+             <div class="flex justify-center gap-x-2 -mb-28"> <!-- Fila 3 (superior): 4 platos -->
+                <div class="plate-wrapper"><div id="plate-7" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-8" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-9" class="plate-area"></div></div>
+                <div class="plate-wrapper"><div id="plate-10" class="plate-area"></div></div>
+            </div>
         </main>
 
-        <footer class="text-center space-x-4">
+        <footer class="text-center space-x-4 mt-4">
             <button id="back-to-map-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
                 Ver Mapa
             </button>
@@ -257,17 +268,18 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const MAX_INGREDIENTS_PER_PLATE = 30; 
+            const MAX_INGREDIENTS_PER_PLATE = 30;
+            const TOTAL_PLATES = 11;
             
             const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
 
             const levels = [
-                { ordersToComplete: 2, ingredientCount: 2, plateCount: 3, deckSize: 60 }, // Nivel 1
-                { ordersToComplete: 3, ingredientCount: 3, plateCount: 3, deckSize: 90 }, // Nivel 2
-                { ordersToComplete: 3, ingredientCount: 4, plateCount: 4, deckSize: 120 },// Nivel 3
-                { ordersToComplete: 4, ingredientCount: 4, plateCount: 4, deckSize: 150 },// Nivel 4
-                { ordersToComplete: 4, ingredientCount: 5, plateCount: 5, deckSize: 180 },// Nivel 5
-                { ordersToComplete: 5, ingredientCount: 5, plateCount: 5, deckSize: 200 },// Nivel 6
+                { ordersToComplete: 2, ingredientCount: 2, deckSize: 80 }, // Nivel 1
+                { ordersToComplete: 3, ingredientCount: 3, deckSize: 100 }, // Nivel 2
+                { ordersToComplete: 3, ingredientCount: 4, deckSize: 120 },// Nivel 3
+                { ordersToComplete: 4, ingredientCount: 4, deckSize: 150 },// Nivel 4
+                { ordersToComplete: 4, ingredientCount: 5, deckSize: 180 },// Nivel 5
+                { ordersToComplete: 5, ingredientCount: 5, deckSize: 200 },// Nivel 6
             ];
 
             const gameState = {
@@ -283,7 +295,7 @@
             
             const colorMap = {
                 '🍓': 'from-pink-500 to-red-600',
-                '�': 'from-yellow-200 to-yellow-400',
+                '🍌': 'from-yellow-200 to-yellow-400',
                 '🍇': 'from-purple-500 to-indigo-600',
                 '🥕': 'from-orange-400 to-red-500',
                 '🥦': 'from-green-400 to-emerald-600',
@@ -295,7 +307,7 @@
             };
             
             const recipeAdjectives = ["Mística", "Feliz", "Secreta", "Dorada", "Silvestre", "Ancestral", "Deliciosa", "Crujiente", "del Pantano"];
-            const recipeNouns = ["Ensalada", "Sopa", "Tarta", "Brocheta", "Guiso", "Pizza", "Pastel", "Limonada", "del Capibara"];
+            const recipeNouns = ["Ensalada", "Sopa", "Tarta", "Brocheta", "Guiso", "Pizza", "Pastel", "Salteado", "Estofado"];
 
             // --- Elementos del DOM ---
             const homeScreenEl = document.getElementById('home-screen');
@@ -421,7 +433,7 @@
                 gameState.currentLevelIndex = levelIndex;
                 gameState.ordersCompletedInLevel = 0;
                 // Al iniciar un nivel desde el mapa, los platos se limpian
-                gameState.plates = [];
+                gameState.plates = Array.from({ length: TOTAL_PLATES }, () => []);
                 serveNewOrder();
             }
 
@@ -500,7 +512,8 @@
                 for (const ingredient of ingredientsPool) {
                     if (usedIngredients.size < level.ingredientCount) {
                         usedIngredients.add(ingredient);
-                        recipeIngredients[ingredient] = Math.floor(Math.random() * 8) + 8;
+                        // Ajuste de dificultad: entre 5 y 10 ingredientes
+                        recipeIngredients[ingredient] = Math.floor(Math.random() * 6) + 5;
                     } else {
                         break;
                     }
@@ -514,29 +527,11 @@
 
             function serveNewOrder() {
                 const currentLevel = levels[gameState.currentLevelIndex];
-                const newPlateCount = currentLevel.plateCount;
-                const oldPlateCount = gameState.plates.length;
-                let ingredientsFromRemovedPlates = [];
-
-                if (newPlateCount < oldPlateCount) {
-                    for (let i = newPlateCount; i < oldPlateCount; i++) {
-                        ingredientsFromRemovedPlates.push(...gameState.plates[i]);
-                    }
-                    gameState.plates.length = newPlateCount;
-                } else if (newPlateCount > oldPlateCount) {
-                    for (let i = oldPlateCount; i < newPlateCount; i++) {
-                        gameState.plates.push([]);
-                    }
-                }
-                
-                if (oldPlateCount === 0) {
-                    gameState.plates = Array.from({ length: currentLevel.plateCount }, () => []);
-                }
                 
                 gameState.currentRecipe = generateRecipeForLevel(currentLevel);
                 gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
                 
-                gameState.deck = createDeck(currentLevel, gameState.currentRecipe, ingredientsFromRemovedPlates);
+                gameState.deck = createDeck(currentLevel, gameState.currentRecipe);
                 gameState.selectedStack = null;
                 
                 renderGame();
@@ -593,7 +588,6 @@
                 const currentLevel = levels[gameState.currentLevelIndex];
                 levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
                 orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel}/${currentLevel.ordersToComplete}`;
-                document.getElementById('plates-container').className = `grid grid-cols-${currentLevel.plateCount} gap-x-2 -mt-40 items-center`;
                 recipeNameEl.textContent = recipe.name;
                 
                 recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
@@ -606,55 +600,50 @@
 
                 const plateWrappers = document.querySelectorAll('.plate-wrapper');
                 plateWrappers.forEach((wrapper, index) => {
-                    if (index < currentLevel.plateCount) {
-                        wrapper.classList.remove('hidden');
-                        const plateArea = wrapper.querySelector('.plate-area');
-                        const plate = gameState.plates[index];
-                        plateArea.innerHTML = '';
-                        wrapper.onclick = () => handlePlateClick(index);
+                    const plateArea = wrapper.querySelector('.plate-area');
+                    const plate = gameState.plates[index];
+                    plateArea.innerHTML = '';
+                    wrapper.onclick = () => handlePlateClick(index);
 
-                        if (plate) {
-                            plate.forEach((ingredient, ingredientIndex) => {
-                                const ingredientEl = document.createElement('div');
-                                const gradientClasses = colorMap[ingredient.type] || 'from-gray-400 to-gray-600';
-                                
-                                ingredientEl.className = `ingredient rounded-full bg-gradient-to-br p-1.5 ${gradientClasses}`;
-                                
-                                const innerEl = document.createElement('div');
-                                innerEl.className = 'w-full h-full bg-white rounded-full flex items-center justify-center';
-                                innerEl.textContent = ingredient.type;
-                                ingredientEl.appendChild(innerEl);
+                    if (plate) {
+                        plate.forEach((ingredient, ingredientIndex) => {
+                            const ingredientEl = document.createElement('div');
+                            const gradientClasses = colorMap[ingredient.type] || 'from-gray-400 to-gray-600';
+                            
+                            ingredientEl.className = `ingredient rounded-full bg-gradient-to-br p-1.5 ${gradientClasses}`;
+                            
+                            const innerEl = document.createElement('div');
+                            innerEl.className = 'w-full h-full bg-white rounded-full flex items-center justify-center';
+                            innerEl.textContent = ingredient.type;
+                            ingredientEl.appendChild(innerEl);
 
-                                let transformValue = `translateX(-50%) translateZ(${ingredientIndex * 8}px)`;
-                                
-                                if (gameState.selectedStack && gameState.selectedStack.fromPlate === index) {
-                                    const selectedIDs = gameState.selectedStack.stack.map(s => s.id);
-                                    if (selectedIDs.includes(ingredient.id)) {
-                                        transformValue += ' translateZ(25px) scale(1.05)'; 
-                                        if(ingredientIndex === plate.length - 1) {
-                                            const counter = document.createElement('div');
-                                            counter.className = 'stack-counter';
-                                            counter.textContent = gameState.selectedStack.stack.length;
-                                            innerEl.appendChild(counter); // Append to inner element
-                                        }
+                            let transformValue = `translateX(-50%) translateZ(${ingredientIndex * 8}px)`;
+                            
+                            if (gameState.selectedStack && gameState.selectedStack.fromPlate === index) {
+                                const selectedIDs = gameState.selectedStack.stack.map(s => s.id);
+                                if (selectedIDs.includes(ingredient.id)) {
+                                    transformValue += ' translateZ(25px) scale(1.05)'; 
+                                    if(ingredientIndex === plate.length - 1) {
+                                        const counter = document.createElement('div');
+                                        counter.className = 'stack-counter';
+                                        counter.textContent = gameState.selectedStack.stack.length;
+                                        innerEl.appendChild(counter); // Append to inner element
                                     }
                                 }
+                            }
 
-                                ingredientEl.style.transform = transformValue;
-                                ingredientEl.style.setProperty('--transform-stack', transformValue);
+                            ingredientEl.style.transform = transformValue;
+                            ingredientEl.style.setProperty('--transform-stack', transformValue);
 
-                                if (ingredient.isNew) {
-                                    ingredientEl.style.setProperty('--transform-stack-initial', `translateX(-50%) translateZ(${(ingredientIndex -1) * 8}px)`);
-                                    ingredientEl.classList.add('deal-in-animation');
-                                    delete ingredient.isNew;
-                                }
+                            if (ingredient.isNew) {
+                                ingredientEl.style.setProperty('--transform-stack-initial', `translateX(-50%) translateZ(${(ingredientIndex -1) * 8}px)`);
+                                ingredientEl.classList.add('deal-in-animation');
+                                delete ingredient.isNew;
+                            }
 
-                                ingredientEl.dataset.id = ingredient.id;
-                                plateArea.appendChild(ingredientEl);
-                            });
-                        }
-                    } else {
-                        wrapper.classList.add('hidden');
+                            ingredientEl.dataset.id = ingredient.id;
+                            plateArea.appendChild(ingredientEl);
+                        });
                     }
                 });
                 
