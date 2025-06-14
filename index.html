@@ -23,14 +23,16 @@
         }
         
         /* Asegurar que el header esté sobre el main para evitar problemas de click */
-        header {
+        #game-ui header {
             position: relative;
-            z-index: 20;
-            margin-bottom: 15.5rem;
+            z-index: 50; /* Header siempre encima de todo */
         }
-        main#plates-container {
-             position: relative;
-            z-index: 10;
+        
+        /* Contenedor principal del juego */
+        #game-ui {
+            perspective: 1500px;
+            position: relative;
+            z-index: 1; 
         }
 
         /* --- Estilos del Mapa de Niveles --- */
@@ -63,21 +65,18 @@
         }
 
         /* --- Estilos Isométricos --- */
-        #game-ui {
-            perspective: 1500px;
+        .plate-row {
+            position: relative;
         }
-
         .plate-wrapper {
              perspective: 1000px;
              transform-style: preserve-3d;
              display: flex;
              justify-content: center;
-             /* Alinea el plato en la parte inferior para que el espacio de clic crezca hacia arriba */
              align-items: flex-end; 
-             /* Altura ajustada */
              height: 11.5rem;
+             position: relative;
         }
-        
         .plate-area {
             width: calc(5rem + 8px); 
             height: calc(5rem + 8px);
@@ -87,7 +86,25 @@
             position: relative;
             transform-style: preserve-3d;
             transform: rotateX(60deg) rotateZ(-45deg);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        .plate-area.locked {
+            background: radial-gradient(circle, #d1d5db 70%, #9ca3af 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .lock-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotateZ(45deg) rotateX(-60deg);
+            width: 2.5rem;
+            height: 2.5rem;
+            color: rgba(0,0,0,0.5);
+            display: none; /* Oculto por defecto */
+        }
+        .plate-area.locked .lock-icon {
+            display: block; /* Visible en platos bloqueados */
         }
 
         .ingredient {
@@ -108,7 +125,9 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
-        /* --- Fin Estilos Isométricos --- */
+        #animation-layer {
+            z-index: 100; /* Capa de animación siempre encima de todo */
+        }
         
         #order-info {
             cursor: pointer;
@@ -177,13 +196,13 @@
         }
     </style>
 </head>
-<body class="bg-orange-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden">
+<body class="bg-orange-50 text-gray-800">
     
     <!-- Capa dedicada para las animaciones -->
-    <div id="animation-layer" class="fixed inset-0 pointer-events-none z-[40]"></div>
+    <div id="animation-layer" class="fixed inset-0 pointer-events-none"></div>
 
     <!-- Pantalla de Inicio -->
-    <div id="home-screen" class="flex flex-col items-center justify-center text-center">
+    <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen">
         <h1 class="text-6xl md:text-8xl font-bold text-orange-900">Chef Capy</h1>
         <div class="text-8xl my-4">🧑‍🍳</div>
         <p class="text-xl text-gray-600 max-w-md mb-8">El capibara chef necesita tu ayuda. ¡Organiza los ingredientes para completar los pedidos!</p>
@@ -196,7 +215,7 @@
     </div>
     
     <!-- Pantalla de Mapa de Niveles -->
-    <div id="level-map-screen" class="w-full max-w-md mx-auto hidden">
+    <div id="level-map-screen" class="w-full max-w-md mx-auto hidden h-screen flex flex-col justify-center">
         <h2 class="text-4xl font-bold text-center text-orange-900 mb-8">Mapa de Niveles</h2>
         <div id="level-map-container" class="flex flex-col items-center space-y-8">
             <!-- Los niveles se generarán aquí -->
@@ -210,9 +229,9 @@
 
 
     <!-- Contenedor principal del juego -->
-    <div id="game-ui" class="w-full max-w-5xl mx-auto hidden">
+    <div id="game-ui" class="w-full max-w-5xl h-screen mx-auto hidden flex flex-col">
         
-        <header class="text-center">
+        <header class="text-center p-4 flex-shrink-0">
             <h1 class="text-4xl md:text-5xl font-bold text-orange-900">Chef Capy</h1>
             <div class="flex justify-center items-center gap-6 mt-2 text-lg text-gray-600">
                  <span id="level-display">Nivel: 1</span>
@@ -226,11 +245,29 @@
         </header>
 
         <!-- Contenedor ajustado para compensar la altura del wrapper -->
-        <main id="plates-container" class="flex flex-col-reverse -mt-24">
-            <!-- El contenido de los platos se genera dinámicamente -->
+        <main id="plates-container-wrapper" class="flex-grow overflow-y-auto flex items-center justify-center">
+            <div id="plates-container" class="flex flex-col-reverse py-8">
+                 <div class="plate-row flex justify-center gap-x-2" style="z-index: 30;"> <!-- Fila 1 (abajo): 4 platos -->
+                    <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"></div></div></div>
+                </div>
+                 <div class="plate-row flex justify-center gap-x-2 -mb-20" style="z-index: 20;"> <!-- Fila 2 (media): 3 platos -->
+                    <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"></div></div></div>
+                </div>
+                 <div class="plate-row flex justify-center gap-x-2 -mb-20" style="z-index: 10;"> <!-- Fila 3 (superior): 4 platos -->
+                    <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"></div></div></div>
+                    <div class="plate-wrapper"><div id="plate-10" class="plate-area"><div class="lock-icon"></div></div></div>
+                </div>
+            </div>
         </main>
 
-        <footer class="text-center space-x-4 mt-12">
+        <footer class="text-center space-x-4 flex-shrink-0 py-6">
             <button id="back-to-map-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
                 Ver Mapa
             </button>
@@ -253,26 +290,27 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const MAX_INGREDIENTS_PER_PLATE = 30;
+            const MAX_INGREDIENTS_PER_PLATE = 20;
+            const TOTAL_PLATES = 11;
             
             const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
-                '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
+                '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '�': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
                 '🍆': 'Berenjena', '🌶️': 'Chile'
             };
 
             const levels = [
-                { id: 1, ordersToComplete: 2, ingredientCount: 2, plateLayout: [3], deckSize: 60, unlocks: 1 },
-                { id: 2, ordersToComplete: 2, ingredientCount: 3, plateLayout: [4], deckSize: 80, unlocks: 1 },
-                { id: 3, ordersToComplete: 3, ingredientCount: 3, plateLayout: [3, 2], deckSize: 100, unlocks: 1 },
-                { id: 4, ordersToComplete: 3, ingredientCount: 4, plateLayout: [4, 2], deckSize: 120, unlocks: 1 },
-                { id: 5, ordersToComplete: 3, ingredientCount: 4, plateLayout: [4, 3], deckSize: 140, unlocks: 1 },
-                { id: 6, ordersToComplete: 4, ingredientCount: 5, plateLayout: [3, 2, 1], deckSize: 160, unlocks: 1 },
-                { id: 7, ordersToComplete: 4, ingredientCount: 6, plateLayout: [4, 3, 1], deckSize: 180, unlocks: 1 },
-                { id: 8, ordersToComplete: 4, ingredientCount: 7, plateLayout: [4, 3, 2], deckSize: 200, unlocks: 0 },
-                { id: 9, ordersToComplete: 5, ingredientCount: 8, plateLayout: [4, 3, 2], deckSize: 220, unlocks: 0 },
-                { id: 10, ordersToComplete: 5, ingredientCount: allPossibleIngredients.length, plateLayout: [4, 3, 2, 1], deckSize: 250, unlocks: 0 },
+                { id: 1, ordersToComplete: 2, ingredientCount: 2, platesActive: 3, deckSize: 60, unlocks: 1 },
+                { id: 2, ordersToComplete: 2, ingredientCount: 3, platesActive: 4, deckSize: 80, unlocks: 1 },
+                { id: 3, ordersToComplete: 3, ingredientCount: 3, platesActive: 5, deckSize: 100, unlocks: 1 },
+                { id: 4, ordersToComplete: 3, ingredientCount: 4, platesActive: 6, deckSize: 120, unlocks: 1 },
+                { id: 5, ordersToComplete: 3, ingredientCount: 4, platesActive: 7, deckSize: 140, unlocks: 1 },
+                { id: 6, ordersToComplete: 4, ingredientCount: 5, platesActive: 8, deckSize: 160, unlocks: 1 },
+                { id: 7, ordersToComplete: 4, ingredientCount: 6, platesActive: 9, deckSize: 180, unlocks: 1 },
+                { id: 8, ordersToComplete: 4, ingredientCount: 7, platesActive: 10, deckSize: 200, unlocks: 0 },
+                { id: 9, ordersToComplete: 5, ingredientCount: 8, platesActive: 11, deckSize: 220, unlocks: 0 },
+                { id: 10, ordersToComplete: 5, ingredientCount: allPossibleIngredients.length, platesActive: 11, deckSize: 250, unlocks: 0 },
             ];
 
             const gameState = {
@@ -331,7 +369,9 @@
                 messageBox.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
                 
                 const newButton = currentMessageCloseButton.cloneNode(true);
-                currentMessageCloseButton.parentNode.replaceChild(newButton, currentMessageCloseButton);
+                if (currentMessageCloseButton.parentNode) {
+                    currentMessageCloseButton.parentNode.replaceChild(newButton, currentMessageCloseButton);
+                }
                 
                 newButton.addEventListener('click', () => {
                     closeMessage();
@@ -425,23 +465,8 @@
                 gameState.ordersCompletedInLevel = 0;
                 
                 const currentLevel = levels[levelIndex];
-                
-                let totalPlates = 0;
-                let plateLayoutHTML = '';
-                const marginClasses = ['-mb-20', '-mb-24', '-mb-20'];
-                
-                currentLevel.plateLayout.slice().reverse().forEach((plateCount, rowIndex) => {
-                    let rowHTML = `<div class="flex justify-center gap-x-2 ${rowIndex > 0 ? marginClasses[rowIndex % marginClasses.length] : ''}">`;
-                    for(let i = 0; i < plateCount; i++) {
-                        rowHTML += `<div class="plate-wrapper"><div id="plate-${totalPlates}" class="plate-area"></div></div>`;
-                        totalPlates++;
-                    }
-                    rowHTML += `</div>`;
-                    plateLayoutHTML += rowHTML;
-                });
-                
-                platesContainer.innerHTML = plateLayoutHTML;
-                gameState.plates = Array.from({ length: totalPlates }, () => []);
+                                
+                gameState.plates = Array.from({ length: currentLevel.platesActive }, () => []);
 
                 // Determinar ingredientes desbloqueados para el nivel
                 let unlockedCount = 2; // Nivel 1 empieza con 2
@@ -546,24 +571,49 @@
                 
                 const deals = [];
                 const availablePlates = gameState.plates.map((p, i) => i).filter(i => gameState.plates[i].length < MAX_INGREDIENTS_PER_PLATE);
+                
+                if (availablePlates.length === 0) {
+                    const dealButton = document.getElementById('deal-button');
+                    dealButton.classList.add('shake');
+                    setTimeout(() => dealButton.classList.remove('shake'), 500);
+                    return;
+                }
+                
                 shuffleArray(availablePlates);
+                
+                const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
+                let priorityDeck = gameState.deck.filter(ing => neededTypes.includes(ing.type));
+                let regularDeck = gameState.deck.filter(ing => !neededTypes.includes(ing.type));
 
-                const platesToDeal = availablePlates.slice(0, levels[gameState.currentLevelIndex].plateLayout.reduce((a,b) => a+b, 0));
+                const platesToDealCount = Math.min(availablePlates.length, 3 + Math.floor(Math.random() * 2));
 
+                for(let i = 0; i < platesToDealCount; i++) {
+                    const plateIndex = availablePlates[i];
+                    let ingredientToDeal = null;
 
-                platesToDeal.forEach(plateIndex => {
-                     if (gameState.deck.length > 0) {
-                        const newIngredient = gameState.deck.pop();
-                        deals.push({ toPlateIndex: plateIndex, ingredient: newIngredient });
-                     }
-                });
+                    const pullFromPriority = Math.random() < 0.7; // 70% chance to pull needed ingredient
+
+                    if (pullFromPriority && priorityDeck.length > 0) {
+                        ingredientToDeal = priorityDeck.pop();
+                    } else if (regularDeck.length > 0) {
+                        ingredientToDeal = regularDeck.pop();
+                    } else if (priorityDeck.length > 0) {
+                        ingredientToDeal = priorityDeck.pop();
+                    }
+
+                    if (ingredientToDeal) {
+                         deals.push({ toPlateIndex: plateIndex, ingredient: ingredientToDeal });
+                    }
+                }
+                
+                gameState.deck = [...priorityDeck, ...regularDeck];
+                shuffleArray(gameState.deck);
+
 
                 if (deals.length > 0) {
                     animateDeal(deals);
                 } else {
-                    const dealButton = document.getElementById('deal-button');
-                    dealButton.classList.add('shake');
-                    setTimeout(() => dealButton.classList.remove('shake'), 500);
+                     dealRow(); // Retry if no deals were made but deck has items
                 }
             }
 
@@ -586,11 +636,13 @@
 
                 const plateWrappers = document.querySelectorAll('.plate-wrapper');
                 plateWrappers.forEach((wrapper, index) => {
-                    if (index < gameState.plates.length) {
-                        wrapper.classList.remove('hidden');
-                         const plateArea = wrapper.querySelector('.plate-area');
+                    const plateArea = wrapper.querySelector('.plate-area');
+                    const isActive = index < currentLevel.platesActive;
+                    
+                    if (isActive) {
+                        plateArea.classList.remove('locked');
                         const plate = gameState.plates[index];
-                        plateArea.innerHTML = '';
+                        plateArea.innerHTML = ''; // Clear previous contents
                         wrapper.onclick = () => handlePlateClick(index);
 
                         if (plate) {
@@ -605,7 +657,7 @@
                                 innerEl.textContent = ingredient.type;
                                 ingredientEl.appendChild(innerEl);
 
-                                let transformValue = `translateX(-50%) translateZ(${ingredientIndex * 8}px)`;
+                                let transformValue = `translateX(-50%) translateZ(${ingredientIndex * 5}px)`;
                                 
                                 if (gameState.selectedStack && gameState.selectedStack.fromPlate === index) {
                                     const selectedIDs = gameState.selectedStack.stack.map(s => s.id);
@@ -624,7 +676,7 @@
                                 ingredientEl.style.setProperty('--transform-stack', transformValue);
 
                                 if (ingredient.isNew) {
-                                    ingredientEl.style.setProperty('--transform-stack-initial', `translateX(-50%) translateZ(${(ingredientIndex -1) * 8}px)`);
+                                    ingredientEl.style.setProperty('--transform-stack-initial', `translateX(-50%) translateZ(${(ingredientIndex -1) * 5}px)`);
                                     ingredientEl.classList.add('deal-in-animation');
                                     delete ingredient.isNew;
                                 }
@@ -634,7 +686,9 @@
                             });
                         }
                     } else {
-                         wrapper.classList.add('hidden');
+                        plateArea.classList.add('locked');
+                        plateArea.innerHTML = `<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm-2.5 8V5.5a2.5 2.5 0 115 0V9h-5z" clip-rule="evenodd" /></svg></div>`;
+                        wrapper.onclick = null; // No click on locked plates
                     }
                 });
                 
@@ -779,14 +833,14 @@
                     clone.style.transition = 'all 0.4s cubic-bezier(0.5, -0.5, 0.75, 1.2)';
                     clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
                     clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
-                    clone.style.transform = `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 8 }px) scale(1.1)`;
+                    clone.style.transform = `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 5 }px) scale(1.1)`;
 
                     animationLayer.appendChild(clone);
 
                     setTimeout(() => {
                         clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
                         clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
-                        clone.style.transform = `translateZ(${ (gameState.plates[toPlateIndex].length + stack.length - index) * 8 }px) scale(1)`;
+                        clone.style.transform = `translateZ(${ (gameState.plates[toPlateIndex].length + stack.length - index) * 5 }px) scale(1)`;
                     }, index * 40);
 
                     setTimeout(() => {
@@ -825,7 +879,7 @@
                         clone.style.opacity = '1'; 
                         clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
                         clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
-                        clone.style.transform = `scale(1) translateZ(${gameState.plates[toPlateIndex].length * 8}px)`;
+                        clone.style.transform = `scale(1) translateZ(${gameState.plates[toPlateIndex].length * 5}px)`;
                     }, 50 + dealIndex * 70); 
 
                     setTimeout(() => {
@@ -870,33 +924,11 @@
             }
 
             function checkAndHandleStuckState() {
-                // Lógica de rescate de ingredientes
-                const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
-                const rescuedIngredients = [];
-                const topIngredients = new Set(gameState.plates.filter(p => p.length > 0).map(p => p[p.length - 1].type));
-
-                gameState.plates.forEach((plate, plateIndex) => {
-                    for (let i = plate.length - 2; i >= 0; i--) {
-                        const ingredient = plate[i];
-                        if (neededTypes.includes(ingredient.type) && !topIngredients.has(ingredient.type)) {
-                            rescuedIngredients.push(ingredient);
-                            plate.splice(i, 1);
-                        }
-                    }
-                });
-
-                if (rescuedIngredients.length > 0) {
-                    showMessage("¡Rescate!", "¡El Chef Capy rescata ingredientes atrapados!");
-                    shuffleArray(rescuedIngredients);
-                    gameState.deck.unshift(...rescuedIngredients);
-                    renderGame();
-                } else {
-                    showMessage("¡Fila Vacía!", "No hay más ingredientes y no se pudieron rescatar más. ¡El mazo se rellenará!");
-                    const currentLevel = levels[gameState.currentLevelIndex];
-                    const missingIngredientsRecipe = { ingredients: gameState.currentRecipe.needed };
-                    gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, missingIngredientsRecipe);
-                    renderGame();
-                }
+                showMessage("¡Fila Vacía!", "No hay más ingredientes en el mazo. ¡Se rellenará para que puedas continuar!");
+                const currentLevel = levels[gameState.currentLevelIndex];
+                const missingIngredientsRecipe = { ingredients: gameState.currentRecipe.needed };
+                gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, missingIngredientsRecipe);
+                renderGame();
             }
             
             function handleLevelComplete() {
