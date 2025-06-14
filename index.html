@@ -21,6 +21,16 @@
         h1, h2, #message-title {
              font-family: 'Fredoka One', cursive;
         }
+        
+        /* Asegurar que el header esté sobre el main para evitar problemas de click */
+        header {
+            position: relative;
+            z-index: 20;
+        }
+        main#plates-container {
+             position: relative;
+            z-index: 10;
+        }
 
         /* --- Estilos del Mapa de Niveles --- */
         #level-map-container {
@@ -428,7 +438,7 @@
                 const nextLevelIndex = gameState.currentLevelIndex + 1;
                 if (nextLevelIndex < levels.length) {
                     const nextLevel = levels[nextLevelIndex];
-                    const nextLevelRecipe = generateRecipeForLevel(nextLevel, false);
+                    const nextLevelRecipe = generateRecipeForLevel(nextLevel);
                     const distractorTypes = Object.keys(nextLevelRecipe.ingredients).filter(type => !ingredientsForThisRecipe.includes(type));
                     
                     if (distractorTypes.length > 0) {
@@ -450,13 +460,38 @@
                 return newDeck;
             }
             
-            function generateRandomRecipeName() {
-                const adj = recipeAdjectives[Math.floor(Math.random() * recipeAdjectives.length)];
+            function generateRandomRecipeName(recipeIngredients) {
+                const recipeNouns = ["Ensalada", "Sopa", "Tarta", "Brocheta", "Guiso", "Pizza", "Pastel", "Salteado", "Estofado"];
+                const ingredientNameMap = {
+                    '🍓': 'de Fresa', '🍌': 'de Plátano', '🍇': 'de Uvas', '🥕': 'de Zanahoria',
+                    '🥦': 'de Brócoli', '🍄': 'de Champiñones', '🍅': 'de Tomate', '🥑': 'con Aguacate',
+                    '🍆': 'con Berenjena', '🌶️': 'Picante'
+                };
+
+                if (!recipeIngredients || Object.keys(recipeIngredients).length === 0) {
+                    return "Plato Misterioso";
+                }
+
+                let mainIngredient = '';
+                let maxCount = 0;
+                for (const [ingredient, count] of Object.entries(recipeIngredients)) {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        mainIngredient = ingredient;
+                    }
+                }
+
                 const noun = recipeNouns[Math.floor(Math.random() * recipeNouns.length)];
-                return `${noun} ${adj}`;
+                const adjective = ingredientNameMap[mainIngredient] || "Especial";
+                
+                if (adjective === 'Picante') {
+                    return `${noun} ${adjective}`;
+                }
+                
+                return `${noun} ${adjective}`;
             }
 
-            function generateRecipeForLevel(level, generateName = true) {
+            function generateRecipeForLevel(level) {
                 const recipeIngredients = {};
                 const usedIngredients = new Set();
                 const ingredientsPool = [...allPossibleIngredients];
@@ -470,7 +505,7 @@
                         break;
                     }
                 }
-                const recipeName = generateName ? generateRandomRecipeName() : "";
+                const recipeName = generateRandomRecipeName(recipeIngredients); 
                 return {
                     name: recipeName,
                     ingredients: recipeIngredients
