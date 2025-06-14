@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Capy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f3f1;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d8c7b9' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* --- Estilos del Mapa de Niveles --- */
+        #level-map-container {
+            position: relative;
+            padding: 2rem 0;
+        }
+        #level-map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            background-color: #d8c7b9;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        .level-node {
+            position: relative;
+            z-index: 2;
+        }
+        .level-node-button {
+             transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .level-node-button:not(:disabled):hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.7);
+        }
+
+        /* --- Estilos Isométricos --- */
+        #game-ui {
+            perspective: 1500px;
+        }
+
+        .plate-wrapper {
+             perspective: 1000px;
+             transform-style: preserve-3d;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             height: 12rem; /* Altura fija para el contenedor */
+        }
+        
+        .plate-area {
+            width: calc(5rem + 8px); 
+            height: calc(5rem + 8px);
+            background: radial-gradient(circle, #ffffff 70%, #e5e7eb 100%);
+            border-radius: 50%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(60deg) rotateZ(-45deg);
+            transition: transform 0.3s ease;
+        }
+
+        .ingredient {
+            position: absolute;
+            bottom: 4px; 
+            left: 50%;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            pointer-events: none;
+            font-size: 3rem; 
+            line-height: 1;
+            user-select: none;
+            text-align: center;
+            width: 5rem;
+            height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        /* --- Fin Estilos Isométricos --- */
+        
+        #order-info {
+            cursor: pointer;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        #order-info.targetable {
+             box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.6);
+        }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-4px); }
+            40%, 60% { transform: translateX(4px); }
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes deal-in {
+            from {
+                opacity: 0;
+                transform: var(--transform-stack-initial) translateY(-60px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: var(--transform-stack) translateY(0) scale(1);
+            }
+        }
+        .deal-in-animation {
+             animation: deal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        .recipe-ingredient.done {
+            text-decoration: line-through;
+            color: #22c55e;
+            opacity: 0.7;
+        }
+        #message-box {
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+        .stack-counter {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 50%;
+            width: 1.75rem;
+            height: 1.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 11; /* Encima del ingrediente seleccionado */
+            transform: translateZ(5px);
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="bg-orange-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden">
+    
+    <!-- Capa dedicada para las animaciones -->
+    <div id="animation-layer" class="fixed inset-0 pointer-events-none z-[40]"></div>
+
+    <!-- Pantalla de Inicio -->
+    <div id="home-screen" class="flex flex-col items-center justify-center text-center">
+        <h1 class="text-6xl md:text-8xl font-bold text-orange-900">Chef Capy</h1>
+        <div class="text-8xl my-4">🧑‍🍳</div>
+        <p class="text-xl text-gray-600 max-w-md mb-8">El capibara chef necesita tu ayuda. ¡Organiza los ingredientes para completar los pedidos!</p>
+        <button id="start-game-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 text-2xl">
+            ¡A Cocinar!
+        </button>
+         <button id="reset-progress-button" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 text-sm">
+            Reiniciar Progreso
+        </button>
+    </div>
+    
+    <!-- Pantalla de Mapa de Niveles -->
+    <div id="level-map-screen" class="w-full max-w-md mx-auto hidden">
+        <h2 class="text-4xl font-bold text-center text-orange-900 mb-8">Mapa de Niveles</h2>
+        <div id="level-map-container" class="flex flex-col items-center space-y-8">
+            <!-- Los niveles se generarán aquí -->
+        </div>
+         <div class="text-center mt-8">
+            <button id="back-to-home-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                Volver al Inicio
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Contenedor principal del juego -->
+    <div id="game-ui" class="w-full max-w-5xl mx-auto hidden">
+        
+        <header class="text-center mb-2">
+            <h1 class="text-4xl md:text-5xl font-bold text-orange-900">Chef Capy</h1>
+            <div class="flex justify-center items-center gap-6 mt-2 text-lg text-gray-600">
+                 <span id="level-display">Nivel: 1</span>
+                 <span id="order-progress">Pedidos: 0/0</span>
+            </div>
+            <div id="order-info" class="mt-4 p-4 bg-white rounded-xl shadow-lg border-2 border-orange-200">
+                <h2 class="text-xl font-semibold">Pedido Actual:</h2>
+                <p id="recipe-name" class="text-2xl font-bold text-orange-600">-</p>
+                <div id="recipe-ingredients" class="flex justify-center flex-wrap gap-4 mt-2 text-lg font-medium"></div>
+            </div>
+        </header>
+
+        <main id="plates-container" class="grid grid-cols-3 gap-y-8 gap-x-2 mt-24 mb-12 items-center">
+             <div class="plate-wrapper"><div id="plate-0" class="plate-area"></div></div>
+             <div class="plate-wrapper"><div id="plate-1" class="plate-area"></div></div>
+             <div class="plate-wrapper"><div id="plate-2" class="plate-area"></div></div>
+             <div class="plate-wrapper hidden"><div id="plate-3" class="plate-area"></div></div>
+             <div class="plate-wrapper hidden"><div id="plate-4" class="plate-area"></div></div>
+             <div class="plate-wrapper hidden"><div id="plate-5" class="plate-area"></div></div>
+        </main>
+
+        <footer class="text-center space-x-4">
+            <button id="back-to-map-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                Ver Mapa
+            </button>
+            <button id="deal-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300" disabled>
+                Servir Fila (<span id="deck-count">0</span>)
+            </button>
+        </footer>
+
+    </div>
+
+    <div id="message-box" class="fixed inset-0 bg-black/40 flex items-center justify-center opacity-0 pointer-events-none transform scale-95 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm mx-auto">
+            <h3 id="message-title" class="text-3xl font-bold text-green-500 mb-4"></h3>
+            <p id="message-text" class="text-gray-600 mb-6"></p>
+            <button id="message-close-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full">¡Genial!</button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const MAX_INGREDIENTS_PER_PLATE = 30; 
+            
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
+
+            const levels = [
+                { ordersToComplete: 2, ingredientCount: 2, plateCount: 3, deckSize: 60 }, // Nivel 1
+                { ordersToComplete: 3, ingredientCount: 3, plateCount: 3, deckSize: 90 }, // Nivel 2
+                { ordersToComplete: 3, ingredientCount: 4, plateCount: 4, deckSize: 120 },// Nivel 3
+                { ordersToComplete: 4, ingredientCount: 4, plateCount: 4, deckSize: 150 },// Nivel 4
+                { ordersToComplete: 4, ingredientCount: 5, plateCount: 5, deckSize: 180 },// Nivel 5
+                { ordersToComplete: 5, ingredientCount: 5, plateCount: 5, deckSize: 200 },// Nivel 6
+            ];
+
+            const gameState = {
+                highestLevelUnlocked: 0,
+                currentLevelIndex: 0,
+                ordersCompletedInLevel: 0,
+                currentRecipe: null,
+                plates: [],
+                deck: [], 
+                selectedStack: null,
+                isAnimating: false,
+            };
+            
+            const colorMap = {
+                '🍓': 'from-pink-500 to-red-600',
+                '🍌': 'from-yellow-200 to-yellow-400',
+                '🍇': 'from-purple-500 to-indigo-600',
+                '🥕': 'from-orange-400 to-red-500',
+                '🥦': 'from-green-400 to-emerald-600',
+                '🍄': 'from-gray-300 to-gray-500',
+                '🍅': 'from-red-500 to-red-700',
+                '🥑': 'from-lime-400 to-green-600',
+                '🍆': 'from-purple-600 to-violet-800',
+                '🌶️': 'from-red-600 to-orange-700'
+            };
+            
+            const recipeAdjectives = ["Mística", "Feliz", "Secreta", "Dorada", "Silvestre", "Ancestral", "Deliciosa", "Crujiente", "del Pantano"];
+            const recipeNouns = ["Ensalada", "Sopa", "Tarta", "Brocheta", "Guiso", "Pizza", "Pastel", "Limonada", "del Capibara"];
+
+            // --- Elementos del DOM ---
+            const homeScreenEl = document.getElementById('home-screen');
+            const gameUiEl = document.getElementById('game-ui');
+            const levelMapScreenEl = document.getElementById('level-map-screen');
+            const levelMapContainer = document.getElementById('level-map-container');
+            
+            const startGameButton = document.getElementById('start-game-button');
+            const resetProgressButton = document.getElementById('reset-progress-button');
+            const backToHomeButton = document.getElementById('back-to-home-button');
+            const backToMapButton = document.getElementById('back-to-map-button');
+
+            const dealButton = document.getElementById('deal-button');
+            const deckCountEl = document.getElementById('deck-count');
+            const recipeNameEl = document.getElementById('recipe-name');
+            const recipeIngredientsEl = document.getElementById('recipe-ingredients');
+            const levelDisplayEl = document.getElementById('level-display');
+            const orderProgressEl = document.getElementById('order-progress');
+            const orderInfoEl = document.getElementById('order-info');
+            const animationLayer = document.getElementById('animation-layer');
+            const messageBox = document.getElementById('message-box');
+            const messageTitle = document.getElementById('message-title');
+            const messageText = document.getElementById('message-text');
+            const messageCloseButton = document.getElementById('message-close-button');
+
+
+            function showMessage(title, text, onConfirm) {
+                messageTitle.textContent = title;
+                messageText.textContent = text;
+                messageBox.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                
+                const newButton = messageCloseButton.cloneNode(true);
+                messageCloseButton.parentNode.replaceChild(newButton, messageCloseButton);
+                
+                newButton.addEventListener('click', () => {
+                    closeMessage();
+                    if(onConfirm) onConfirm();
+                }, { once: true });
+            }
+
+            function closeMessage() {
+                messageBox.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            }
+            
+            function showScreen(screen) {
+                homeScreenEl.classList.add('hidden');
+                gameUiEl.classList.add('hidden');
+                levelMapScreenEl.classList.add('hidden');
+                screen.classList.remove('hidden');
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+            
+            function loadProgress() {
+                const savedLevel = localStorage.getItem('chefCapyHighestLevel');
+                if (savedLevel) {
+                    gameState.highestLevelUnlocked = parseInt(savedLevel, 10);
+                } else {
+                     gameState.highestLevelUnlocked = 0;
+                }
+            }
+            
+            function saveProgress() {
+                localStorage.setItem('chefCapyHighestLevel', gameState.highestLevelUnlocked);
+            }
+            
+            function resetProgress() {
+                localStorage.removeItem('chefCapyHighestLevel');
+                gameState.highestLevelUnlocked = 0;
+                showMessage("Progreso Reiniciado", "¡Tu aventura culinaria comienza de nuevo!");
+                renderLevelMap();
+            }
+
+            function renderLevelMap() {
+                levelMapContainer.innerHTML = ''; // Limpiar mapa
+                levels.forEach((level, index) => {
+                    const isUnlocked = index <= gameState.highestLevelUnlocked;
+                    
+                    const node = document.createElement('div');
+                    node.className = 'level-node flex items-center w-full';
+                    if (index % 2 !== 0) {
+                       node.classList.add('flex-row-reverse');
+                    }
+                    
+                    const button = document.createElement('button');
+                    button.className = 'level-node-button flex-shrink-0';
+                    button.disabled = !isUnlocked;
+
+                    const dot = document.createElement('div');
+                    const text = document.createElement('div');
+                    
+                    if (isUnlocked) {
+                        button.onclick = () => startGame(index);
+                        dot.className = 'level-dot w-16 h-16 rounded-full bg-yellow-400 border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-yellow-900';
+                        text.className = 'level-text font-semibold px-4 text-gray-800';
+                    } else {
+                        dot.className = 'level-dot w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-200 shadow-inner flex items-center justify-center text-2xl font-bold text-gray-500';
+                        text.className = 'level-text font-semibold px-4 text-gray-400';
+                    }
+                    
+                    dot.textContent = index + 1;
+                    text.textContent = `Nivel ${index + 1}`;
+                    
+                    button.appendChild(dot);
+                    node.appendChild(button);
+                    node.appendChild(text);
+                    levelMapContainer.appendChild(node);
+                });
+            }
+            
+            function showLevelMap() {
+                renderLevelMap();
+                showScreen(levelMapScreenEl);
+            }
+
+            function startGame(levelIndex) {
+                showScreen(gameUiEl);
+                gameState.currentLevelIndex = levelIndex;
+                gameState.ordersCompletedInLevel = 0;
+                // Al iniciar un nivel desde el mapa, los platos se limpian
+                gameState.plates = [];
+                serveNewOrder();
+            }
+
+            function createDeck(level, recipe, extraIngredients = []) {
+                const ingredientsForThisRecipe = Object.keys(recipe.ingredients);
+                let newDeck = [...extraIngredients];
+
+                for (const [ingredient, count] of Object.entries(recipe.ingredients)) {
+                    for (let i = 0; i < count; i++) {
+                        newDeck.push({ type: ingredient, id: `req-${ingredient}-${i}-${Math.random()}` });
+                    }
+                }
+
+                const nextLevelIndex = gameState.currentLevelIndex + 1;
+                if (nextLevelIndex < levels.length) {
+                    const nextLevel = levels[nextLevelIndex];
+                    const nextLevelRecipe = generateRecipeForLevel(nextLevel, false);
+                    const distractorTypes = Object.keys(nextLevelRecipe.ingredients).filter(type => !ingredientsForThisRecipe.includes(type));
+                    
+                    if (distractorTypes.length > 0) {
+                        const distractorCount = Math.floor(Math.random() * 3) + 2;
+                        for (let i = 0; i < distractorCount; i++) {
+                            const randomDistractorType = distractorTypes[Math.floor(Math.random() * distractorTypes.length)];
+                            newDeck.push({ type: randomDistractorType, id: `distractor-${i}-${Math.random()}` });
+                        }
+                    }
+                }
+
+                const fillerCount = level.deckSize - newDeck.length;
+                for (let i = 0; i < fillerCount; i++) {
+                    const randomType = ingredientsForThisRecipe[Math.floor(Math.random() * ingredientsForThisRecipe.length)];
+                    newDeck.push({ type: randomType, id: `fill-${i}-${Math.random()}` });
+                }
+
+                shuffleArray(newDeck);
+                return newDeck;
+            }
+            
+            function generateRandomRecipeName() {
+                const adj = recipeAdjectives[Math.floor(Math.random() * recipeAdjectives.length)];
+                const noun = recipeNouns[Math.floor(Math.random() * recipeNouns.length)];
+                return `${noun} ${adj}`;
+            }
+
+            function generateRecipeForLevel(level, generateName = true) {
+                const recipeIngredients = {};
+                const usedIngredients = new Set();
+                const ingredientsPool = [...allPossibleIngredients];
+                shuffleArray(ingredientsPool);
+
+                for (const ingredient of ingredientsPool) {
+                    if (usedIngredients.size < level.ingredientCount) {
+                        usedIngredients.add(ingredient);
+                        recipeIngredients[ingredient] = Math.floor(Math.random() * 8) + 8;
+                    } else {
+                        break;
+                    }
+                }
+                const recipeName = generateName ? generateRandomRecipeName() : "";
+                return {
+                    name: recipeName,
+                    ingredients: recipeIngredients
+                };
+            }
+
+            function serveNewOrder() {
+                const currentLevel = levels[gameState.currentLevelIndex];
+                const newPlateCount = currentLevel.plateCount;
+                const oldPlateCount = gameState.plates.length;
+                let ingredientsFromRemovedPlates = [];
+
+                if (newPlateCount < oldPlateCount) {
+                    for (let i = newPlateCount; i < oldPlateCount; i++) {
+                        ingredientsFromRemovedPlates.push(...gameState.plates[i]);
+                    }
+                    gameState.plates.length = newPlateCount;
+                } else if (newPlateCount > oldPlateCount) {
+                    for (let i = oldPlateCount; i < newPlateCount; i++) {
+                        gameState.plates.push([]);
+                    }
+                }
+                
+                if (oldPlateCount === 0) {
+                    gameState.plates = Array.from({ length: currentLevel.plateCount }, () => []);
+                }
+                
+                gameState.currentRecipe = generateRecipeForLevel(currentLevel);
+                gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
+                
+                gameState.deck = createDeck(currentLevel, gameState.currentRecipe, ingredientsFromRemovedPlates);
+                gameState.selectedStack = null;
+                
+                renderGame();
+            }
+
+            function dealRow() {
+                if (gameState.isAnimating) return;
+                
+                if (gameState.deck.length === 0) {
+                    if (!isOrderComplete()) {
+                        showMessage("¡Fila Vacía!", "¡El mazo se ha rellenado para que puedas continuar!");
+                        const currentLevel = levels[gameState.currentLevelIndex];
+                        // Crear un mazo con los ingredientes que faltan
+                        const missingIngredientsRecipe = { ingredients: gameState.currentRecipe.needed };
+                        gameState.deck = createDeck(currentLevel, missingIngredientsRecipe);
+                        renderGame(); 
+                    }
+                    return;
+                }
+
+                if (gameState.selectedStack) {
+                    gameState.selectedStack = null;
+                }
+                
+                const deals = [];
+                gameState.plates.forEach((plate, index) => {
+                    const countToServe = Math.floor(Math.random() * 3) + 1;
+                    let servedToThisPlate = 0;
+                    
+                    for (let i = 0; i < countToServe; i++) {
+                        if (gameState.deck.length > 0 && (plate.length + servedToThisPlate) < MAX_INGREDIENTS_PER_PLATE) {
+                           const newIngredient = gameState.deck.pop();
+                            deals.push({ toPlateIndex: index, ingredient: newIngredient });
+                            servedToThisPlate++;
+                        } else {
+                            break;
+                        }
+                    }
+                });
+
+                if (deals.length > 0) {
+                    animateDeal(deals);
+                } else {
+                    showMessage("¡Platos Llenos!", "No hay espacio para servir más ingredientes.");
+                    renderGame();
+                }
+            }
+
+            function renderGame() {
+                const recipe = gameState.currentRecipe;
+                if (!recipe) return;
+
+                const currentLevel = levels[gameState.currentLevelIndex];
+                levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
+                orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel}/${currentLevel.ordersToComplete}`;
+                document.getElementById('plates-container').className = `grid grid-cols-${currentLevel.plateCount} gap-y-8 gap-x-2 mt-24 mb-12 items-center`;
+                recipeNameEl.textContent = recipe.name;
+                
+                recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
+                    .map(([emoji, targetCount]) => {
+                        const neededCount = recipe.needed[emoji];
+                        const isDone = neededCount <= 0;
+                        return `<span class="recipe-ingredient ${isDone ? 'done' : ''}">${emoji} x${Math.max(0, neededCount)}</span>`;
+                    })
+                    .join(' ');
+
+                const plateWrappers = document.querySelectorAll('.plate-wrapper');
+                plateWrappers.forEach((wrapper, index) => {
+                    if (index < currentLevel.plateCount) {
+                        wrapper.classList.remove('hidden');
+                        const plateArea = wrapper.querySelector('.plate-area');
+                        const plate = gameState.plates[index];
+                        plateArea.innerHTML = '';
+                        wrapper.onclick = () => handlePlateClick(index);
+
+                        if (plate) {
+                            plate.forEach((ingredient, ingredientIndex) => {
+                                const ingredientEl = document.createElement('div');
+                                const gradientClasses = colorMap[ingredient.type] || 'from-gray-400 to-gray-600';
+                                
+                                ingredientEl.className = `ingredient rounded-full bg-gradient-to-br p-1.5 ${gradientClasses}`;
+                                
+                                const innerEl = document.createElement('div');
+                                innerEl.className = 'w-full h-full bg-white rounded-full flex items-center justify-center';
+                                innerEl.textContent = ingredient.type;
+                                ingredientEl.appendChild(innerEl);
+
+                                let transformValue = `translateX(-50%) translateZ(${ingredientIndex * 8}px)`;
+                                
+                                if (gameState.selectedStack && gameState.selectedStack.fromPlate === index) {
+                                    const selectedIDs = gameState.selectedStack.stack.map(s => s.id);
+                                    if (selectedIDs.includes(ingredient.id)) {
+                                        transformValue += ' translateZ(25px) scale(1.05)'; 
+                                        if(ingredientIndex === plate.length - 1) {
+                                            const counter = document.createElement('div');
+                                            counter.className = 'stack-counter';
+                                            counter.textContent = gameState.selectedStack.stack.length;
+                                            ingredientEl.appendChild(counter);
+                                        }
+                                    }
+                                }
+
+                                ingredientEl.style.transform = transformValue;
+                                ingredientEl.style.setProperty('--transform-stack', transformValue);
+
+                                if (ingredient.isNew) {
+                                    ingredientEl.style.setProperty('--transform-stack-initial', `translateX(-50%) translateZ(${(ingredientIndex -1) * 8}px)`);
+                                    ingredientEl.classList.add('deal-in-animation');
+                                    delete ingredient.isNew;
+                                }
+
+                                ingredientEl.dataset.id = ingredient.id;
+                                plateArea.appendChild(ingredientEl);
+                            });
+                        }
+                    } else {
+                        wrapper.classList.add('hidden');
+                    }
+                });
+                
+                if (isStackDeliverable(gameState.selectedStack)) {
+                    orderInfoEl.classList.add('targetable');
+                } else {
+                    orderInfoEl.classList.remove('targetable');
+                }
+                
+                const allPlatesFull = gameState.plates.every(p => p.length >= MAX_INGREDIENTS_PER_PLATE);
+                dealButton.disabled = allPlatesFull || isOrderComplete();
+                deckCountEl.textContent = gameState.deck.length;
+            }
+
+            function handlePlateClick(plateIndex) {
+                if (gameState.isAnimating) return;
+                const clickedPlate = gameState.plates[plateIndex];
+
+                if (!gameState.selectedStack) {
+                    if (clickedPlate.length === 0) return;
+                    
+                    const topType = clickedPlate[clickedPlate.length - 1].type;
+                    const movableStack = [];
+                    for (let i = clickedPlate.length - 1; i >= 0; i--) {
+                        if (clickedPlate[i].type === topType) movableStack.unshift(clickedPlate[i]);
+                        else break;
+                    }
+                    gameState.selectedStack = { fromPlate: plateIndex, stack: movableStack };
+
+                } else {
+                    const { fromPlate, stack } = gameState.selectedStack;
+                    
+                    if (fromPlate === plateIndex) {
+                        gameState.selectedStack = null;
+                    } else {
+                        const destinationPlate = gameState.plates[plateIndex];
+                        if (destinationPlate.length + stack.length > MAX_INGREDIENTS_PER_PLATE) {
+                            showMessage("¡Plato Lleno!", "No puedes mover la pila aquí.");
+                            return;
+                        }
+                        const canMove = destinationPlate.length === 0 || destinationPlate[destinationPlate.length - 1].type === stack[0].type;
+                        if (canMove) moveStack(plateIndex);
+                        else gameState.selectedStack = null;
+                    }
+                }
+                renderGame();
+            }
+            
+            function createAnimatedClone(ingredientData) {
+                const clone = document.createElement('div');
+                const gradientClasses = colorMap[ingredientData.type] || 'from-gray-400 to-gray-600';
+                clone.className = `ingredient rounded-full bg-gradient-to-br p-0.5 ${gradientClasses}`;
+                
+                const innerClone = document.createElement('div');
+                innerClone.className = 'w-full h-full bg-white rounded-full flex items-center justify-center';
+                innerClone.textContent = ingredientData.type;
+                clone.appendChild(innerClone);
+                
+                return clone;
+            }
+
+            function handleRecipeClick() {
+                if (gameState.isAnimating || !isStackDeliverable(gameState.selectedStack)) {
+                    if (gameState.selectedStack) {
+                        orderInfoEl.classList.add('shake');
+                        setTimeout(() => orderInfoEl.classList.remove('shake'), 500);
+                        gameState.selectedStack = null;
+                        renderGame();
+                    }
+                    return;
+                }
+                
+                const { fromPlate, stack } = gameState.selectedStack;
+                const type = stack[0].type;
+                
+                gameState.isAnimating = true;
+                gameState.currentRecipe.needed[type] -= stack.length;
+
+                gameState.selectedStack = null;
+                
+                const plate = gameState.plates[fromPlate];
+                const deliveredIngredients = plate.splice(-stack.length);
+                
+                renderGame(); 
+                
+                const orderRect = orderInfoEl.getBoundingClientRect();
+                const plateWrapper = document.getElementById(`plate-${fromPlate}`).parentElement;
+                const startRect = plateWrapper.getBoundingClientRect();
+
+                deliveredIngredients.reverse().forEach((ingredientData, index) => {
+                    const clone = createAnimatedClone(ingredientData);
+                    clone.style.position = 'fixed';
+                    clone.style.zIndex = 1000 - index;
+                    clone.style.transition = 'all 0.6s cubic-bezier(0.5, -0.5, 0.75, 1.2)';
+                    clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
+                    clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
+
+                    animationLayer.appendChild(clone);
+
+                    setTimeout(() => {
+                        clone.style.left = `${orderRect.left + (orderRect.width / 2) - 40}px`;
+                        clone.style.top = `${orderRect.top + (orderRect.height / 2) - 40}px`;
+                        clone.style.transform = 'scale(0.5)';
+                        clone.style.opacity = '0';
+                    }, index * 80);
+
+                    setTimeout(() => {
+                        animationLayer.removeChild(clone);
+                        if (index === deliveredIngredients.length - 1) {
+                             gameState.isAnimating = false;
+                            if (isOrderComplete()) {
+                                handleOrderCompletion();
+                            } else {
+                                renderGame();
+                            }
+                        }
+                    }, index * 80 + 600); 
+                });
+            }
+
+            function moveStack(toPlateIndex) {
+                 if (gameState.isAnimating) return;
+                 
+                 const { fromPlate, stack } = gameState.selectedStack;
+                 gameState.isAnimating = true;
+                 gameState.selectedStack = null;
+
+                 gameState.plates[fromPlate].splice(-stack.length);
+                 renderGame();
+                 
+                 const startWrapper = document.getElementById(`plate-${fromPlate}`).parentElement;
+                 const endWrapper = document.getElementById(`plate-${toPlateIndex}`).parentElement;
+                 const startRect = startWrapper.getBoundingClientRect();
+                 const endRect = endWrapper.getBoundingClientRect();
+
+                 stack.slice().reverse().forEach((ingredientData, index) => {
+                    const clone = createAnimatedClone(ingredientData);
+                    clone.style.position = 'fixed';
+                    clone.style.zIndex = 1000 - index;
+                    clone.style.transition = 'all 0.6s cubic-bezier(0.5, -0.5, 0.75, 1.2)';
+                    clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
+                    clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
+                    clone.style.transform = `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 8 }px) scale(1.1)`;
+
+                    animationLayer.appendChild(clone);
+
+                    setTimeout(() => {
+                        clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
+                        clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
+                        clone.style.transform = `translateZ(${ (gameState.plates[toPlateIndex].length + stack.length - index) * 8 }px) scale(1)`;
+                    }, index * 60);
+
+                    setTimeout(() => {
+                        animationLayer.removeChild(clone);
+                        if (index === stack.length - 1) {
+                            gameState.plates[toPlateIndex].push(...stack);
+                            gameState.isAnimating = false;
+                            renderGame();
+                        }
+                    }, index * 60 + 600);
+                 });
+            }
+
+            function animateDeal(deals) {
+                gameState.isAnimating = true;
+
+                const dealButtonRect = dealButton.getBoundingClientRect();
+
+                deals.forEach((deal, dealIndex) => {
+                    const { toPlateIndex, ingredient } = deal;
+                    const endWrapper = document.getElementById(`plate-${toPlateIndex}`).parentElement;
+                    const endRect = endWrapper.getBoundingClientRect();
+
+                    const clone = createAnimatedClone(ingredient);
+                    clone.style.position = 'fixed';
+                    clone.style.zIndex = 1000 - dealIndex;
+                    clone.style.transition = 'all 0.6s cubic-bezier(0.3, 0, 0.4, 1), opacity 0.3s ease-in-out';
+                    clone.style.left = `${dealButtonRect.left + (dealButtonRect.width / 2) - 40}px`;
+                    clone.style.top = `${dealButtonRect.top + (dealButtonRect.height / 2) - 40}px`;
+                    clone.style.transform = 'scale(0.8)';
+                    clone.style.opacity = '0'; 
+
+                    animationLayer.appendChild(clone);
+
+                    setTimeout(() => {
+                        clone.style.opacity = '1'; 
+                        clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
+                        clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
+                        clone.style.transform = `scale(1) translateZ(${gameState.plates[toPlateIndex].length * 8}px)`;
+                    }, 50 + dealIndex * 100); 
+
+                    setTimeout(() => {
+                        animationLayer.removeChild(clone);
+                        if (dealIndex === deals.length - 1) {
+                            deals.forEach(d => {
+                                d.ingredient.isNew = true; 
+                                gameState.plates[d.toPlateIndex].push(d.ingredient);
+                            });
+                            gameState.isAnimating = false;
+                            renderGame();
+                        }
+                    }, 50 + dealIndex * 100 + 600);
+                });
+            }
+            
+            function isStackDeliverable(selectedStack) {
+                if (!selectedStack) return false;
+                const recipe = gameState.currentRecipe;
+                if (!recipe) return false;
+
+                const { stack } = selectedStack;
+                const type = stack[0].type;
+                
+                return recipe.needed[type] && recipe.needed[type] > 0;
+            }
+
+            function isOrderComplete() {
+                if (!gameState.currentRecipe) return false;
+                return Object.values(gameState.currentRecipe.needed).every(count => count <= 0);
+            }
+            
+            function handleOrderCompletion() {
+                gameState.ordersCompletedInLevel++;
+                const currentLevel = levels[gameState.currentLevelIndex];
+
+                if(gameState.ordersCompletedInLevel >= currentLevel.ordersToComplete) {
+                     handleLevelComplete();
+                } else {
+                    // Prepara el siguiente pedido pero mantiene los platos
+                     serveNewOrder();
+                }
+            }
+            
+            function handleLevelComplete() {
+                if (gameState.currentLevelIndex >= gameState.highestLevelUnlocked) {
+                    gameState.highestLevelUnlocked = gameState.currentLevelIndex + 1;
+                    saveProgress();
+                }
+                
+                if (gameState.currentLevelIndex >= levels.length -1) {
+                    showMessage("¡Felicidades!", "¡Has completado todos los niveles y dominado Chef Capy!", showLevelMap);
+                } else {
+                     showMessage("¡Nivel Superado!", `¡Has desbloqueado el Nivel ${gameState.currentLevelIndex + 2}!`, () => {
+                        gameState.currentLevelIndex++;
+                        gameState.ordersCompletedInLevel = 0;
+                        serveNewOrder();
+                     });
+                }
+            }
+            
+            // --- INICIALIZACIÓN ---
+            loadProgress();
+            
+            startGameButton.addEventListener('click', showLevelMap);
+            resetProgressButton.addEventListener('click', resetProgress);
+            backToHomeButton.addEventListener('click', () => showScreen(homeScreenEl));
+            backToMapButton.addEventListener('click', showLevelMap);
+
+            dealButton.addEventListener('click', dealRow);
+            orderInfoEl.addEventListener('click', handleRecipeClick);
+            
+        });
+    </script>
+</body>
+</html>
