@@ -37,6 +37,10 @@
         }
 
         /* --- Estilos del Mapa de Niveles --- */
+        #level-map-screen {
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF); /* Sky gradient */
+            position: relative;
+        }
         #level-map-container {
             position: relative;
             padding: 2rem 0;
@@ -48,9 +52,14 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 8px;
-            background-color: #d8c7b9;
-            border-radius: 4px;
+            width: 10px;
+            background-image: repeating-linear-gradient(
+              to bottom,
+              #D2B48C,
+              #D2B48C 15px,
+              transparent 15px,
+              transparent 30px
+            ); /* Dashed path effect */
             z-index: 1;
         }
         .level-node {
@@ -221,12 +230,23 @@
     </div>
     
     <!-- Pantalla de Mapa de Niveles -->
-    <div id="level-map-screen" class="w-full max-w-md mx-auto hidden h-screen flex flex-col justify-center">
-        <h2 class="text-4xl font-bold text-center text-orange-900 mb-8">Mapa de Niveles</h2>
-        <div id="level-map-container" class="flex flex-col items-center space-y-8">
-            <!-- Los niveles se generarán aquí -->
+    <div id="level-map-screen" class="w-full h-screen mx-auto hidden flex flex-col relative overflow-hidden">
+         <!-- Decoraciones -->
+        <div class="absolute top-1/4 left-10 w-24 h-12 bg-white rounded-full opacity-50 z-0 blur-sm"></div>
+        <div class="absolute top-1/2 right-8 w-32 h-16 bg-white rounded-full opacity-50 z-0 blur-md"></div>
+        <div class="absolute bottom-1/4 left-20 w-20 h-10 bg-white rounded-full opacity-50 z-0 blur"></div>
+        
+        <div class="flex-shrink-0 text-center z-10 pt-8">
+            <h2 class="text-5xl font-bold text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Mapa de Niveles</h2>
         </div>
-         <div class="text-center mt-8">
+        
+        <div class="flex-grow overflow-y-auto py-8 z-10">
+             <div id="level-map-container" class="flex flex-col items-center space-y-8">
+                <!-- Los niveles se generarán aquí -->
+             </div>
+        </div>
+        
+         <div class="text-center flex-shrink-0 z-10 pb-8">
             <button id="back-to-home-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
                 Volver al Inicio
             </button>
@@ -298,8 +318,9 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             const MAX_INGREDIENTS_PER_PLATE = 20;
+            const TOTAL_PLATES = 11;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '�', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
                 '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
