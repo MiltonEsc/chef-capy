@@ -324,14 +324,14 @@
             const MAX_INGREDIENTS_PER_PLATE = 20;
             const TOTAL_LEVELS = 100;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '�', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
                 '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
                 '🍆': 'Berenjena', '🌶️': 'Chile'
             };
-
-            const gameState = {
+            
+            let gameState = {
                 highestLevelUnlocked: 0,
                 currentLevelIndex: 0,
                 ordersCompletedInLevel: 0,
@@ -432,26 +432,22 @@
             function loadProgress() {
                 const savedState = JSON.parse(localStorage.getItem('chefCapyGameState'));
                 if (savedState) {
-                    gameState.highestLevelUnlocked = savedState.highestLevelUnlocked || 0;
-                    gameState.stars = savedState.stars || 0;
-                    gameState.platesUnlocked = savedState.platesUnlocked || 3;
+                    Object.assign(gameState, savedState);
                 }
             }
             
             function saveProgress() {
-                const stateToSave = {
-                    highestLevelUnlocked: gameState.highestLevelUnlocked,
-                    stars: gameState.stars,
-                    platesUnlocked: gameState.platesUnlocked,
-                };
-                localStorage.setItem('chefCapyGameState', JSON.stringify(stateToSave));
+                localStorage.setItem('chefCapyGameState', JSON.stringify(gameState));
             }
             
             function resetProgress() {
                 localStorage.removeItem('chefCapyGameState');
-                gameState.highestLevelUnlocked = 0;
-                gameState.stars = 0;
-                gameState.platesUnlocked = 3;
+                // Reset to default initial state
+                Object.assign(gameState, {
+                    highestLevelUnlocked: 0, currentLevelIndex: 0, ordersCompletedInLevel: 0,
+                    currentRecipe: null, plates: [], deck: [], selectedStack: null,
+                    isAnimating: false, unlockedIngredients: [], stars: 0, platesUnlocked: 3,
+                });
                 showMessage("Progreso Reiniciado", "¡Tu aventura culinaria comienza de nuevo!");
                 renderLevelMap();
             }
@@ -504,33 +500,34 @@
                 const platesActive = Math.min(11, 3 + Math.floor(levelIndex / 2));
                 const unlocks = (levelIndex < allPossibleIngredients.length - 2) ? 1 : 0;
                 const deckSize = 80 + levelIndex * 15;
-                const ingredientCount = Math.min(Math.floor(2 + levelIndex / 3), allPossibleIngredients.length);
-
+                
                 return {
                     id: levelNumber,
                     ordersToComplete,
                     platesActive,
                     deckSize,
                     unlocks,
-                    ingredientCount
                 };
             }
 
             function startGame(levelIndex) {
                 showScreen(gameUiEl);
+                
+                if(gameState.currentLevelIndex === levelIndex && gameState.currentRecipe) {
+                    // Continuing the same level
+                    renderGame();
+                    return;
+                }
+                
+                // Starting a new or different level
                 gameState.currentLevelIndex = levelIndex;
                 gameState.ordersCompletedInLevel = 0;
-                
                 gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []);
 
-                // Determinar ingredientes desbloqueados para el nivel
-                let unlockedCount = 2; // Nivel 1 empieza con 2
-                let totalUnlocks = 0;
+                let unlockedCount = 2;
                 for(let i = 0; i < levelIndex; i++) {
-                    totalUnlocks += generateLevelData(i).unlocks;
+                    unlockedCount += generateLevelData(i).unlocks || 0;
                 }
-                unlockedCount += totalUnlocks;
-
                 gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length));
 
                 serveNewOrder();
@@ -576,7 +573,7 @@
                 return `${noun} ${adj}`;
             }
 
-            function generateRecipeForLevel(level, unlockedIngredients) {
+            function generateRecipeForLevel(unlockedIngredients) {
                 const recipeIngredients = {};
                 const shuffledPool = [...unlockedIngredients];
                 shuffleArray(shuffledPool);
@@ -597,11 +594,12 @@
             function serveNewOrder() {
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
                 
-                gameState.currentRecipe = generateRecipeForLevel(currentLevel, gameState.unlockedIngredients);
+                gameState.currentRecipe = generateRecipeForLevel(gameState.unlockedIngredients);
                 gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
                 gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
                 gameState.selectedStack = null;
                 
+                saveProgress();
                 renderGame();
             }
 
@@ -826,9 +824,7 @@
                 gameState.isAnimating = true;
                 gameState.currentRecipe.needed[type] -= stack.length;
                 gameState.stars += 10;
-                saveProgress();
-
-
+                
                 gameState.selectedStack = null;
                 
                 const plate = gameState.plates[fromPlate];
@@ -864,6 +860,7 @@
                             if (isOrderComplete()) {
                                 handleOrderCompletion();
                             } else {
+                                saveProgress();
                                 renderGame();
                             }
                         }
@@ -907,6 +904,7 @@
                         animationLayer.removeChild(clone);
                         if (index === stack.length - 1) {
                             gameState.plates[toPlateIndex].push(...stack);
+                            saveProgress();
                             gameState.isAnimating = false;
                             renderGame();
                         }
@@ -949,6 +947,7 @@
                                 d.ingredient.isNew = true; 
                                 gameState.plates[d.toPlateIndex].push(d.ingredient);
                             });
+                            saveProgress();
                             gameState.isAnimating = false;
                             renderGame();
                         }
@@ -974,7 +973,7 @@
             
             function handleOrderCompletion() {
                 gameState.ordersCompletedInLevel++;
-                const currentLevel = levels[gameState.currentLevelIndex];
+                const currentLevel = generateLevelData(gameState.currentLevelIndex);
 
                 if(gameState.ordersCompletedInLevel >= currentLevel.ordersToComplete) {
                      handleLevelComplete();
@@ -985,7 +984,7 @@
 
             function checkAndHandleStuckState() {
                 showMessage("¡Fila Vacía!", "No hay más ingredientes en el mazo. ¡Se rellenará para que puedas continuar!");
-                const currentLevel = levels[gameState.currentLevelIndex];
+                const currentLevel = generateLevelData(gameState.currentLevelIndex);
                 const missingIngredientsRecipe = { ingredients: gameState.currentRecipe.needed };
                 gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, missingIngredientsRecipe);
                 renderGame();
@@ -994,11 +993,13 @@
             function handleLevelComplete() {
                 if (gameState.currentLevelIndex >= gameState.highestLevelUnlocked) {
                     gameState.highestLevelUnlocked = gameState.currentLevelIndex + 1;
-                    saveProgress();
                 }
 
+                gameState.currentRecipe = null; // Clear finished level
+                saveProgress();
+
                 const onConfirm = () => {
-                    if (gameState.currentLevelIndex >= levels.length - 1) {
+                    if (gameState.currentLevelIndex >= TOTAL_LEVELS - 1) {
                          handleGameWon();
                     } else {
                         gameState.currentLevelIndex++;
