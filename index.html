@@ -265,7 +265,7 @@
                  <span id="star-counter" class="font-bold text-yellow-500">⭐ 0</span>
             </div>
             <div id="order-info" class="mt-4 p-4 bg-white rounded-xl shadow-lg border-2 border-orange-200">
-                <h2 class="text-xl">Pedido Actual:</h2>
+                <h2 class="text-xl font-semibold">Pedido Actual:</h2>
                 <p id="recipe-name" class="text-2xl font-bold text-orange-600">-</p>
                 <div id="recipe-ingredients" class="flex justify-center flex-wrap gap-4 mt-2 text-lg font-medium"></div>
             </div>
@@ -322,7 +322,7 @@
 
             const MAX_INGREDIENTS_PER_PLATE = 20;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
+            const allPossibleIngredients = ['🍓', '�', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
                 '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
@@ -479,7 +479,7 @@
                     }
                     
                     const button = document.createElement('button');
-                    button.className = 'level-node-button flex-shrink-0';
+                    button.className = 'level-node-button flex-shrink-0 rounded-full';
                     button.disabled = !isUnlocked;
 
                     const dot = document.createElement('div');
