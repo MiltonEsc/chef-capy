@@ -75,7 +75,7 @@
              display: flex;
              justify-content: center;
              align-items: flex-end; 
-             height: 11.5rem;
+             height: 8rem; /* Altura reducida para mejorar precisión de click */
              position: relative;
         }
         .plate-area {
@@ -298,7 +298,6 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             const MAX_INGREDIENTS_PER_PLATE = 20;
-            const TOTAL_PLATES = 11;
             
             const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
@@ -308,16 +307,16 @@
             };
 
             const levels = [
-                { id: 1, ordersToComplete: 2, ingredientCount: 2, platesActive: 3, deckSize: 60, unlocks: 1 },
-                { id: 2, ordersToComplete: 2, ingredientCount: 3, platesActive: 4, deckSize: 80, unlocks: 1 },
-                { id: 3, ordersToComplete: 3, ingredientCount: 3, platesActive: 5, deckSize: 100, unlocks: 1 },
-                { id: 4, ordersToComplete: 3, ingredientCount: 4, platesActive: 6, deckSize: 120, unlocks: 1 },
-                { id: 5, ordersToComplete: 3, ingredientCount: 4, platesActive: 7, deckSize: 140, unlocks: 1 },
-                { id: 6, ordersToComplete: 4, ingredientCount: 5, platesActive: 8, deckSize: 160, unlocks: 1 },
-                { id: 7, ordersToComplete: 4, ingredientCount: 6, platesActive: 9, deckSize: 180, unlocks: 1 },
-                { id: 8, ordersToComplete: 4, ingredientCount: 7, platesActive: 10, deckSize: 200, unlocks: 0 },
-                { id: 9, ordersToComplete: 5, ingredientCount: 8, platesActive: 11, deckSize: 220, unlocks: 0 },
-                { id: 10, ordersToComplete: 5, ingredientCount: allPossibleIngredients.length, platesActive: 11, deckSize: 250, unlocks: 0 },
+                { id: 1, ordersToComplete: 2, platesActive: 3, deckSize: 60, unlocks: 1 },
+                { id: 2, ordersToComplete: 2, platesActive: 4, deckSize: 80, unlocks: 1 },
+                { id: 3, ordersToComplete: 3, platesActive: 5, deckSize: 100, unlocks: 1 },
+                { id: 4, ordersToComplete: 3, platesActive: 6, deckSize: 120, unlocks: 1 },
+                { id: 5, ordersToComplete: 3, platesActive: 7, deckSize: 140, unlocks: 1 },
+                { id: 6, ordersToComplete: 4, platesActive: 8, deckSize: 160, unlocks: 1 },
+                { id: 7, ordersToComplete: 4, platesActive: 9, deckSize: 180, unlocks: 1 },
+                { id: 8, ordersToComplete: 4, platesActive: 10, deckSize: 200, unlocks: 0 },
+                { id: 9, ordersToComplete: 5, platesActive: 11, deckSize: 220, unlocks: 0 },
+                { id: 10, ordersToComplete: 5, platesActive: 11, deckSize: 250, unlocks: 0 },
             ];
 
             const gameState = {
@@ -483,7 +482,7 @@
                 
                 const currentLevel = levels[levelIndex];
                                 
-                gameState.plates = Array.from({ length: currentLevel.platesActive }, () => []);
+                gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []);
 
                 // Determinar ingredientes desbloqueados para el nivel
                 let unlockedCount = 2; // Nivel 1 empieza con 2
@@ -602,27 +601,35 @@
                 const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
                 let priorityDeck = gameState.deck.filter(ing => neededTypes.includes(ing.type));
                 let regularDeck = gameState.deck.filter(ing => !neededTypes.includes(ing.type));
+                
+                availablePlates.forEach(plateIndex => {
+                    const countToServe = Math.floor(Math.random() * 3) + 1;
+                    let servedToThisPlate = 0;
 
-                const platesToDealCount = Math.min(availablePlates.length, 3 + Math.floor(Math.random() * 2));
+                    for (let i = 0; i < countToServe; i++) {
+                        if (gameState.plates[plateIndex].length + servedToThisPlate >= MAX_INGREDIENTS_PER_PLATE) {
+                            break; 
+                        }
 
-                for(let i = 0; i < platesToDealCount; i++) {
-                    const plateIndex = availablePlates[i];
-                    let ingredientToDeal = null;
+                        let ingredientToDeal = null;
+                        const pullFromPriority = Math.random() < 0.7; 
 
-                    const pullFromPriority = Math.random() < 0.7; // 70% chance to pull needed ingredient
+                        if (pullFromPriority && priorityDeck.length > 0) {
+                            ingredientToDeal = priorityDeck.pop();
+                        } else if (regularDeck.length > 0) {
+                            ingredientToDeal = regularDeck.pop();
+                        } else if (priorityDeck.length > 0) { 
+                            ingredientToDeal = priorityDeck.pop();
+                        } else {
+                            break; 
+                        }
 
-                    if (pullFromPriority && priorityDeck.length > 0) {
-                        ingredientToDeal = priorityDeck.pop();
-                    } else if (regularDeck.length > 0) {
-                        ingredientToDeal = regularDeck.pop();
-                    } else if (priorityDeck.length > 0) {
-                        ingredientToDeal = priorityDeck.pop();
+                        if (ingredientToDeal) {
+                            deals.push({ toPlateIndex: plateIndex, ingredient: ingredientToDeal });
+                            servedToThisPlate++;
+                        }
                     }
-
-                    if (ingredientToDeal) {
-                         deals.push({ toPlateIndex: plateIndex, ingredient: ingredientToDeal });
-                    }
-                }
+                });
                 
                 gameState.deck = [...priorityDeck, ...regularDeck];
                 shuffleArray(gameState.deck);
@@ -630,8 +637,6 @@
 
                 if (deals.length > 0) {
                     animateDeal(deals);
-                } else {
-                     dealRow(); // Retry if no deals were made but deck has items
                 }
             }
 
