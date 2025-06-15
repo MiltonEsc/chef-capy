@@ -88,8 +88,8 @@
              position: relative;
         }
         .plate-area {
-            width: calc(4.7rem + 8px); 
-            height: calc(4.7rem + 8px);
+            width: calc(4.2rem + 8px); 
+            height: calc(4.2rem + 8px);
             background: radial-gradient(circle, #ffffff 70%, #e5e7eb 100%);
             border-radius: 50%;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -128,12 +128,12 @@
             left: 50%;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
             pointer-events: none;
-            font-size: 2.8rem; 
+            font-size: 2.5rem; 
             line-height: 1;
             user-select: none;
             text-align: center;
-            width: 4.7rem;
-            height: 4.7rem;
+            width: 4.2rem;
+            height: 4.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -190,8 +190,8 @@
         }
         .stack-counter {
             position: absolute;
-            top: 55px;
-            right: 2px;
+            top: 48px;
+            right: 0px;
             background-color: #ef4444; /* red-500 */
             color: white;
             border-radius: 50%;
@@ -318,9 +318,8 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             const MAX_INGREDIENTS_PER_PLATE = 20;
-            const TOTAL_PLATES = 11;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '�', '🥑', '🍆', '🌶️'];
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
                 '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
@@ -355,7 +354,7 @@
             };
             
             const colorMap = {
-                '🍓': 'from-pink-500 to-red-600',
+                '�': 'from-pink-500 to-red-600',
                 '🍌': 'from-yellow-200 to-yellow-400',
                 '🍇': 'from-purple-500 to-indigo-600',
                 '🥕': 'from-orange-400 to-red-500',
