@@ -265,7 +265,7 @@
                  <span id="star-counter" class="font-bold text-yellow-500">⭐ 0</span>
             </div>
             <div id="order-info" class="mt-4 p-4 bg-white rounded-xl shadow-lg border-2 border-orange-200">
-                <h2 class="text-xl font-semibold">Pedido Actual:</h2>
+                <h2 class="text-xl">Pedido Actual:</h2>
                 <p id="recipe-name" class="text-2xl font-bold text-orange-600">-</p>
                 <div id="recipe-ingredients" class="flex justify-center flex-wrap gap-4 mt-2 text-lg font-medium"></div>
             </div>
@@ -299,7 +299,7 @@
                 Ver Mapa
             </button>
             <button id="deal-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300" disabled>
-                Servir Fila (<span id="deck-count">0</span>)
+                Servir (<span id="deck-count">0</span>)
             </button>
         </footer>
 
@@ -309,7 +309,10 @@
         <div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm mx-auto">
             <h3 id="message-title" class="text-3xl font-bold text-green-500 mb-4"></h3>
             <p id="message-text" class="text-gray-600 mb-6"></p>
-            <button id="message-close-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full">¡Genial!</button>
+            <div id="message-buttons" class="flex justify-center gap-4">
+                 <button id="message-confirm-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full">¡Genial!</button>
+                 <button id="message-cancel-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full hidden">Ahora no</button>
+            </div>
         </div>
     </div>
 
@@ -354,7 +357,7 @@
             };
             
             const colorMap = {
-                '�': 'from-pink-500 to-red-600',
+                '🍓': 'from-pink-500 to-red-600',
                 '🍌': 'from-yellow-200 to-yellow-400',
                 '🍇': 'from-purple-500 to-indigo-600',
                 '🥕': 'from-orange-400 to-red-500',
@@ -390,22 +393,33 @@
             const messageBox = document.getElementById('message-box');
             const messageTitle = document.getElementById('message-title');
             const messageText = document.getElementById('message-text');
+            const messageButtonsContainer = document.getElementById('message-buttons');
 
-            function showMessage(title, text, onConfirm) {
-                let currentMessageCloseButton = document.getElementById('message-close-button');
+            function showMessage(title, text, buttonsConfig) {
                 messageTitle.textContent = title;
-                messageText.innerHTML = text; // Usar innerHTML para poder mostrar el icono
-                messageBox.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-                
-                const newButton = currentMessageCloseButton.cloneNode(true);
-                if (currentMessageCloseButton.parentNode) {
-                    currentMessageCloseButton.parentNode.replaceChild(newButton, currentMessageCloseButton);
+                messageText.innerHTML = text;
+                messageButtonsContainer.innerHTML = ''; // Clear old buttons
+
+                if (!buttonsConfig || buttonsConfig.length === 0) {
+                     const okButton = document.createElement('button');
+                     okButton.textContent = '¡Genial!';
+                     okButton.className = 'bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full';
+                     okButton.onclick = closeMessage;
+                     messageButtonsContainer.appendChild(okButton);
+                } else {
+                     buttonsConfig.forEach(config => {
+                        const button = document.createElement('button');
+                        button.textContent = config.text;
+                        button.className = `${config.primary ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 hover:bg-gray-500'} text-white font-bold py-2 px-6 rounded-full`;
+                        button.onclick = () => {
+                            closeMessage();
+                            if (config.action) config.action();
+                        };
+                        messageButtonsContainer.appendChild(button);
+                    });
                 }
                 
-                newButton.addEventListener('click', () => {
-                    closeMessage();
-                    if(onConfirm) onConfirm();
-                }, { once: true });
+                messageBox.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
             }
 
             function closeMessage() {
@@ -500,8 +514,6 @@
                 gameState.currentLevelIndex = levelIndex;
                 gameState.ordersCompletedInLevel = 0;
                 
-                const currentLevel = levels[levelIndex];
-                                
                 gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []);
 
                 // Determinar ingredientes desbloqueados para el nivel
@@ -537,30 +549,12 @@
                 return newDeck;
             }
             
-            function generateRandomRecipeName(recipeIngredients) {
-                const recipeNouns = ["Ensalada", "Sopa", "Tarta", "Brocheta", "Guiso", "Pizza", "Pastel", "Salteado", "Estofado"];
-
-                if (!recipeIngredients || Object.keys(recipeIngredients).length === 0) {
-                    return "Plato Misterioso";
-                }
-
-                let mainIngredient = '';
-                let maxCount = 0;
-                for (const [ingredient, count] of Object.entries(recipeIngredients)) {
-                    if (count > maxCount) {
-                        maxCount = count;
-                        mainIngredient = ingredient;
-                    }
-                }
-
-                const noun = recipeNouns[Math.floor(Math.random() * recipeNouns.length)];
-                const adjective = ingredientNameMap[mainIngredient] || "Especial";
-                
-                if (adjective === 'Picante') {
-                    return `${noun} ${adjective}`;
-                }
-                
-                return `${noun} ${adjective}`;
+            function generateRandomRecipeName() {
+                const adjectives = ["Secreto", "Mágico", "Dorado", "Ancestral", "Perdido", "Brillante", "del Ocaso", "Lunar"];
+                const nouns = ["Elixir", "Guiso", "Manjar", "Festín", "Caldero", "Néctar", "Bocadillo", "Breveje"];
+                const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+                const noun = nouns[Math.floor(Math.random() * nouns.length)];
+                return `${noun} ${adj}`;
             }
 
             function generateRecipeForLevel(level, unlockedIngredients) {
@@ -576,7 +570,7 @@
                 });
                  
                 return {
-                    name: generateRandomRecipeName(recipeIngredients),
+                    name: generateRandomRecipeName(),
                     ingredients: recipeIngredients
                 };
             }
@@ -584,9 +578,15 @@
             function serveNewOrder() {
                 const currentLevel = levels[gameState.currentLevelIndex];
                 
+                let deckPool = [...gameState.unlockedIngredients];
+                const nextUnlock = allPossibleIngredients[gameState.unlockedIngredients.length];
+                if (nextUnlock && !deckPool.includes(nextUnlock)) {
+                    deckPool.push(nextUnlock);
+                }
+
                 gameState.currentRecipe = generateRecipeForLevel(currentLevel, gameState.unlockedIngredients);
                 gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
-                gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
+                gameState.deck = createDeck(currentLevel, deckPool, gameState.currentRecipe);
                 gameState.selectedStack = null;
                 
                 renderGame();
@@ -632,7 +632,7 @@
                         }
 
                         let ingredientToDeal = null;
-                        const pullFromPriority = Math.random() < 0.7; 
+                        const pullFromPriority = Math.random() < 0.5; 
 
                         if (pullFromPriority && priorityDeck.length > 0) {
                             ingredientToDeal = priorityDeck.pop();
@@ -666,7 +666,7 @@
 
                 const currentLevel = levels[gameState.currentLevelIndex];
                 levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
-                orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel}/${currentLevel.ordersToComplete}`;
+                orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${currentLevel.ordersToComplete}`;
                 starCounterEl.innerHTML = `⭐ ${gameState.stars}`;
                 recipeNameEl.textContent = recipe.name;
                 
@@ -994,30 +994,35 @@
                     }
                 };
                 
-                showMessage("¡Nivel Superado!", `¡Has desbloqueado el Nivel ${gameState.currentLevelIndex + 2}!`, onConfirm);
+                showMessage("¡Nivel Superado!", `¡Has desbloqueado el Nivel ${gameState.currentLevelIndex + 2}!`, [{ text: "¡Siguiente!", action: onConfirm, primary: true }]);
 
             }
             
             function handleGameWon() {
-                showMessage("¡Felicidades!", "¡Has completado todos los niveles y dominado Chef Capy!", () => {
-                    showScreen(homeScreenEl);
-                });
+                showMessage("¡Felicidades!", "¡Has completado todos los niveles y dominado Chef Capy!", [{ text: "Jugar de Nuevo", action: () => { showScreen(homeScreenEl); }, primary: true }]);
             }
             
             function handleUnlockPlateClick() {
                 if (gameState.platesUnlocked >= 11) return;
                 
-                const cost = 50 + (gameState.platesUnlocked - 3) * 25;
+                const cost = 100 + (gameState.platesUnlocked - 3) * 50;
                 if (gameState.stars >= cost) {
-                    showMessage("Desbloquear Plato", `¿Quieres gastar ${cost} ⭐ para desbloquear este plato?`, () => {
-                        gameState.stars -= cost;
-                        gameState.platesUnlocked++;
-                        gameState.plates.push([]);
-                        saveProgress();
-                        renderGame();
-                    });
+                    showMessage(
+                        "Desbloquear Plato", 
+                        `¿Quieres gastar ${cost} ⭐ para desbloquear este plato?`,
+                        [
+                            { text: "Ahora no", action: closeMessage, primary: false },
+                            { text: "Desbloquear", action: () => {
+                                gameState.stars -= cost;
+                                gameState.platesUnlocked++;
+                                gameState.plates.push([]);
+                                saveProgress();
+                                renderGame();
+                            }, primary: true }
+                        ]
+                    );
                 } else {
-                    showMessage("¡Estrellas Insuficientes!", `Necesitas ${cost} ⭐ para desbloquear este plato.`);
+                    showMessage("¡Estrellas Insuficientes!", `Necesitas ${cost} ⭐ para desbloquear este plato.`, [{ text: 'OK', action: closeMessage, primary: true }]);
                 }
             }
             
