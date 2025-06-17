@@ -803,7 +803,7 @@
                         if (gameState.plates[plateIndex].length + servedToThisPlate >= DEAL_LIMIT) break; 
 
                         let ingredientToDeal = null;
-                        const pullFromPriority = Math.random() < 0.3; 
+                        const pullFromPriority = Math.random() < 0.2; 
 
                         if (pullFromPriority && priorityDeck.length > 0) {
                             ingredientToDeal = priorityDeck.pop();
