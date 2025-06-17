@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Fuente actualizada -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         body {
             /* Fuente base actualizada a Inter */
@@ -146,11 +147,13 @@
         }
         
         #order-info {
+            background-color: #fffbeb; /* yellow-50 */
+            border: 4px solid #f59e0b; /* amber-500 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            transition: box-shadow 0.3s ease-in-out;
         }
         #order-info.targetable {
-             box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.6);
+             animation: pulsate-glow 2s infinite ease-in-out;
         }
         @keyframes shake {
             10%, 90% { transform: translateX(-1px); }
@@ -174,6 +177,16 @@
         }
         .deal-in-animation {
              animation: deal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes pulsate-glow {
+            0%, 100% { box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.0), inset 0 0 15px 5px rgba(34, 197, 94, 0.0); }
+            50% { box-shadow: 0 0 25px 10px rgba(34, 197, 94, 0.6), inset 0 0 15px 5px rgba(34, 197, 94, 0.6); }
+        }
+        
+        .plate-area.potential-target {
+            animation: pulsate-glow 2s infinite ease-in-out;
+            box-shadow: none;
         }
 
         .recipe-ingredient.done {
@@ -210,6 +223,9 @@
             /* Revierte la rotación del plato para que el contador quede de frente */
             transform: rotateZ(45deg) rotateX(0deg);
         }
+        #timer-bar {
+            transition: width 1s linear;
+        }
     </style>
 </head>
 <body class="bg-orange-50 text-gray-800">
@@ -238,7 +254,7 @@
         <div class="absolute bottom-1/4 left-20 w-20 h-10 bg-white rounded-full opacity-50 z-0 blur"></div>
         
         <div class="flex-shrink-0 text-center z-10 pt-8">
-            <h2 class="text-5xl font-bold text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Mapa de Niveles</h2>
+            <h2 class="text-5xl font-bold text-amber-900" style="text-shadow: 2px 2px 4px rgba(255,255,255,0.5);">Mapa de Niveles</h2>
         </div>
         
         <div class="flex-grow overflow-y-auto py-8 z-10">
@@ -248,7 +264,7 @@
         </div>
         
          <div class="text-center flex-shrink-0 z-10 pb-8">
-            <button id="back-to-home-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+            <button id="back-to-home-button" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
                 Volver al Inicio
             </button>
         </div>
@@ -260,15 +276,19 @@
         
         <header class="text-center p-4 flex-shrink-0">
             <h1 class="text-4xl md:text-5xl font-bold text-orange-900">Chef Capy</h1>
-            <div class="flex justify-center items-center gap-6 mt-2 text-lg text-gray-600">
-                 <span id="level-display">Nivel: 1</span>
-                 <span id="order-progress">Pedidos: 0/0</span>
-                 <span id="star-counter" class="font-bold text-yellow-500">⭐ 0</span>
+            <div class="flex justify-center items-center flex-wrap gap-4 mt-4">
+                 <div id="level-display" class="bg-amber-700 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.34 2.234A2.25 2.25 0 009.25 1.006a2.25 2.25 0 00-2.09 1.228L5.342 5.89A2.25 2.25 0 007.23 9.07l2.256.376a.75.75 0 01.628.628l.376 2.256a2.25 2.25 0 003.182 1.888l3.662-1.818a2.25 2.25 0 001.228-2.09A2.25 2.25 0 0014.11 5.342L11.34 2.234zM4.5 9.25a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5a.75.75 0 01.75-.75zM15.5 9.25a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5a.75.75 0 01.75-.75z" clip-rule="evenodd" /></svg><span>Nivel: 1</span></div>
+                 <div id="order-progress" class="bg-gray-500 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-1.121c.46-.112.933-.29 1.43-.502a3.75 3.75 0 012.14 0c.934.39 1.87.596 2.93.596s2-.206 2.93-.595a3.75 3.75 0 012.14 0c.497.212.97.39 1.43.502v1.12a.75.75 0 001.5 0V2.75a.75.75 0 00-1.5 0v1.121a4.237 4.237 0 00-1.43-.502 2.25 2.25 0 00-1.284 0 4.148 4.148 0 00-2.93.596 4.148 4.148 0 00-2.93-.596 2.25 2.25 0 00-1.284 0 4.237 4.237 0 00-1.43.502V2.75z" /></svg><span>Pedidos: 0/0</span></div>
+                 <div id="star-counter" class="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.215-.662 1.536 0l1.83 3.775 4.168.606c.73.106 1.022.998.494 1.51l-3.015 2.938.712 4.152c.124.727-.638 1.282-1.29.95l-3.727-1.96-3.727 1.96c-.652.332-1.414-.223-1.29-.95l.712-4.152-3.015-2.938c-.528-.512-.236-1.404.494-1.51l4.168-.606 1.83-3.775z" clip-rule="evenodd" /></svg><span>0</span></div>
             </div>
-            <div id="order-info" class="mt-4 p-4 bg-white rounded-xl shadow-lg border-2 border-orange-200">
-                <h2 class="text-xl font-semibold">Pedido Actual:</h2>
-                <p id="recipe-name" class="text-2xl font-bold text-orange-600">-</p>
+            <div id="order-info" class="mt-4 p-4 rounded-xl relative">
+                 <div id="vip-badge" class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full transform rotate-12 hidden">¡VIP!</div>
+                <h2 class="text-xl font-semibold text-amber-800">Pedido Actual:</h2>
+                <p id="recipe-name" class="text-2xl font-bold mt-1">-</p>
                 <div id="recipe-ingredients" class="flex justify-center flex-wrap gap-4 mt-2 text-lg font-medium"></div>
+                 <div id="timer-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-4 hidden">
+                    <div id="timer-bar" class="bg-red-500 h-2.5 rounded-full"></div>
+                </div>
             </div>
         </header>
 
@@ -321,10 +341,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const MAX_INGREDIENTS_PER_PLATE = 20;
+            const MAX_INGREDIENTS_PER_PLATE = 30;
+            const DEAL_LIMIT = 15;
             const TOTAL_LEVELS = 100;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '�', '🥑', '🍆', '🌶️'];
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
             const ingredientNameMap = {
                 '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
@@ -383,6 +404,11 @@
             const messageTitle = document.getElementById('message-title');
             const messageText = document.getElementById('message-text');
             const messageButtonsContainer = document.getElementById('message-buttons');
+            const timerContainer = document.getElementById('timer-container');
+            const timerBar = document.getElementById('timer-bar');
+            const vipBadge = document.getElementById('vip-badge');
+
+            let timerInterval = null;
 
             function showMessage(title, text, buttonsConfig) {
                 messageTitle.textContent = title;
@@ -416,6 +442,7 @@
             }
             
             function showScreen(screen) {
+                if (timerInterval) clearInterval(timerInterval);
                 homeScreenEl.classList.add('hidden');
                 gameUiEl.classList.add('hidden');
                 levelMapScreenEl.classList.add('hidden');
@@ -472,8 +499,8 @@
                     
                     if (isUnlocked) {
                         button.onclick = () => startGame(i);
-                        dot.className = 'level-dot w-16 h-16 rounded-full bg-yellow-400 border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-yellow-900';
-                        text.className = 'level-text font-semibold px-4 text-gray-800';
+                        dot.className = 'level-dot w-16 h-16 rounded-full bg-red-500 border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-white';
+                        text.className = 'level-text font-semibold px-4 text-amber-900';
                     } else {
                         dot.className = 'level-dot w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-200 shadow-inner flex items-center justify-center text-2xl font-bold text-gray-500';
                         text.className = 'level-text font-semibold px-4 text-gray-400';
@@ -496,17 +523,19 @@
             
              function generateLevelData(levelIndex) {
                 const levelNumber = levelIndex + 1;
-                const ordersToComplete = Math.min(10, 2 + Math.floor(levelIndex / 4));
+                const ordersToComplete = Math.min(10, 2 + Math.floor(levelIndex / 3));
                 const platesActive = Math.min(11, 3 + Math.floor(levelIndex / 2));
                 const unlocks = (levelIndex < allPossibleIngredients.length - 2) ? 1 : 0;
                 const deckSize = 80 + levelIndex * 15;
-                
+                const ingredientCount = Math.min(Math.floor(2 + levelIndex / 3), allPossibleIngredients.length);
+
                 return {
                     id: levelNumber,
                     ordersToComplete,
                     platesActive,
                     deckSize,
                     unlocks,
+                    ingredientCount,
                 };
             }
 
@@ -573,7 +602,7 @@
                 return `${noun} ${adj}`;
             }
 
-            function generateRecipeForLevel(unlockedIngredients) {
+            function generateRecipeForLevel(level, unlockedIngredients) {
                 const recipeIngredients = {};
                 const shuffledPool = [...unlockedIngredients];
                 shuffleArray(shuffledPool);
@@ -590,11 +619,42 @@
                     ingredients: recipeIngredients
                 };
             }
+            
+             function startTimer() {
+                if (timerInterval) clearInterval(timerInterval);
+                
+                const recipe = gameState.currentRecipe;
+                if (!recipe || !recipe.isVIP) return;
+
+                timerInterval = setInterval(() => {
+                    recipe.timeLeft--;
+                    const percentage = (recipe.timeLeft / recipe.timerDuration) * 100;
+                    timerBar.style.width = `${percentage}%`;
+
+                    if (recipe.timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        showMessage("¡Tiempo Agotado!", "El cliente VIP se ha ido. ¡Inténtalo de nuevo!", [{ text: "OK", action: serveNewOrder, primary: true }]);
+                    }
+                }, 1000);
+            }
+
 
             function serveNewOrder() {
+                if (timerInterval) clearInterval(timerInterval);
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
                 
-                gameState.currentRecipe = generateRecipeForLevel(gameState.unlockedIngredients);
+                gameState.currentRecipe = generateRecipeForLevel(currentLevel, gameState.unlockedIngredients);
+                
+                // 25% de probabilidad de pedido VIP a partir del nivel 3
+                if (gameState.currentLevelIndex >= 2 && Math.random() < 0.25) {
+                    gameState.currentRecipe.isVIP = true;
+                    gameState.currentRecipe.timerDuration = 60;
+                    gameState.currentRecipe.timeLeft = 60;
+                    startTimer();
+                } else {
+                    gameState.currentRecipe.isVIP = false;
+                }
+
                 gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
                 gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
                 gameState.selectedStack = null;
@@ -618,7 +678,7 @@
                 }
                 
                 const deals = [];
-                const availablePlates = gameState.plates.map((p, i) => i).filter(i => gameState.plates[i].length < MAX_INGREDIENTS_PER_PLATE);
+                const availablePlates = gameState.plates.map((p, i) => i).filter(i => gameState.plates[i].length < DEAL_LIMIT);
                 
                 if (availablePlates.length === 0) {
                     const dealButton = document.getElementById('deal-button');
@@ -638,12 +698,12 @@
                     let servedToThisPlate = 0;
 
                     for (let i = 0; i < countToServe; i++) {
-                        if (gameState.plates[plateIndex].length + servedToThisPlate >= MAX_INGREDIENTS_PER_PLATE) {
+                        if (gameState.plates[plateIndex].length + servedToThisPlate >= DEAL_LIMIT) {
                             break; 
                         }
 
                         let ingredientToDeal = null;
-                        const pullFromPriority = Math.random() < 0.5; 
+                        const pullFromPriority = Math.random() < 0.3; 
 
                         if (pullFromPriority && priorityDeck.length > 0) {
                             ingredientToDeal = priorityDeck.pop();
@@ -676,10 +736,20 @@
                 if (!recipe) return;
 
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
-                levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
-                orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${currentLevel.ordersToComplete}`;
-                starCounterEl.innerHTML = `⭐ ${gameState.stars}`;
+                levelDisplayEl.querySelector('span').textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
+                orderProgressEl.querySelector('span').textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${currentLevel.ordersToComplete}`;
+                starCounterEl.querySelector('span').textContent = gameState.stars;
                 recipeNameEl.textContent = recipe.name;
+
+                if (recipe.isVIP) {
+                    vipBadge.classList.remove('hidden');
+                    timerContainer.classList.remove('hidden');
+                    const percentage = (recipe.timeLeft / recipe.timerDuration) * 100;
+                    timerBar.style.width = `${percentage}%`;
+                } else {
+                     vipBadge.classList.add('hidden');
+                    timerContainer.classList.add('hidden');
+                }
                 
                 recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
                     .map(([emoji, targetCount]) => {
@@ -823,7 +893,12 @@
                 
                 gameState.isAnimating = true;
                 gameState.currentRecipe.needed[type] -= stack.length;
-                gameState.stars += 10;
+                
+                let starsEarned = 10;
+                if(gameState.currentRecipe.isVIP) {
+                    starsEarned += 20; // VIP Bonus
+                }
+                gameState.stars += starsEarned;
                 
                 gameState.selectedStack = null;
                 
@@ -972,6 +1047,7 @@
             }
             
             function handleOrderCompletion() {
+                if(timerInterval) clearInterval(timerInterval);
                 gameState.ordersCompletedInLevel++;
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
 
@@ -1019,7 +1095,7 @@
             function handleUnlockPlateClick() {
                 if (gameState.platesUnlocked >= 11) return;
                 
-                const cost = 100 + (gameState.platesUnlocked - 3) * 50;
+                const cost = 1150 + (gameState.platesUnlocked - 3) * 500;
                 if (gameState.stars >= cost) {
                     showMessage(
                         "Desbloquear Plato", 
