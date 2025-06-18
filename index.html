@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chef Capy</title>
+    <title>Dish & Dash</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Fuente actualizada -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         body {
             /* Fuente base actualizada a Inter */
@@ -36,43 +37,31 @@
             z-index: 1; 
         }
 
-        /* --- Estilos del Mapa de Niveles --- */
+        /* --- Estilos del Mapa de Niveles (REDESIGN) --- */
         #level-map-screen {
-            background: linear-gradient(to bottom, #87CEEB, #E0F6FF); /* Sky gradient */
+            background: radial-gradient(circle, #fff7ed, #fed7aa); /* warm gradient from orange-50 to orange-200 */
             position: relative;
         }
         #level-map-container {
             position: relative;
             padding: 2rem 0;
+            width: 100%;
         }
-        #level-map-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            background-image: repeating-linear-gradient(
-              to bottom,
-              #D2B48C,
-              #D2B48C 15px,
-              transparent 15px,
-              transparent 30px
-            ); /* Dashed path effect */
-            z-index: 1;
-        }
+        
         .level-node {
             position: relative;
             z-index: 2;
+            width: 50%; /* Controla el ancho del área del nodo */
+            transition: transform 0.3s ease-out;
         }
+
         .level-node-button {
              transition: transform 0.2s, box-shadow 0.2s;
              border-radius: 9999px;
         }
         .level-node-button:not(:disabled):hover {
             transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(234, 179, 8, 0.7);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.7);
         }
 
         /* --- Estilos Isométricos --- */
@@ -140,17 +129,22 @@
             justify-content: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
+        .ingredient.golden { /* Estilo para ingrediente dorado */
+            filter: drop-shadow(0 0 8px gold);
+        }
         
         #animation-layer {
             z-index: 100; /* Capa de animación siempre encima de todo */
         }
         
         #order-info {
+            background-color: #fffbeb; /* yellow-50 */
+            border: 4px solid #f59e0b; /* amber-500 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            transition: box-shadow 0.3s ease-in-out;
         }
-        #order-info.targetable {
-             box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.6);
+        #order-info.targetable, #trash-can.targetable {
+             animation: pulsate-glow 2s infinite ease-in-out;
         }
         @keyframes shake {
             10%, 90% { transform: translateX(-1px); }
@@ -176,22 +170,58 @@
              animation: deal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
+        @keyframes pulsate-glow {
+            0%, 100% { box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.0), inset 0 0 15px 5px rgba(34, 197, 94, 0.0); }
+            50% { box-shadow: 0 0 25px 10px rgba(34, 197, 94, 0.6), inset 0 0 15px 5px rgba(34, 197, 94, 0.6); }
+        }
+        
+        .plate-area.potential-target {
+            animation: pulsate-glow 2s infinite ease-in-out;
+            box-shadow: none;
+        }
+        .plate-area.bomb-target {
+            animation: pulsate-glow-red 1.5s infinite ease-in-out;
+            box-shadow: none;
+        }
+        @keyframes pulsate-glow-red {
+            0%, 100% { box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.0), inset 0 0 15px 5px rgba(239, 68, 68, 0.0); }
+            50% { box-shadow: 0 0 25px 10px rgba(239, 68, 68, 0.7), inset 0 0 15px 5px rgba(239, 68, 68, 0.7); }
+        }
+
         .recipe-ingredient.done {
             text-decoration: line-through;
             color: #22c55e;
             opacity: 0.7;
         }
+        
+        .recipe-ingredient-ordered {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            transform: scale(0.9);
+            filter: grayscale(80%);
+        }
+        .recipe-ingredient-ordered.next-in-order {
+            opacity: 1;
+            transform: scale(1.1);
+            filter: grayscale(0%);
+            background-color: #fef3c7; /* amber-100 */
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+        }
+        
         #message-box {
             transition: opacity 0.5s, transform 0.5s;
         }
         button:disabled {
             background-color: #9ca3af;
             cursor: not-allowed;
-            transform: scale(1);
+            transform: scale(1) !important;
+            box-shadow: none !important;
         }
         .stack-counter {
             position: absolute;
-            top: 48px;
+            top: 42px;
             right: 0px;
             background-color: #ef4444; /* red-500 */
             color: white;
@@ -207,86 +237,110 @@
             z-index: 100;
             border: 2px solid white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            /* Revierte la rotación del plato para que el contador quede de frente */
             transform: rotateZ(45deg) rotateX(0deg);
+        }
+        #timer-bar {
+            transition: width 1s linear;
+        }
+        #trash-can {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        #trash-counter {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 9999px;
+            width: 1.5rem;
+            height: 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
         }
     </style>
 </head>
 <body class="bg-orange-50 text-gray-800">
     
-    <!-- Capa dedicada para las animaciones -->
     <div id="animation-layer" class="fixed inset-0 pointer-events-none"></div>
 
-    <!-- Pantalla de Inicio -->
     <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen">
-        <h1 class="text-6xl md:text-8xl font-bold text-orange-900">Chef Capy</h1>
+        <h1 class="text-6xl md:text-8xl font-bold text-orange-900">Dish & Dash</h1>
         <div class="text-8xl my-4">🧑‍🍳</div>
-        <p class="text-xl text-gray-600 max-w-md mb-8">El capibara chef necesita tu ayuda. ¡Organiza los ingredientes para completar los pedidos!</p>
+        <p class="text-xl text-gray-600 max-w-md mb-8">El chef necesita tu ayuda. ¡Organiza los ingredientes para completar los pedidos!</p>
         <button id="start-game-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 text-2xl">
             ¡A Cocinar!
         </button>
-         <button id="reset-progress-button" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 text-sm">
-            Reiniciar Progreso
-        </button>
+        <div class="mt-4 flex gap-4">
+            <button id="how-to-play-button" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 text-sm">
+                Cómo Jugar
+            </button>
+            <button id="reset-progress-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 text-sm">
+                Reiniciar Progreso
+            </button>
+       </div>
     </div>
     
-    <!-- Pantalla de Mapa de Niveles -->
     <div id="level-map-screen" class="w-full h-screen mx-auto hidden flex flex-col relative overflow-hidden">
-         <!-- Decoraciones -->
-        <div class="absolute top-1/4 left-10 w-24 h-12 bg-white rounded-full opacity-50 z-0 blur-sm"></div>
-        <div class="absolute top-1/2 right-8 w-32 h-16 bg-white rounded-full opacity-50 z-0 blur-md"></div>
-        <div class="absolute bottom-1/4 left-20 w-20 h-10 bg-white rounded-full opacity-50 z-0 blur"></div>
+        <div class="absolute top-1/4 left-10 w-24 h-12 bg-amber-100 rounded-full opacity-50 z-0 blur-sm"></div>
+        <div class="absolute top-1/2 right-8 w-32 h-16 bg-amber-100 rounded-full opacity-50 z-0 blur-md"></div>
+        <div class="absolute bottom-1/4 left-20 w-20 h-10 bg-amber-100 rounded-full opacity-50 z-0 blur"></div>
         
         <div class="flex-shrink-0 text-center z-10 pt-8">
-            <h2 class="text-5xl font-bold text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Mapa de Niveles</h2>
+            <h2 class="text-5xl font-bold text-amber-900" style="text-shadow: 2px 2px 4px rgba(255,255,255,0.5);">Mapa de Niveles</h2>
         </div>
         
         <div class="flex-grow overflow-y-auto py-8 z-10">
-             <div id="level-map-container" class="flex flex-col items-center space-y-8">
-                <!-- Los niveles se generarán aquí -->
+             <div id="level-map-container" class="flex flex-col items-center space-y-4">
              </div>
         </div>
         
          <div class="text-center flex-shrink-0 z-10 pb-8">
-            <button id="back-to-home-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
-                Volver al Inicio
+            <button id="back-to-home-button" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                 Volver al Inicio
             </button>
         </div>
     </div>
 
-
-    <!-- Contenedor principal del juego -->
     <div id="game-ui" class="w-full max-w-5xl h-screen mx-auto hidden flex flex-col">
         
         <header class="text-center p-4 flex-shrink-0">
-            <h1 class="text-4xl md:text-5xl font-bold text-orange-900">Chef Capy</h1>
-            <div class="flex justify-center items-center gap-6 mt-2 text-lg text-gray-600">
-                 <span id="level-display">Nivel: 1</span>
-                 <span id="order-progress">Pedidos: 0/0</span>
-                 <span id="star-counter" class="font-bold text-yellow-500">⭐ 0</span>
+            <h1 class="text-4xl md:text-5xl font-bold text-orange-900">Dish & Dash</h1>
+            <div class="flex justify-center items-center flex-wrap gap-4 mt-4">
+                 <div id="level-display" class="bg-amber-700 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.34 2.234A2.25 2.25 0 009.25 1.006a2.25 2.25 0 00-2.09 1.228L5.342 5.89A2.25 2.25 0 007.23 9.07l2.256.376a.75.75 0 01.628.628l.376 2.256a2.25 2.25 0 003.182 1.888l3.662-1.818a2.25 2.25 0 001.228-2.09A2.25 2.25 0 0014.11 5.342L11.34 2.234zM4.5 9.25a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5a.75.75 0 01.75-.75zM15.5 9.25a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5a.75.75 0 01.75-.75z" clip-rule="evenodd" /></svg><span>Nivel: 1</span></div>
+                 <div id="order-progress" class="bg-gray-500 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-1.121c.46-.112.933-.29 1.43-.502a3.75 3.75 0 012.14 0c.934.39 1.87.596 2.93.596s2-.206 2.93-.595a3.75 3.75 0 012.14 0c.497.212.97.39 1.43.502v1.12a.75.75 0 001.5 0V2.75a.75.75 0 00-1.5 0v1.121a4.237 4.237 0 00-1.43-.502 2.25 2.25 0 00-1.284 0 4.148 4.148 0 00-2.93.596 4.148 4.148 0 00-2.93-.596 2.25 2.25 0 00-1.284 0 4.237 4.237 0 00-1.43.502V2.75z" /></svg><span>Pedidos: 0/0</span></div>
+                 <div id="star-counter" class="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.215-.662 1.536 0l1.83 3.775 4.168.606c.73.106 1.022.998.494 1.51l-3.015 2.938.712 4.152c.124.727-.638 1.282-1.29.95l-3.727-1.96-3.727 1.96c-.652.332-1.414-.223-1.29-.95l.712-4.152-3.015-2.938c-.528-.512-.236-1.404.494-1.51l4.168-.606 1.83-3.775z" clip-rule="evenodd" /></svg><span>0</span></div>
             </div>
-            <div id="order-info" class="mt-4 p-4 bg-white rounded-xl shadow-lg border-2 border-orange-200">
-                <h2 class="text-xl font-semibold">Pedido Actual:</h2>
-                <p id="recipe-name" class="text-2xl font-bold text-orange-600">-</p>
-                <div id="recipe-ingredients" class="flex justify-center flex-wrap gap-4 mt-2 text-lg font-medium"></div>
+            <div id="order-info" class="mt-4 p-4 rounded-xl relative">
+                <div id="customer-type-badge" class="absolute -top-3 -left-3 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full transform -rotate-12 hidden"></div>
+                <div id="vip-badge" class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full transform rotate-12 hidden">¡VIP!</div>
+                <h2 class="text-xl font-semibold text-amber-800">Pedido Actual:</h2>
+                <p id="recipe-name" class="text-2xl font-bold mt-1">-</p>
+                <div id="recipe-ingredients" class="flex justify-center items-center flex-wrap gap-x-4 gap-y-2 mt-2 text-lg font-medium"></div>
+                 <div id="timer-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-4 hidden">
+                     <div id="timer-bar" class="bg-red-500 h-2.5 rounded-full"></div>
+                </div>
             </div>
         </header>
 
-        <!-- Contenedor ajustado para compensar la altura del wrapper -->
         <main id="plates-container-wrapper" class="flex-grow overflow-y-auto flex items-center justify-center">
             <div id="plates-container" class="flex flex-col-reverse py-8">
-                 <div class="plate-row flex justify-center gap-x-2" style="z-index: 30;"> <!-- Fila 1 (abajo): 4 platos -->
+                 <div class="plate-row flex justify-center gap-x-2" style="z-index: 30;">
                     <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"></div></div></div>
                 </div>
-                 <div class="plate-row flex justify-center gap-x-2 -mb-6" style="z-index: 20;"> <!-- Fila 2 (media): 3 platos -->
+                 <div class="plate-row flex justify-center gap-x-2 -mb-6" style="z-index: 20;">
                     <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"></div></div></div>
                 </div>
-                 <div class="plate-row flex justify-center gap-x-2 -mb-6" style="z-index: 10;"> <!-- Fila 3 (superior): 4 platos -->
+                 <div class="plate-row flex justify-center gap-x-2 -mb-6" style="z-index: 10;">
                     <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"></div></div></div>
                     <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"></div></div></div>
@@ -295,12 +349,18 @@
             </div>
         </main>
 
-        <footer class="text-center space-x-4 flex-shrink-0 py-6">
+        <footer class="flex-shrink-0 py-6 flex justify-center items-center gap-4">
             <button id="back-to-map-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
                 Ver Mapa
             </button>
             <button id="deal-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300" disabled>
                 Servir (<span id="deck-count">0</span>)
+            </button>
+            <button id="trash-can" class="bg-gray-600 hover:bg-gray-700 text-white font-bold p-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                </svg>
+                <div id="trash-counter">0</div>
             </button>
         </footer>
 
@@ -311,24 +371,69 @@
             <h3 id="message-title" class="text-3xl font-bold text-green-500 mb-4"></h3>
             <p id="message-text" class="text-gray-600 mb-6"></p>
             <div id="message-buttons" class="flex justify-center gap-4">
-                 <button id="message-confirm-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full">¡Genial!</button>
-                 <button id="message-cancel-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full hidden">Ahora no</button>
+            </div>
+        </div>
+    </div>
+    <div id="how-to-play-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center opacity-0 pointer-events-none transform scale-95 z-50">
+        <div class="bg-amber-50 rounded-2xl shadow-2xl p-6 md:p-8 w-11/12 max-w-md mx-auto">
+            <h2 id="how-to-play-title" class="text-2xl md:text-3xl font-bold text-amber-800 mb-4 text-center">Cómo Jugar a Dish & Dash</h2>
+            <div class="text-left text-gray-700 space-y-3 md:space-y-4 text-sm md:text-base">
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">📝</span>
+                    <p><strong>El Pedido:</strong> ¡Mira la tarjeta de pedido! Tu objetivo es juntar los ingredientes necesarios para completar la receta.</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">🧐</span>
+                    <p><strong>Clientes Tiquismiquis:</strong> ¡Cuidado! Algunos clientes quieren sus ingredientes en un orden específico. Deberás entregar el ingrediente resaltado primero.</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">👆</span>
+                    <p><strong>Mover Pilas:</strong> Haz clic en un plato para seleccionar una pila. Puedes moverla a otro plato si está vacío, tiene el mismo ingrediente arriba, o si el ingrediente superior es un comodín (🌟).</p>
+                </div>
+                 <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">🏆</span>
+                    <p><strong>Ingredientes Dorados:</strong> ¡Un tesoro! Son versiones raras de los ingredientes normales. Entrégalos para obtener una gran bonificación de estrellas.</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">🤢</span>
+                    <p><strong>Ingredientes Podridos:</strong> ¡Evítalos! No se pueden entregar y ocupan un espacio valioso. ¡Tendrás que tirarlos a la basura!</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">🗑️</span>
+                    <p><strong>Bote de Basura:</strong> ¿Un ingrediente te estorba? Selecciónalo y haz clic en el bote de basura para descartarlo. ¡Tienes usos limitados por nivel!</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">💣</span>
+                    <p><strong>Ingrediente Bomba:</strong> Selecciónala y haz clic en cualquier plato para limpiar todos los ingredientes que contenga. ¡Úsala con sabiduría!</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">🌟</span>
+                    <p><strong>Ingrediente Comodín:</strong> ¡El ingrediente estrella! Se puede apilar sobre cualquier otro y cuenta para cualquier ingrediente que necesites.</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl mt-1">⭐</span>
+                    <p><strong>Ganar Estrellas:</strong> Completa pedidos para ganar estrellas. ¡Úsalas para desbloquear más platos!</p>
+                </div>
+            </div>
+            <div class="text-center mt-6">
+                <button id="how-to-play-close-button" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-2 px-8 rounded-full">¡Entendido!</button>
             </div>
         </div>
     </div>
 
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const MAX_INGREDIENTS_PER_PLATE = 20;
+            const MAX_INGREDIENTS_PER_PLATE = 30;
+            const DEAL_LIMIT = 15;
             const TOTAL_LEVELS = 100;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '�', '🥑', '🍆', '🌶️'];
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️', '💣', '🌟', '🤢', '🏆'];
             const ingredientNameMap = {
                 '🍓': 'Fresa', '🍌': 'Plátano', '🍇': 'Uva', '🥕': 'Zanahoria',
                 '🥦': 'Brócoli', '🍄': 'Champiñón', '🍅': 'Tomate', '🥑': 'Aguacate',
-                '🍆': 'Berenjena', '🌶️': 'Chile'
+                '🍆': 'Berenjena', '🌶️': 'Chile', '💣': 'Bomba', '🌟': 'Comodín',
+                '🤢': 'Podrido', '🏆': 'Dorado'
             };
             
             let gameState = {
@@ -343,6 +448,7 @@
                 unlockedIngredients: [],
                 stars: 0,
                 platesUnlocked: 3,
+                trashUsesLeft: 0,
             };
             
             const colorMap = {
@@ -355,21 +461,22 @@
                 '🍅': 'from-red-500 to-red-700',
                 '🥑': 'from-lime-400 to-green-600',
                 '🍆': 'from-purple-600 to-violet-800',
-                '🌶️': 'from-red-600 to-orange-700'
+                '🌶️': 'from-red-600 to-orange-700',
+                '💣': 'from-gray-700 to-black',
+                '🌟': 'from-yellow-400 via-amber-400 to-orange-500',
+                '🤢': 'from-lime-800 to-green-900',
+                '🏆': 'from-yellow-300 to-amber-500'
             };
 
-            // --- Elementos del DOM ---
             const homeScreenEl = document.getElementById('home-screen');
             const gameUiEl = document.getElementById('game-ui');
             const levelMapScreenEl = document.getElementById('level-map-screen');
             const levelMapContainer = document.getElementById('level-map-container');
             const platesContainer = document.getElementById('plates-container');
-            
             const startGameButton = document.getElementById('start-game-button');
             const resetProgressButton = document.getElementById('reset-progress-button');
             const backToHomeButton = document.getElementById('back-to-home-button');
             const backToMapButton = document.getElementById('back-to-map-button');
-
             const dealButton = document.getElementById('deal-button');
             const deckCountEl = document.getElementById('deck-count');
             const recipeNameEl = document.getElementById('recipe-name');
@@ -383,11 +490,22 @@
             const messageTitle = document.getElementById('message-title');
             const messageText = document.getElementById('message-text');
             const messageButtonsContainer = document.getElementById('message-buttons');
+            const timerContainer = document.getElementById('timer-container');
+            const timerBar = document.getElementById('timer-bar');
+            const vipBadge = document.getElementById('vip-badge');
+            const customerTypeBadge = document.getElementById('customer-type-badge');
+            const howToPlayButton = document.getElementById('how-to-play-button');
+            const howToPlayModal = document.getElementById('how-to-play-modal');
+            const howToPlayCloseButton = document.getElementById('how-to-play-close-button');
+            const trashCanEl = document.getElementById('trash-can');
+            const trashCounterEl = document.getElementById('trash-counter');
+
+            let timerInterval = null;
 
             function showMessage(title, text, buttonsConfig) {
                 messageTitle.textContent = title;
                 messageText.innerHTML = text;
-                messageButtonsContainer.innerHTML = ''; // Clear old buttons
+                messageButtonsContainer.innerHTML = ''; 
 
                 if (!buttonsConfig || buttonsConfig.length === 0) {
                      const okButton = document.createElement('button');
@@ -397,15 +515,15 @@
                      messageButtonsContainer.appendChild(okButton);
                 } else {
                      buttonsConfig.forEach(config => {
-                        const button = document.createElement('button');
-                        button.textContent = config.text;
-                        button.className = `${config.primary ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 hover:bg-gray-500'} text-white font-bold py-2 px-6 rounded-full`;
-                        button.onclick = () => {
-                            closeMessage();
-                            if (config.action) config.action();
-                        };
-                        messageButtonsContainer.appendChild(button);
-                    });
+                         const button = document.createElement('button');
+                         button.textContent = config.text;
+                         button.className = `${config.primary ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 hover:bg-gray-500'} text-white font-bold py-2 px-6 rounded-full`;
+                         button.onclick = () => {
+                             closeMessage();
+                             if (config.action) config.action();
+                         };
+                         messageButtonsContainer.appendChild(button);
+                     });
                 }
                 
                 messageBox.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
@@ -416,6 +534,7 @@
             }
             
             function showScreen(screen) {
+                if (timerInterval) clearInterval(timerInterval);
                 homeScreenEl.classList.add('hidden');
                 gameUiEl.classList.add('hidden');
                 levelMapScreenEl.classList.add('hidden');
@@ -430,41 +549,50 @@
             }
             
             function loadProgress() {
-                const savedState = JSON.parse(localStorage.getItem('chefCapyGameState'));
+                const savedState = JSON.parse(localStorage.getItem('dishDashGameState'));
                 if (savedState) {
                     Object.assign(gameState, savedState);
                 }
             }
             
             function saveProgress() {
-                localStorage.setItem('chefCapyGameState', JSON.stringify(gameState));
+                localStorage.setItem('dishDashGameState', JSON.stringify(gameState));
             }
             
             function resetProgress() {
-                localStorage.removeItem('chefCapyGameState');
-                // Reset to default initial state
+                localStorage.removeItem('dishDashGameState');
                 Object.assign(gameState, {
                     highestLevelUnlocked: 0, currentLevelIndex: 0, ordersCompletedInLevel: 0,
                     currentRecipe: null, plates: [], deck: [], selectedStack: null,
                     isAnimating: false, unlockedIngredients: [], stars: 0, platesUnlocked: 3,
+                    trashUsesLeft: 0,
                 });
                 showMessage("Progreso Reiniciado", "¡Tu aventura culinaria comienza de nuevo!");
                 renderLevelMap();
             }
 
             function renderLevelMap() {
-                levelMapContainer.innerHTML = ''; // Limpiar mapa
+                levelMapContainer.innerHTML = '';
                 for(let i = 0; i < TOTAL_LEVELS; i++) {
                     const isUnlocked = i <= gameState.highestLevelUnlocked;
                     
-                    const node = document.createElement('div');
-                    node.className = 'level-node flex items-center w-full';
-                    if (i % 2 !== 0) {
-                       node.classList.add('flex-row-reverse');
-                    }
+                    const nodeWrapper = document.createElement('div');
+                    nodeWrapper.className = 'w-full flex';
                     
+                    const node = document.createElement('div');
+                    node.className = 'level-node flex items-center';
+                    
+                    // Zig-zag positioning
+                    if (i % 4 === 0 || i % 4 === 3) {
+                        nodeWrapper.classList.add('justify-start');
+                        node.classList.add('flex-row');
+                    } else {
+                        nodeWrapper.classList.add('justify-end');
+                        node.classList.add('flex-row-reverse');
+                    }
+
                     const button = document.createElement('button');
-                    button.className = 'level-node-button flex-shrink-0 rounded-full';
+                    button.className = 'level-node-button flex-shrink-0';
                     button.disabled = !isUnlocked;
 
                     const dot = document.createElement('div');
@@ -472,8 +600,8 @@
                     
                     if (isUnlocked) {
                         button.onclick = () => startGame(i);
-                        dot.className = 'level-dot w-16 h-16 rounded-full bg-yellow-400 border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-yellow-900';
-                        text.className = 'level-text font-semibold px-4 text-gray-800';
+                        dot.className = 'level-dot w-16 h-16 rounded-full bg-green-500 border-4 border-white shadow-lg flex items-center justify-center text-2xl font-bold text-white';
+                        text.className = 'level-text font-semibold px-4 text-amber-900';
                     } else {
                         dot.className = 'level-dot w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-200 shadow-inner flex items-center justify-center text-2xl font-bold text-gray-500';
                         text.className = 'level-text font-semibold px-4 text-gray-400';
@@ -485,7 +613,8 @@
                     button.appendChild(dot);
                     node.appendChild(button);
                     node.appendChild(text);
-                    levelMapContainer.appendChild(node);
+                    nodeWrapper.appendChild(node);
+                    levelMapContainer.appendChild(nodeWrapper);
                 }
             }
             
@@ -498,15 +627,17 @@
                 const levelNumber = levelIndex + 1;
                 const ordersToComplete = Math.min(10, 2 + Math.floor(levelIndex / 3));
                 const platesActive = Math.min(11, 3 + Math.floor(levelIndex / 2));
-                const unlocks = (levelIndex < allPossibleIngredients.length - 2) ? 1 : 0;
+                const unlocks = (levelIndex < allPossibleIngredients.length - 4) ? 1 : 0; // Adjust for new special ingredients
                 const deckSize = 80 + levelIndex * 15;
-                
+                const ingredientCount = Math.min(Math.floor(2 + levelIndex / 3), allPossibleIngredients.length);
+
                 return {
                     id: levelNumber,
                     ordersToComplete,
                     platesActive,
                     deckSize,
                     unlocks,
+                    ingredientCount,
                 };
             }
 
@@ -514,21 +645,20 @@
                 showScreen(gameUiEl);
                 
                 if(gameState.currentLevelIndex === levelIndex && gameState.currentRecipe) {
-                    // Continuing the same level
                     renderGame();
                     return;
                 }
                 
-                // Starting a new or different level
                 gameState.currentLevelIndex = levelIndex;
                 gameState.ordersCompletedInLevel = 0;
                 gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []);
+                gameState.trashUsesLeft = 3 + Math.floor(levelIndex / 5);
 
                 let unlockedCount = 2;
                 for(let i = 0; i < levelIndex; i++) {
                     unlockedCount += generateLevelData(i).unlocks || 0;
                 }
-                gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length));
+                gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length - 4));
 
                 serveNewOrder();
             }
@@ -536,16 +666,27 @@
             function createDeck(level, ingredientPool, recipe, extraIngredients = []) {
                 let newDeck = [...extraIngredients];
 
-                // Añadir ingredientes de la receta
+                // Add recipe ingredients, with a chance for them to be golden
                 if (recipe && recipe.ingredients) {
                     for (const [ingredient, count] of Object.entries(recipe.ingredients)) {
                         for (let i = 0; i < count; i++) {
-                            newDeck.push({ type: ingredient, id: `req-${ingredient}-${i}-${Math.random()}` });
+                            const isGolden = Math.random() < 0.1; // 10% chance to be golden
+                            newDeck.push({ 
+                                type: isGolden ? '🏆' : ingredient, 
+                                originalType: ingredient, // Store original type for golden ingredients
+                                id: `req-${ingredient}-${i}-${Math.random()}` 
+                            });
                         }
                     }
                 }
-                 // Añadir un ingrediente "distractor" de un pedido futuro
-                const potentialDistractors = allPossibleIngredients.filter(ing => !ingredientPool.includes(ing));
+
+                // Add spoiled ingredients
+                const spoiledCount = Math.floor(level.deckSize / 45); // Reduced probability
+                for (let i = 0; i < spoiledCount; i++) {
+                     newDeck.push({ type: '🤢', id: `spoiled-${i}-${Math.random()}` });
+                }
+
+                const potentialDistractors = allPossibleIngredients.filter(ing => !ingredientPool.includes(ing) && !['💣', '🌟', '🤢', '🏆'].includes(ing));
                 if (potentialDistractors.length > 0) {
                     const distractor = potentialDistractors[0];
                     for (let i = 0; i < 5; i++) {
@@ -553,8 +694,12 @@
                     }
                 }
 
+                const specialIngredientCount = Math.floor(level.deckSize / 20);
+                 for (let i = 0; i < specialIngredientCount; i++) {
+                    const type = Math.random() < 0.6 ? '💣' : '🌟';
+                    newDeck.push({ type, id: `special-${type}-${i}-${Math.random()}` });
+                }
 
-                // Añadir relleno del pool de ingredientes desbloqueados
                 const fillerCount = level.deckSize - newDeck.length;
                 for (let i = 0; i < fillerCount; i++) {
                     const randomType = ingredientPool[Math.floor(Math.random() * ingredientPool.length)];
@@ -573,7 +718,7 @@
                 return `${noun} ${adj}`;
             }
 
-            function generateRecipeForLevel(unlockedIngredients) {
+            function generateRecipeForLevel(level, unlockedIngredients) {
                 const recipeIngredients = {};
                 const shuffledPool = [...unlockedIngredients];
                 shuffleArray(shuffledPool);
@@ -584,17 +729,59 @@
                 ingredientsForRecipe.forEach(ingredient => {
                     recipeIngredients[ingredient] = 10; 
                 });
-                 
+                
                 return {
                     name: generateRandomRecipeName(),
                     ingredients: recipeIngredients
                 };
             }
+            
+              function startTimer() {
+                if (timerInterval) clearInterval(timerInterval);
+                
+                const recipe = gameState.currentRecipe;
+                if (!recipe || !recipe.isVIP) return;
+
+                timerInterval = setInterval(() => {
+                    recipe.timeLeft--;
+                    const percentage = (recipe.timeLeft / recipe.timerDuration) * 100;
+                    timerBar.style.width = `${percentage}%`;
+
+                    if (recipe.timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        showMessage("¡Tiempo Agotado!", "El cliente VIP se ha ido. ¡Inténtalo de nuevo!", [{ text: "OK", action: serveNewOrder, primary: true }]);
+                    }
+                }, 1000);
+            }
+
 
             function serveNewOrder() {
+                if (timerInterval) clearInterval(timerInterval);
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
                 
-                gameState.currentRecipe = generateRecipeForLevel(gameState.unlockedIngredients);
+                gameState.currentRecipe = generateRecipeForLevel(currentLevel, gameState.unlockedIngredients);
+                
+                gameState.currentRecipe.isVIP = false;
+                gameState.currentRecipe.customerType = 'normal';
+                
+                const randomCustomer = Math.random();
+                if (gameState.currentLevelIndex >= 5 && randomCustomer < 0.3) {
+                    gameState.currentRecipe.customerType = 'picky';
+                    const order = [];
+                    for(const [ing, count] of Object.entries(gameState.currentRecipe.ingredients)) {
+                        for(let i=0; i < count; i++) {
+                            order.push(ing);
+                        }
+                    }
+                    shuffleArray(order);
+                    gameState.currentRecipe.ingredientOrder = order;
+                } else if (gameState.currentLevelIndex >= 2 && randomCustomer < 0.5) {
+                    gameState.currentRecipe.isVIP = true;
+                    gameState.currentRecipe.timerDuration = 60;
+                    gameState.currentRecipe.timeLeft = 60;
+                    startTimer();
+                }
+
                 gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
                 gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
                 gameState.selectedStack = null;
@@ -618,7 +805,7 @@
                 }
                 
                 const deals = [];
-                const availablePlates = gameState.plates.map((p, i) => i).filter(i => gameState.plates[i].length < MAX_INGREDIENTS_PER_PLATE);
+                const availablePlates = gameState.plates.map((p, i) => i).filter(i => gameState.plates[i].length < DEAL_LIMIT);
                 
                 if (availablePlates.length === 0) {
                     const dealButton = document.getElementById('deal-button');
@@ -630,20 +817,18 @@
                 shuffleArray(availablePlates);
                 
                 const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
-                let priorityDeck = gameState.deck.filter(ing => neededTypes.includes(ing.type));
-                let regularDeck = gameState.deck.filter(ing => !neededTypes.includes(ing.type));
+                let priorityDeck = gameState.deck.filter(ing => neededTypes.includes(ing.type) || neededTypes.includes(ing.originalType));
+                let regularDeck = gameState.deck.filter(ing => !priorityDeck.includes(ing));
                 
                 availablePlates.forEach(plateIndex => {
                     const countToServe = Math.floor(Math.random() * 3) + 1;
                     let servedToThisPlate = 0;
 
                     for (let i = 0; i < countToServe; i++) {
-                        if (gameState.plates[plateIndex].length + servedToThisPlate >= MAX_INGREDIENTS_PER_PLATE) {
-                            break; 
-                        }
+                        if (gameState.plates[plateIndex].length + servedToThisPlate >= DEAL_LIMIT) break; 
 
                         let ingredientToDeal = null;
-                        const pullFromPriority = Math.random() < 0.4; 
+                        const pullFromPriority = Math.random() < 0.4; // Slightly increased chance for needed ingredients
 
                         if (pullFromPriority && priorityDeck.length > 0) {
                             ingredientToDeal = priorityDeck.pop();
@@ -665,7 +850,6 @@
                 gameState.deck = [...priorityDeck, ...regularDeck];
                 shuffleArray(gameState.deck);
 
-
                 if (deals.length > 0) {
                     animateDeal(deals);
                 }
@@ -676,28 +860,54 @@
                 if (!recipe) return;
 
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
-                levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
-                orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${currentLevel.ordersToComplete}`;
-                starCounterEl.innerHTML = `⭐ ${gameState.stars}`;
+                levelDisplayEl.querySelector('span').textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
+                orderProgressEl.querySelector('span').textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${currentLevel.ordersToComplete}`;
+                starCounterEl.querySelector('span').textContent = gameState.stars;
                 recipeNameEl.textContent = recipe.name;
+
+                vipBadge.classList.toggle('hidden', !recipe.isVIP);
+                customerTypeBadge.classList.toggle('hidden', recipe.customerType !== 'picky');
+                if(recipe.customerType === 'picky') {
+                    customerTypeBadge.textContent = '¡En Orden!';
+                }
                 
-                recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
-                    .map(([emoji, targetCount]) => {
-                        const neededCount = recipe.needed[emoji] || 0;
-                        const isDone = neededCount <= 0;
-                        return `<span class="recipe-ingredient ${isDone ? 'done' : ''}">${emoji} x${Math.max(0, neededCount)}</span>`;
-                    })
-                    .join(' ');
+                timerContainer.classList.toggle('hidden', !recipe.isVIP);
+                if (recipe.isVIP) {
+                    const percentage = (recipe.timeLeft / recipe.timerDuration) * 100;
+                    timerBar.style.width = `${percentage}%`;
+                }
+                
+                recipeIngredientsEl.innerHTML = '';
+                if(recipe.customerType === 'picky') {
+                    recipe.ingredientOrder.forEach((emoji, index) => {
+                        const span = document.createElement('span');
+                        span.className = 'recipe-ingredient-ordered';
+                        if (index === 0) {
+                             span.classList.add('next-in-order');
+                        }
+                        span.textContent = emoji;
+                        recipeIngredientsEl.appendChild(span);
+                    });
+                } else {
+                    recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
+                        .map(([emoji, targetCount]) => {
+                            const neededCount = recipe.needed[emoji] || 0;
+                            const isDone = neededCount <= 0;
+                            return `<span class="recipe-ingredient ${isDone ? 'done' : ''}">${emoji} x${Math.max(0, neededCount)}</span>`;
+                        })
+                        .join(' ');
+                }
 
                 const plateWrappers = document.querySelectorAll('.plate-wrapper');
                 plateWrappers.forEach((wrapper, index) => {
                     const plateArea = wrapper.querySelector('.plate-area');
                     const isActive = index < gameState.platesUnlocked;
+                    plateArea.classList.remove('potential-target', 'bomb-target');
                     
                     if (isActive) {
                         plateArea.classList.remove('locked');
                         const plate = gameState.plates[index];
-                        plateArea.innerHTML = ''; // Clear previous contents
+                        plateArea.innerHTML = '';
                         wrapper.onclick = () => handlePlateClick(index);
 
                         if (plate) {
@@ -706,10 +916,11 @@
                                 const gradientClasses = colorMap[ingredient.type] || 'from-gray-400 to-gray-600';
                                 
                                 ingredientEl.className = `ingredient rounded-full bg-gradient-to-br p-1.5 ${gradientClasses}`;
+                                if(ingredient.type === '🏆') ingredientEl.classList.add('golden');
                                 
                                 const innerEl = document.createElement('div');
                                 innerEl.className = 'w-full h-full bg-white rounded-full flex items-center justify-center';
-                                innerEl.textContent = ingredient.type;
+                                innerEl.textContent = ingredient.type === '🏆' ? ingredient.originalType : ingredient.type;
                                 ingredientEl.appendChild(innerEl);
 
                                 let transformValue = `translateX(-50%) translateZ(${ingredientIndex * 5}px)`;
@@ -722,7 +933,7 @@
                                             const counter = document.createElement('div');
                                             counter.className = 'stack-counter';
                                             counter.textContent = gameState.selectedStack.stack.length;
-                                            innerEl.appendChild(counter); // Append to inner element
+                                            innerEl.appendChild(counter);
                                         }
                                     }
                                 }
@@ -740,6 +951,19 @@
                                 plateArea.appendChild(ingredientEl);
                             });
                         }
+                        
+                        if (gameState.selectedStack) {
+                             const { stack } = gameState.selectedStack;
+                             if(stack && stack.length > 0) {
+                                const type = stack[0].type;
+                                if(type === '💣') {
+                                    plateArea.classList.add('bomb-target');
+                                } else if (canMoveStackTo(stack, plate)) {
+                                    plateArea.classList.add('potential-target');
+                                }
+                             }
+                        }
+
                     } else {
                         plateArea.classList.add('locked');
                         plateArea.innerHTML = `<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm-2.5 8V5.5a2.5 2.5 0 115 0V9h-5z" clip-rule="evenodd" /></svg></div>`;
@@ -747,12 +971,13 @@
                     }
                 });
                 
-                if (isStackDeliverable(gameState.selectedStack)) {
-                    orderInfoEl.classList.add('targetable');
-                } else {
-                    orderInfoEl.classList.remove('targetable');
-                }
+                orderInfoEl.classList.toggle('targetable', isStackDeliverable(gameState.selectedStack));
                 
+                trashCanEl.disabled = !gameState.selectedStack || gameState.trashUsesLeft <= 0 || (gameState.selectedStack && gameState.selectedStack.stack[0].type === '💣');
+                // Removed the highlight from trash can
+                trashCanEl.classList.remove('targetable');
+                trashCounterEl.textContent = gameState.trashUsesLeft;
+
                 const allPlatesFull = gameState.plates.every(p => p.length >= MAX_INGREDIENTS_PER_PLATE);
                 dealButton.disabled = allPlatesFull || isOrderComplete();
                 deckCountEl.textContent = gameState.deck.length;
@@ -765,10 +990,17 @@
                 if (!gameState.selectedStack) {
                     if (clickedPlate.length === 0) return;
                     
-                    const topType = clickedPlate[clickedPlate.length - 1].type;
+                    const topIngredient = clickedPlate[clickedPlate.length - 1];
+                    const topType = topIngredient.type;
+                    const topOriginalType = topIngredient.originalType || topIngredient.type;
+
                     const movableStack = [];
                     for (let i = clickedPlate.length - 1; i >= 0; i--) {
-                        if (clickedPlate[i].type === topType) movableStack.unshift(clickedPlate[i]);
+                        const currentIngredient = clickedPlate[i];
+                        const currentOriginalType = currentIngredient.originalType || currentIngredient.type;
+                        if (currentOriginalType === topOriginalType || currentIngredient.type === topType) { // Allows stacking same original types (e.g. golden on normal)
+                             movableStack.unshift(currentIngredient);
+                        }
                         else break;
                     }
                     gameState.selectedStack = { fromPlate: plateIndex, stack: movableStack };
@@ -776,32 +1008,61 @@
                 } else {
                     const { fromPlate, stack } = gameState.selectedStack;
                     
+                    if (stack[0].type === '💣') {
+                        clearPlateWithBomb(plateIndex, fromPlate);
+                        return;
+                    }
+                    
                     if (fromPlate === plateIndex) {
                         gameState.selectedStack = null;
                     } else {
-                        const destinationPlate = gameState.plates[plateIndex];
-                        if (destinationPlate.length + stack.length > MAX_INGREDIENTS_PER_PLATE) {
+                        if (canMoveStackTo(stack, clickedPlate)) {
+                            moveStack(plateIndex);
+                        } else {
                             const plateWrapperEl = document.getElementById(`plate-${plateIndex}`).parentElement;
                             plateWrapperEl.classList.add('shake');
                             setTimeout(() => plateWrapperEl.classList.remove('shake'), 500);
-                            return;
+                            gameState.selectedStack = null;
                         }
-                        const canMove = destinationPlate.length === 0 || destinationPlate[destinationPlate.length - 1].type === stack[0].type;
-                        if (canMove) moveStack(plateIndex);
-                        else gameState.selectedStack = null;
                     }
                 }
                 renderGame();
+            }
+            
+            function canMoveStackTo(stack, destinationPlate) {
+                if (destinationPlate.length + stack.length > MAX_INGREDIENTS_PER_PLATE) {
+                    return false;
+                }
+                if (!stack || stack.length === 0) return false;
+
+                const stackIngredient = stack[0];
+                const stackType = stackIngredient.type;
+                const stackOriginalType = stackIngredient.originalType || stackType;
+
+                if (['💣', '🤢'].includes(stackType)) return false; 
+
+                if (destinationPlate.length === 0) return true;
+
+                const topOfDestination = destinationPlate[destinationPlate.length - 1];
+                const destType = topOfDestination.type;
+                const destOriginalType = topOfDestination.originalType || destType;
+                
+                if (['💣', '🤢'].includes(destType)) return false;
+
+                if (stackType === '🌟') return true;
+
+                return destOriginalType === stackOriginalType || destType === '🌟';
             }
             
             function createAnimatedClone(ingredientData) {
                 const clone = document.createElement('div');
                 const gradientClasses = colorMap[ingredientData.type] || 'from-gray-400 to-gray-600';
                 clone.className = `ingredient rounded-full bg-gradient-to-br p-0.5 ${gradientClasses}`;
+                 if(ingredientData.type === '🏆') clone.classList.add('golden');
                 
                 const innerClone = document.createElement('div');
                 innerClone.className = 'w-full h-full bg-white rounded-full flex items-center justify-center';
-                innerClone.textContent = ingredientData.type;
+                innerClone.textContent = ingredientData.type === '🏆' ? ingredientData.originalType : ingredientData.type;
                 clone.appendChild(innerClone);
                 
                 return clone;
@@ -819,11 +1080,29 @@
                 }
                 
                 const { fromPlate, stack } = gameState.selectedStack;
-                const type = stack[0].type;
+                const ingredientDelivered = stack[0];
+                const type = ingredientDelivered.type;
+                const originalType = ingredientDelivered.originalType || type;
                 
                 gameState.isAnimating = true;
-                gameState.currentRecipe.needed[type] -= stack.length;
-                gameState.stars += 10;
+
+                if (gameState.currentRecipe.customerType === 'picky') {
+                    if (type === '🌟' || type === '🏆' || type === originalType) {
+                       gameState.currentRecipe.ingredientOrder.splice(0, stack.length);
+                    }
+                } else if (type === '🌟') {
+                    const neededIngredient = Object.keys(gameState.currentRecipe.needed).find(key => gameState.currentRecipe.needed[key] > 0);
+                    if (neededIngredient) {
+                        gameState.currentRecipe.needed[neededIngredient] -= stack.length;
+                    }
+                } else {
+                    gameState.currentRecipe.needed[originalType] -= stack.length;
+                }
+
+                let starsEarned = type === '🏆' ? 50 : 15;
+                if(gameState.currentRecipe.isVIP) starsEarned += 20;
+                if(gameState.currentRecipe.customerType === 'picky') starsEarned += 10;
+                gameState.stars += starsEarned;
                 
                 gameState.selectedStack = null;
                 
@@ -843,16 +1122,13 @@
                     clone.style.transition = 'all 0.4s cubic-bezier(0.5, -0.5, 0.75, 1.2)';
                     clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
                     clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
-
                     animationLayer.appendChild(clone);
-
                     setTimeout(() => {
                         clone.style.left = `${orderRect.left + (orderRect.width / 2) - 40}px`;
                         clone.style.top = `${orderRect.top + (orderRect.height / 2) - 40}px`;
                         clone.style.transform = 'scale(0.5)';
                         clone.style.opacity = '0';
                     }, index * 50);
-
                     setTimeout(() => {
                         animationLayer.removeChild(clone);
                         if (index === deliveredIngredients.length - 1) {
@@ -870,11 +1146,9 @@
 
             function moveStack(toPlateIndex) {
                  if (gameState.isAnimating) return;
-                 
                  const { fromPlate, stack } = gameState.selectedStack;
                  gameState.isAnimating = true;
                  gameState.selectedStack = null;
-
                  gameState.plates[fromPlate].splice(-stack.length);
                  renderGame();
                  
@@ -884,44 +1158,38 @@
                  const endRect = endWrapper.getBoundingClientRect();
 
                  stack.slice().reverse().forEach((ingredientData, index) => {
-                    const clone = createAnimatedClone(ingredientData);
-                    clone.style.position = 'fixed';
-                    clone.style.zIndex = 1000 - index;
-                    clone.style.transition = 'all 0.4s cubic-bezier(0.5, -0.5, 0.75, 1.2)';
-                    clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
-                    clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
-                    clone.style.transform = `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 5 }px) scale(1.1)`;
-
-                    animationLayer.appendChild(clone);
-
-                    setTimeout(() => {
-                        clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
-                        clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
-                        clone.style.transform = `translateZ(${ (gameState.plates[toPlateIndex].length + stack.length - index) * 5 }px) scale(1)`;
-                    }, index * 40);
-
-                    setTimeout(() => {
-                        animationLayer.removeChild(clone);
-                        if (index === stack.length - 1) {
-                            gameState.plates[toPlateIndex].push(...stack);
-                            saveProgress();
-                            gameState.isAnimating = false;
-                            renderGame();
-                        }
-                    }, index * 40 + 400);
+                     const clone = createAnimatedClone(ingredientData);
+                     clone.style.position = 'fixed';
+                     clone.style.zIndex = 1000 - index;
+                     clone.style.transition = 'all 0.4s cubic-bezier(0.5, -0.5, 0.75, 1.2)';
+                     clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
+                     clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
+                     clone.style.transform = `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 5 }px) scale(1.1)`;
+                     animationLayer.appendChild(clone);
+                     setTimeout(() => {
+                         clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
+                         clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
+                         clone.style.transform = `translateZ(${ (gameState.plates[toPlateIndex].length + stack.length - index) * 5 }px) scale(1)`;
+                     }, index * 40);
+                     setTimeout(() => {
+                         animationLayer.removeChild(clone);
+                         if (index === stack.length - 1) {
+                             gameState.plates[toPlateIndex].push(...stack);
+                             saveProgress();
+                             gameState.isAnimating = false;
+                             renderGame();
+                         }
+                     }, index * 40 + 400);
                  });
             }
 
             function animateDeal(deals) {
                 gameState.isAnimating = true;
-
                 const dealButtonRect = dealButton.getBoundingClientRect();
-
                 deals.forEach((deal, dealIndex) => {
                     const { toPlateIndex, ingredient } = deal;
                     const endWrapper = document.getElementById(`plate-${toPlateIndex}`).parentElement;
                     const endRect = endWrapper.getBoundingClientRect();
-
                     const clone = createAnimatedClone(ingredient);
                     clone.style.position = 'fixed';
                     clone.style.zIndex = 1000 - dealIndex;
@@ -930,16 +1198,13 @@
                     clone.style.top = `${dealButtonRect.top + (dealButtonRect.height / 2) - 40}px`;
                     clone.style.transform = 'scale(0.8)';
                     clone.style.opacity = '0'; 
-
                     animationLayer.appendChild(clone);
-
                     setTimeout(() => {
                         clone.style.opacity = '1'; 
                         clone.style.left = `${endRect.left + (endRect.width / 2) - 40}px`;
                         clone.style.top = `${endRect.top + (endRect.height / 2) - 40}px`;
                         clone.style.transform = `scale(1) translateZ(${gameState.plates[toPlateIndex].length * 5}px)`;
                     }, 50 + dealIndex * 70); 
-
                     setTimeout(() => {
                         animationLayer.removeChild(clone);
                         if (dealIndex === deals.length - 1) {
@@ -959,19 +1224,37 @@
                 if (!selectedStack) return false;
                 const recipe = gameState.currentRecipe;
                 if (!recipe) return false;
-
                 const { stack } = selectedStack;
-                const type = stack[0].type;
+                if (stack.length === 0) return false;
+                const ingredient = stack[0];
+                const type = ingredient.type;
+                const originalType = ingredient.originalType || type;
                 
-                return recipe.needed[type] && recipe.needed[type] > 0;
+                if (type === '🤢') return false; // Spoiled ingredients are not deliverable
+
+                if (recipe.customerType === 'picky') {
+                    if (recipe.ingredientOrder.length === 0) return false;
+                    const nextInOrder = recipe.ingredientOrder[0];
+                    if (type === '🌟') return true; 
+                    return originalType === nextInOrder;
+                } else {
+                    if (type === '🌟') {
+                        return Object.values(recipe.needed).some(count => count > 0);
+                    }
+                    return recipe.needed.hasOwnProperty(originalType) && recipe.needed[originalType] > 0;
+                }
             }
 
             function isOrderComplete() {
                 if (!gameState.currentRecipe) return false;
+                if(gameState.currentRecipe.customerType === 'picky'){
+                    return gameState.currentRecipe.ingredientOrder.length === 0;
+                }
                 return Object.values(gameState.currentRecipe.needed).every(count => count <= 0);
             }
             
             function handleOrderCompletion() {
+                if(timerInterval) clearInterval(timerInterval);
                 gameState.ordersCompletedInLevel++;
                 const currentLevel = generateLevelData(gameState.currentLevelIndex);
 
@@ -994,32 +1277,28 @@
                 if (gameState.currentLevelIndex >= gameState.highestLevelUnlocked) {
                     gameState.highestLevelUnlocked = gameState.currentLevelIndex + 1;
                 }
-
-                gameState.currentRecipe = null; // Clear finished level
+                gameState.currentRecipe = null;
                 saveProgress();
-
                 const onConfirm = () => {
                     if (gameState.currentLevelIndex >= TOTAL_LEVELS - 1) {
                          handleGameWon();
                     } else {
                         gameState.currentLevelIndex++;
                         gameState.ordersCompletedInLevel = 0;
-                        startGame(gameState.currentLevelIndex); // Iniciar siguiente nivel
+                        startGame(gameState.currentLevelIndex);
                     }
                 };
-                
                 showMessage("¡Nivel Superado!", `¡Has desbloqueado el Nivel ${gameState.currentLevelIndex + 2}!`, [{ text: "¡Siguiente!", action: onConfirm, primary: true }]);
-
             }
             
             function handleGameWon() {
-                showMessage("¡Felicidades!", "¡Has completado todos los niveles y dominado Chef Capy!", [{ text: "Jugar de Nuevo", action: () => { showScreen(homeScreenEl); }, primary: true }]);
+                showMessage("¡Felicidades!", "¡Has completado todos los niveles y dominado Dish & Dash!", [{ text: "Jugar de Nuevo", action: () => { showScreen(homeScreenEl); }, primary: true }]);
             }
             
             function handleUnlockPlateClick() {
                 if (gameState.platesUnlocked >= 11) return;
                 
-                const cost = 1000 + (gameState.platesUnlocked - 3) * 500;
+                const cost = 1150 + (gameState.platesUnlocked - 3) * 500;
                 if (gameState.stars >= cost) {
                     showMessage(
                         "Desbloquear Plato", 
@@ -1039,6 +1318,92 @@
                     showMessage("¡Estrellas Insuficientes!", `Necesitas ${cost} ⭐ para desbloquear este plato.`, [{ text: 'OK', action: closeMessage, primary: true }]);
                 }
             }
+
+            function handleTrashClick() {
+                if (gameState.isAnimating || !gameState.selectedStack || gameState.trashUsesLeft <= 0) return;
+                
+                const { fromPlate, stack } = gameState.selectedStack;
+                if (stack[0].type === '💣') return; // Cannot trash bombs
+
+                gameState.trashUsesLeft--;
+                gameState.isAnimating = true;
+                gameState.selectedStack = null;
+                
+                const trashedIngredients = gameState.plates[fromPlate].splice(-stack.length);
+                renderGame();
+
+                const trashRect = trashCanEl.getBoundingClientRect();
+                const plateWrapper = document.getElementById(`plate-${fromPlate}`).parentElement;
+                const startRect = plateWrapper.getBoundingClientRect();
+
+                trashedIngredients.reverse().forEach((ingredientData, index) => {
+                    const clone = createAnimatedClone(ingredientData);
+                    clone.style.position = 'fixed';
+                    clone.style.zIndex = 1000 - index;
+                    clone.style.transition = 'all 0.5s cubic-bezier(0.5, -0.5, 0.2, 1)';
+                    clone.style.left = `${startRect.left + (startRect.width / 2) - 40}px`;
+                    clone.style.top = `${startRect.top + (startRect.height / 2) - 40}px`;
+                    animationLayer.appendChild(clone);
+                    setTimeout(() => {
+                        clone.style.left = `${trashRect.left + (trashRect.width / 2) - 20}px`;
+                        clone.style.top = `${trashRect.top + (trashRect.height / 2) - 20}px`;
+                        clone.style.transform = 'scale(0.3)';
+                        clone.style.opacity = '0';
+                    }, index * 50);
+                    setTimeout(() => {
+                        animationLayer.removeChild(clone);
+                        if(index === trashedIngredients.length - 1) {
+                            gameState.isAnimating = false;
+                            saveProgress();
+                            renderGame();
+                        }
+                    }, index * 50 + 500);
+                });
+            }
+
+            function clearPlateWithBomb(targetPlateIndex, bombPlateIndex) {
+                 if (gameState.isAnimating) return;
+                 gameState.isAnimating = true;
+                 const bombStack = gameState.selectedStack.stack;
+                 gameState.selectedStack = null;
+                 gameState.plates[bombPlateIndex].splice(-bombStack.length);
+                 const ingredientsToClear = [...gameState.plates[targetPlateIndex]];
+                 gameState.plates[targetPlateIndex] = [];
+                 renderGame();
+
+                 const targetWrapper = document.getElementById(`plate-${targetPlateIndex}`).parentElement;
+                 const targetRect = targetWrapper.getBoundingClientRect();
+                 
+                 ingredientsToClear.forEach((ingredient, index) => {
+                     const clone = createAnimatedClone(ingredient);
+                     clone.style.position = 'fixed';
+                     clone.style.zIndex = 1000 - index;
+                     clone.style.transition = 'all 0.5s ease-out';
+                     clone.style.left = `${targetRect.left + (targetRect.width / 2) - 40}px`;
+                     clone.style.top = `${targetRect.top + (targetRect.height / 2) - 40}px`;
+                     animationLayer.appendChild(clone);
+                     setTimeout(() => {
+                         const angle = Math.random() * 2 * Math.PI;
+                         const distance = 150 + Math.random() * 50;
+                         clone.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0.5) rotate(${Math.random() * 360}deg)`;
+                         clone.style.opacity = '0';
+                     }, 50);
+                     setTimeout(() => {
+                         animationLayer.removeChild(clone);
+                         if(index === ingredientsToClear.length - 1) {
+                             gameState.isAnimating = false;
+                             saveProgress();
+                             renderGame();
+                         }
+                     }, 550);
+                 });
+                 
+                 if(ingredientsToClear.length === 0) {
+                     gameState.isAnimating = false;
+                     saveProgress();
+                     renderGame();
+                 }
+            }
             
             // --- INICIALIZACIÓN ---
             loadProgress();
@@ -1047,10 +1412,15 @@
             resetProgressButton.addEventListener('click', resetProgress);
             backToHomeButton.addEventListener('click', () => showScreen(homeScreenEl));
             backToMapButton.addEventListener('click', showLevelMap);
-
             dealButton.addEventListener('click', dealRow);
             orderInfoEl.addEventListener('click', handleRecipeClick);
-            
+            howToPlayButton.addEventListener('click', () => {
+                howToPlayModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            });
+            howToPlayCloseButton.addEventListener('click', () => {
+                 howToPlayModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            });
+            trashCanEl.addEventListener('click', handleTrashClick);
         });
     </script>
 </body>
