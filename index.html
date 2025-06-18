@@ -496,7 +496,7 @@
             
              function generateLevelData(levelIndex) {
                 const levelNumber = levelIndex + 1;
-                const ordersToComplete = Math.min(10, 2 + Math.floor(levelIndex / 4));
+                const ordersToComplete = Math.min(10, 2 + Math.floor(levelIndex / 3));
                 const platesActive = Math.min(11, 3 + Math.floor(levelIndex / 2));
                 const unlocks = (levelIndex < allPossibleIngredients.length - 2) ? 1 : 0;
                 const deckSize = 80 + levelIndex * 15;
@@ -643,7 +643,7 @@
                         }
 
                         let ingredientToDeal = null;
-                        const pullFromPriority = Math.random() < 0.5; 
+                        const pullFromPriority = Math.random() < 0.4; 
 
                         if (pullFromPriority && priorityDeck.length > 0) {
                             ingredientToDeal = priorityDeck.pop();
@@ -1019,7 +1019,7 @@
             function handleUnlockPlateClick() {
                 if (gameState.platesUnlocked >= 11) return;
                 
-                const cost = 100 + (gameState.platesUnlocked - 3) * 50;
+                const cost = 1000 + (gameState.platesUnlocked - 3) * 500;
                 if (gameState.stars >= cost) {
                     showMessage(
                         "Desbloquear Plato", 
