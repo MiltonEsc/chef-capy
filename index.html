@@ -143,7 +143,7 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             cursor: pointer;
         }
-        #order-info.targetable, #trash-can.targetable {
+        #order-info.targetable {
              animation: pulsate-glow 2s infinite ease-in-out;
         }
         @keyframes shake {
@@ -374,49 +374,55 @@
             </div>
         </div>
     </div>
-    <div id="how-to-play-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center opacity-0 pointer-events-none transform scale-95 z-50">
-        <div class="bg-amber-50 rounded-2xl shadow-2xl p-6 md:p-8 w-11/12 max-w-md mx-auto">
-            <h2 id="how-to-play-title" class="text-2xl md:text-3xl font-bold text-amber-800 mb-4 text-center">Cómo Jugar a Dish & Dash</h2>
-            <div class="text-left text-gray-700 space-y-3 md:space-y-4 text-sm md:text-base">
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">📝</span>
-                    <p><strong>El Pedido:</strong> ¡Mira la tarjeta de pedido! Tu objetivo es juntar los ingredientes necesarios para completar la receta.</p>
+    
+    <div id="how-to-play-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        <div id="how-to-play-content" class="bg-amber-50 rounded-2xl shadow-2xl w-full max-w-md mx-auto max-h-full overflow-y-auto relative transform scale-95 transition-transform duration-300">
+            <div class="p-6 md:p-8">
+                 <button id="how-to-play-close-button-x" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 z-10">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h2 id="how-to-play-title" class="text-2xl md:text-3xl font-bold text-amber-800 mb-4 text-center">Cómo Jugar a Dish & Dash</h2>
+                <div class="text-left text-gray-700 space-y-3 md:space-y-4 text-sm md:text-base">
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">📝</span>
+                        <p><strong>El Pedido:</strong> ¡Mira la tarjeta de pedido! Tu objetivo es juntar los ingredientes necesarios para completar la receta.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">🧐</span>
+                        <p><strong>Clientes Tiquismiquis:</strong> ¡Cuidado! Algunos clientes quieren sus ingredientes en un orden específico. Deberás entregar el ingrediente resaltado primero.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">👆</span>
+                        <p><strong>Mover Pilas:</strong> Haz clic en un plato para seleccionar una pila. Puedes moverla a otro plato si está vacío, tiene el mismo ingrediente arriba, o si el ingrediente superior es un comodín (🌟).</p>
+                    </div>
+                     <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">🏆</span>
+                        <p><strong>Ingredientes Dorados:</strong> ¡Un tesoro! Son versiones raras de los ingredientes normales. Entrégalos para obtener una gran bonificación de estrellas.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">🤢</span>
+                        <p><strong>Ingredientes Podridos:</strong> ¡Evítalos! No se pueden entregar y ocupan un espacio valioso. ¡Tendrás que tirarlos a la basura!</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">🗑️</span>
+                        <p><strong>Bote de Basura:</strong> ¿Un ingrediente te estorba? Selecciónalo y haz clic en el bote de basura para descartarlo. ¡Tienes usos limitados por nivel!</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">💣</span>
+                        <p><strong>Ingrediente Bomba:</strong> Selecciónala y haz clic en cualquier plato para limpiar todos los ingredientes que contenga. ¡Úsala con sabiduría!</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">🌟</span>
+                        <p><strong>Ingrediente Comodín:</strong> ¡El ingrediente estrella! Se puede apilar sobre cualquier otro y cuenta para cualquier ingrediente que necesites.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl mt-1">⭐</span>
+                        <p><strong>Ganar Estrellas:</strong> Completa pedidos para ganar estrellas. ¡Úsalas para desbloquear más platos!</p>
+                    </div>
                 </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">🧐</span>
-                    <p><strong>Clientes Tiquismiquis:</strong> ¡Cuidado! Algunos clientes quieren sus ingredientes en un orden específico. Deberás entregar el ingrediente resaltado primero.</p>
+                <div class="text-center mt-6">
+                    <button id="how-to-play-close-button" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-2 px-8 rounded-full">¡Entendido!</button>
                 </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">👆</span>
-                    <p><strong>Mover Pilas:</strong> Haz clic en un plato para seleccionar una pila. Puedes moverla a otro plato si está vacío, tiene el mismo ingrediente arriba, o si el ingrediente superior es un comodín (🌟).</p>
-                </div>
-                 <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">🏆</span>
-                    <p><strong>Ingredientes Dorados:</strong> ¡Un tesoro! Son versiones raras de los ingredientes normales. Entrégalos para obtener una gran bonificación de estrellas.</p>
-                </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">🤢</span>
-                    <p><strong>Ingredientes Podridos:</strong> ¡Evítalos! No se pueden entregar y ocupan un espacio valioso. ¡Tendrás que tirarlos a la basura!</p>
-                </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">🗑️</span>
-                    <p><strong>Bote de Basura:</strong> ¿Un ingrediente te estorba? Selecciónalo y haz clic en el bote de basura para descartarlo. ¡Tienes usos limitados por nivel!</p>
-                </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">💣</span>
-                    <p><strong>Ingrediente Bomba:</strong> Selecciónala y haz clic en cualquier plato para limpiar todos los ingredientes que contenga. ¡Úsala con sabiduría!</p>
-                </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">🌟</span>
-                    <p><strong>Ingrediente Comodín:</strong> ¡El ingrediente estrella! Se puede apilar sobre cualquier otro y cuenta para cualquier ingrediente que necesites.</p>
-                </div>
-                <div class="flex items-start gap-4">
-                    <span class="text-2xl mt-1">⭐</span>
-                    <p><strong>Ganar Estrellas:</strong> Completa pedidos para ganar estrellas. ¡Úsalas para desbloquear más platos!</p>
-                </div>
-            </div>
-            <div class="text-center mt-6">
-                <button id="how-to-play-close-button" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-2 px-8 rounded-full">¡Entendido!</button>
             </div>
         </div>
     </div>
@@ -496,7 +502,9 @@
             const customerTypeBadge = document.getElementById('customer-type-badge');
             const howToPlayButton = document.getElementById('how-to-play-button');
             const howToPlayModal = document.getElementById('how-to-play-modal');
+            const howToPlayContent = document.getElementById('how-to-play-content');
             const howToPlayCloseButton = document.getElementById('how-to-play-close-button');
+            const howToPlayCloseButtonX = document.getElementById('how-to-play-close-button-x');
             const trashCanEl = document.getElementById('trash-can');
             const trashCounterEl = document.getElementById('trash-counter');
 
@@ -974,7 +982,6 @@
                 orderInfoEl.classList.toggle('targetable', isStackDeliverable(gameState.selectedStack));
                 
                 trashCanEl.disabled = !gameState.selectedStack || gameState.trashUsesLeft <= 0 || (gameState.selectedStack && gameState.selectedStack.stack[0].type === '💣');
-                // Removed the highlight from trash can
                 trashCanEl.classList.remove('targetable');
                 trashCounterEl.textContent = gameState.trashUsesLeft;
 
@@ -998,7 +1005,7 @@
                     for (let i = clickedPlate.length - 1; i >= 0; i--) {
                         const currentIngredient = clickedPlate[i];
                         const currentOriginalType = currentIngredient.originalType || currentIngredient.type;
-                        if (currentOriginalType === topOriginalType || currentIngredient.type === topType) { // Allows stacking same original types (e.g. golden on normal)
+                        if (currentOriginalType === topOriginalType && currentIngredient.type === topType) { 
                              movableStack.unshift(currentIngredient);
                         }
                         else break;
@@ -1408,19 +1415,38 @@
             // --- INICIALIZACIÓN ---
             loadProgress();
             
+            // --- Event Listeners ---
             startGameButton.addEventListener('click', showLevelMap);
             resetProgressButton.addEventListener('click', resetProgress);
             backToHomeButton.addEventListener('click', () => showScreen(homeScreenEl));
             backToMapButton.addEventListener('click', showLevelMap);
             dealButton.addEventListener('click', dealRow);
             orderInfoEl.addEventListener('click', handleRecipeClick);
-            howToPlayButton.addEventListener('click', () => {
-                howToPlayModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-            });
-            howToPlayCloseButton.addEventListener('click', () => {
-                 howToPlayModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-            });
             trashCanEl.addEventListener('click', handleTrashClick);
+            
+            // --- Modal "Cómo Jugar" Listeners ---
+            function openHowToPlayModal() {
+                howToPlayModal.classList.remove('opacity-0', 'pointer-events-none');
+                howToPlayContent.classList.remove('scale-95');
+            }
+            
+            function closeHowToPlayModal() {
+                howToPlayModal.classList.add('opacity-0');
+                howToPlayContent.classList.add('scale-95');
+                // Allow transitions to finish before setting pointer-events to none
+                setTimeout(() => {
+                     howToPlayModal.classList.add('pointer-events-none');
+                }, 300);
+            }
+
+            howToPlayButton.addEventListener('click', openHowToPlayModal);
+            howToPlayCloseButton.addEventListener('click', closeHowToPlayModal);
+            howToPlayCloseButtonX.addEventListener('click', closeHowToPlayModal);
+            howToPlayModal.addEventListener('click', (e) => {
+                if (e.target === howToPlayModal) {
+                    closeHowToPlayModal();
+                }
+            });
         });
     </script>
 </body>
