@@ -4,32 +4,40 @@ import { motion } from 'framer-motion';
 
 const CTA = () => {
   const benefits = [
-    'Configuración en menos de 5 minutos',
-    'Soporte técnico 24/7 incluido',
-    'Garantía de devolución de 30 días',
-    'Actualizaciones automáticas gratuitas'
+    '🚀 Configuración en menos de 5 minutos',
+    '🤗 Soporte cálido 24/7 incluido',
+    '💚 Garantía de amor de 30 días',
+    '✨ Actualizaciones mágicas gratuitas'
   ];
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-secondary-50 to-primary-50">
-      <div className="max-w-4xl mx-auto text-center">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream-50 via-warm-50 to-sage-50 relative overflow-hidden">
+      {/* Elementos decorativos */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 text-6xl opacity-30 animate-float">🌻</div>
+        <div className="absolute top-40 right-10 text-5xl opacity-25 animate-gentle-bounce">🦋</div>
+        <div className="absolute bottom-20 left-10 text-7xl opacity-20 animate-soft-pulse">🌈</div>
+        <div className="absolute bottom-40 right-20 text-6xl opacity-30 animate-float">🌸</div>
+      </div>
+
+      <div className="max-w-5xl mx-auto text-center relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-secondary-900 mb-6">
-            ¿Listo para transformar tu
-            <span className="gradient-text"> flujo de trabajo?</span>
+          <h2 className="text-4xl sm:text-5xl font-bold text-sage-900 mb-8">
+            ¿Listo para crear tu
+            <span className="cozy-gradient-text block"> hogar digital perfecto? 🏡</span>
           </h2>
           
-          <p className="text-xl text-secondary-600 mb-8 max-w-2xl mx-auto">
-            Únete a miles de equipos que ya han revolucionado su productividad. 
-            Comienza tu prueba gratuita hoy mismo, sin compromisos.
+          <p className="text-2xl text-sage-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Únete a miles de equipos que ya han encontrado su lugar especial. 
+            Comienza tu aventura acogedora hoy mismo, sin compromisos.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12 max-w-3xl mx-auto">
             {benefits.map((benefit, index) => (
               <motion.div
                 key={benefit}
@@ -37,10 +45,10 @@ const CTA = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="flex items-center text-left"
+                className="flex items-center text-left cozy-card hover:scale-105 transition-all duration-300"
               >
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-secondary-700">{benefit}</span>
+                <CheckCircle className="h-6 w-6 text-sage-500 mr-4 flex-shrink-0" />
+                <span className="text-sage-700 text-lg">{benefit}</span>
               </motion.div>
             ))}
           </div>
@@ -48,22 +56,22 @@ const CTA = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           >
-            <button className="btn-primary text-lg px-8 py-4 flex items-center group">
-              Comenzar prueba gratuita
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <button className="btn-cozy-primary text-xl px-10 py-5 flex items-center group">
+              Comenzar mi aventura 🌟
+              <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
             </button>
             
-            <button className="btn-secondary text-lg px-8 py-4">
-              Hablar con ventas
+            <button className="btn-cozy-secondary text-xl px-10 py-5">
+              Hablar con nosotros 💬
             </button>
           </motion.div>
 
-          <p className="text-sm text-secondary-500 mt-6">
-            No se requiere tarjeta de crédito • Cancela en cualquier momento
+          <p className="text-lg text-sage-500 mt-8">
+            No se requiere tarjeta de crédito • Cancela cuando quieras • Siempre con amor 💕
           </p>
         </motion.div>
       </div>
