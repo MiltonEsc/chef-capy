@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fredoka:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gradient-to-br from-cream-50 via-warm-50 to-sage-50 text-sage-800;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Fredoka', 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .cozy-glass {
+    @apply bg-white/60 backdrop-blur-sm border border-white/40 shadow-lg;
+  }
+  
+  .cozy-gradient-text {
+    @apply bg-gradient-to-r from-sage-600 via-warm-600 to-coral-500 bg-clip-text text-transparent;
+  }
+  
+  .btn-cozy-primary {
+    @apply bg-gradient-to-r from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 text-white font-medium px-8 py-4 rounded-extra-cozy transition-all duration-500 transform hover:scale-105 hover:shadow-xl shadow-sage-200/50;
+  }
+  
+  .btn-cozy-secondary {
+    @apply bg-cream-100 hover:bg-cream-200 border-2 border-sage-200 text-sage-700 hover:text-sage-800 font-medium px-8 py-4 rounded-extra-cozy transition-all duration-500 hover:shadow-lg;
+  }
+  
+  .cozy-card {
+    @apply bg-gradient-to-br from-white/80 to-cream-50/80 backdrop-blur-sm border-2 border-white/60 rounded-extra-cozy p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-102 hover:-translate-y-1;
+  }
+
+  .cozy-feature-icon {
+    @apply w-16 h-16 rounded-cozy p-4 shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Fredoka', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Elementos decorativos cozy */
+.cozy-decoration {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.scale-102 {
+  transform: scale(1.02);
+}
