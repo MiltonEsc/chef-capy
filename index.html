@@ -246,9 +246,8 @@
     <div id="animation-layer" class="fixed inset-0 pointer-events-none z-50"></div>
 
     <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4">
-        <h1 class="text-7xl md:text-9xl text-amber-800">Dish & Dash</h1>
+        <img id="game-logo" src="logo.png" alt="Game Logo" class="w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64 mb-4 rounded-full">
         <p class="text-2xl text-stone-600 my-4">A Cozy Kitchen Puzzle</p>
-        <div class="text-8xl my-4 animate-bounce">🧑‍🍳</div>
         <p class="text-xl text-stone-500 max-w-md mb-8">The chef needs your help. Let's sort these ingredients for the daily orders!</p>
         <button id="start-game-button" class="btn btn-primary text-2xl">
             Start Cooking!
@@ -376,7 +375,7 @@
             const DEAL_LIMIT = 15;
             const TOTAL_LEVELS = 100;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️', '💣', '🌟', '🤢', '🏆'];
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️', '�', '🌟', '🤢', '🏆'];
             
             let gameState = {
                 highestLevelUnlocked: 0,
@@ -1115,3 +1114,4 @@
     </script>
 </body>
 </html>
+�
