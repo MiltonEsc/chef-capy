@@ -58,7 +58,7 @@
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-danger:hover { background-color: #b96f6f; }
         
-        #game-ui { perspective: 1500px; }
+        #game-ui, #plate-tower-game { perspective: 1500px; }
 
         /* --- Level Map Redesign --- */
         #level-map-screen {
@@ -246,7 +246,7 @@
     <div id="animation-layer" class="fixed inset-0 pointer-events-none z-50"></div>
 
     <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4">
-        <img id="game-logo" src="logo.png" alt="Game Logo" class="w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64 mb-4 rounded-full">
+        <img src="logo.png" alt="Game Logo" class="w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64 mb-4 rounded-full">
         <p class="text-2xl text-stone-600 my-4">A Cozy Kitchen Puzzle</p>
         <p class="text-xl text-stone-500 max-w-md mb-8">The chef needs your help. Let's sort these ingredients for the daily orders!</p>
         <button id="start-game-button" class="btn btn-primary text-2xl">
@@ -301,21 +301,21 @@
         <main id="plates-container-wrapper" class="flex-grow flex justify-center">
             <div id="plates-container" class="flex flex-col-reverse pt-2 pb-4">
                  <div class="plate-row flex justify-center gap-x-2" style="z-index: 30;">
-                     <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
                  </div>
                  <div class="plate-row flex justify-center gap-x-2 -mb-8" style="z-index: 20;">
-                     <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
                  </div>
                  <div class="plate-row flex justify-center gap-x-2 -mb-8" style="z-index: 10;">
-                     <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"></div></div></div>
-                     <div class="plate-wrapper"><div id="plate-10" class="plate-area"><div class="lock-icon"></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                     <div class="plate-wrapper"><div id="plate-10" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
                  </div>
             </div>
         </main>
@@ -356,7 +356,6 @@
                  <div class="flex items-start gap-4"> <span class="text-3xl mt-0">🧐</span> <p><strong>Picky Customers:</strong> Some customers want ingredients in a specific order. Match the highlighted one first!</p></div>
                  <div class="flex items-start gap-4"> <span class="text-3xl mt-0">👆</span> <p><strong>Move Stacks:</strong> Click a plate to select the top matching ingredients. Click another plate to move the stack.</p></div>
                  <div class="flex items-start gap-4"> <span class="text-3xl mt-0">🏆</span> <p><strong>Golden Ingredients:</strong> These rare items are worth a huge star bonus!</p></div>
-                 <div class="flex items-start gap-4"> <span class="text-3xl mt-0">🤢</span> <p><strong>Rotten Ingredients:</strong> These can't be delivered! You'll have to use the trash can.</p></div>
                  <div class="flex items-start gap-4"> <span class="text-3xl mt-0">🗑️</span> <p><strong>Trash Can:</strong> Discard unwanted ingredients. Uses are limited per level!</p></div>
                  <div class="flex items-start gap-4"> <span class="text-3xl mt-0">💣</span> <p><strong>Bomb:</strong> Select a bomb and click any plate to clear all ingredients from it.</p></div>
                  <div class="flex items-start gap-4"> <span class="text-3xl mt-0">🌟</span> <p><strong>Wildcard:</strong> This special item can be stacked on anything and counts as any ingredient you need.</p></div>
@@ -375,8 +374,6 @@
             const DEAL_LIMIT = 15;
             const TOTAL_LEVELS = 100;
             
-            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️', '�', '🌟', '🤢', '🏆'];
-            
             let gameState = {
                 highestLevelUnlocked: 0,
                 currentLevelIndex: 0,
@@ -391,6 +388,9 @@
                 platesUnlocked: 3,
                 trashUsesLeft: 0,
             };
+            
+            const allPossibleIngredients = ['🍓', '🍌', '🍇', '🥕', '🥦', '🍄', '🍅', '🥑', '🍆', '🌶️'];
+            const specialIngredients = ['💣', '🌟', '🏆'];
 
             const cozyGradientMap = {
                 '🍓': 'bg-gradient-to-br from-pink-300 to-red-400',
@@ -405,7 +405,6 @@
                 '🌶️': 'bg-gradient-to-br from-red-500 to-orange-600',
                 '🌟': 'bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-400',
                 '💣': 'bg-gradient-to-br from-gray-600 to-black',
-                '🤢': 'bg-gradient-to-br from-lime-700 to-green-800',
                 '🏆': 'bg-gradient-to-br from-yellow-300 to-amber-500'
             };
 
@@ -516,8 +515,9 @@
                             isAnimating: false, unlockedIngredients: [], stars: 0, platesUnlocked: 3,
                             trashUsesLeft: 0,
                         });
-                        showMessage("Progress Reset", "Your cozy kitchen adventure starts anew!");
+                        saveProgress();
                         renderLevelMap();
+                        closeMessage();
                     }}
                 ]);
             }
@@ -539,7 +539,7 @@
                     if (isUnlocked) {
                         content.innerHTML = `<div class="level-number">${i + 1}</div><div class="level-text-label">Recipe</div>`;
                     } else {
-                        content.innerHTML = `<div class="lock-icon-map"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm-2.5 8V5.5a2.5 2.5 0 115 0V9h-5z" clip-rule="evenodd" /></svg></div>`;
+                        content.innerHTML = `<div class="lock-icon-map"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div>`;
                     }
                     button.appendChild(content);
                     nodeContainer.appendChild(button);
@@ -556,7 +556,7 @@
                 const levelNumber = levelIndex + 1;
                 const ordersToComplete = Math.min(10, 2 + Math.floor(levelIndex / 3));
                 const platesActive = Math.min(11, 3 + Math.floor(levelIndex / 2));
-                const unlocks = (levelIndex < allPossibleIngredients.length - 4) ? 1 : 0;
+                const unlocks = (levelIndex < allPossibleIngredients.length) ? 1 : 0;
                 const deckSize = 80 + levelIndex * 15;
                 const ingredientCount = Math.min(Math.floor(2 + levelIndex / 3), allPossibleIngredients.length);
                 return { id: levelNumber, ordersToComplete, platesActive, deckSize, unlocks, ingredientCount };
@@ -576,7 +576,7 @@
                 for(let i = 0; i < levelIndex; i++) {
                     unlockedCount += generateLevelData(i).unlocks || 0;
                 }
-                gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length - 4));
+                gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length));
                 serveNewOrder();
             }
 
@@ -590,10 +590,8 @@
                         }
                     }
                 }
-                const spoiledCount = Math.floor(level.deckSize / 45);
-                for (let i = 0; i < spoiledCount; i++) newDeck.push({ type: '🤢', id: `spoiled-${i}-${Math.random()}` });
 
-                const potentialDistractors = allPossibleIngredients.filter(ing => !ingredientPool.includes(ing) && !['💣', '🌟', '🤢', '🏆'].includes(ing));
+                const potentialDistractors = allPossibleIngredients.filter(ing => !ingredientPool.includes(ing));
                 if (potentialDistractors.length > 0) {
                     const distractor = potentialDistractors[0];
                     for (let i = 0; i < 5; i++) newDeck.push({ type: distractor, id: `distractor-${distractor}-${i}-${Math.random()}`});
@@ -778,7 +776,7 @@
                         }
                     } else {
                         plateArea.classList.add('locked');
-                        plateArea.innerHTML = `<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm-2.5 8V5.5a2.5 2.5 0 115 0V9h-5z" clip-rule="evenodd" /></svg></div>`;
+                        plateArea.innerHTML = `<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div>`;
                         wrapper.onclick = () => handleUnlockPlateClick(); 
                     }
                 });
@@ -847,7 +845,7 @@
 
                 const inner = document.createElement('div');
                 inner.className = 'ingredient-inner';
-                inner.textContent = ingredientData.type === '🏆' ? ingredientData.originalType : ingredientData.type;
+                inner.textContent = ingredientData.type;
                 
                 clone.appendChild(inner);
                 return clone;
@@ -1114,4 +1112,3 @@
     </script>
 </body>
 </html>
-�
