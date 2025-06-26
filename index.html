@@ -170,10 +170,19 @@
         }
         
         .lock-icon {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotateZ(45deg) rotateX(-60deg);
-            width: 2rem; height: 2rem; color: rgba(0,0,0,0.35); display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* YA NO TENEMOS ROTACIÓN AQUÍ.
+              Solo centramos el candado y lo levantamos 2px para evitar que se corte.
+            */
+            transform: translate(-50%, -50%) translateZ(2px);
+            width: 2.5rem;  /* Lo hacemos un poco más grande */
+            height: 2.5rem; /* para que se vea bien sin la distorsión de la rotación */
+            display: none;
+            z-index: 10;
         }
+        
         .plate-area.locked .lock-icon { display: block; }
 
         .ingredient {
@@ -287,21 +296,21 @@
         <main id="plates-container-wrapper" class="flex-grow flex justify-center">
             <div id="plates-container" class="flex flex-col-reverse pt-2 pb-4">
                  <div class="plate-row flex justify-center gap-x-2" style="z-index: 30;">
-                    <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
                  </div>
                  <div class="plate-row flex justify-center gap-x-2 -mb-8" style="z-index: 20;">
-                    <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
                  </div>
                  <div class="plate-row flex justify-center gap-x-2 -mb-8" style="z-index: 10;">
-                    <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
-                    <div class="plate-wrapper"><div id="plate-10" class="plate-area"><div class="lock-icon"><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
+                      <div class="plate-wrapper"><div id="plate-10" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
                  </div>
             </div>
         </main>
@@ -339,7 +348,7 @@
                  <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/trash.png" alt="Comodín"></span> <p><strong>Bote de Basura:</strong> Descarta los ingredientes no deseados. ¡Los usos son limitados por nivel!</p></div>
                  <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/bomb.png" alt="Bomba"></span> <p><strong>Bomba:</strong> Selecciona una bomba y haz clic en cualquier plato para eliminar todos los ingredientes de él.</p></div>
                  <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/star.png" alt="Comodín"></span> <p><strong>Comodín:</strong> Este artículo especial se puede apilar sobre cualquier cosa y cuenta como cualquier ingrediente que necesites.</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/premio.png" alt="cornus"></span> <p><strong>Cornu:</strong> Gana cornus completando pedidos. ¡Úsalas para desbloquear más platos!</p></div>
+                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/corbys.png" alt="corbys"></span> <p><strong>Corbys:</strong> Gana corbys completando pedidos. ¡Úsalas para desbloquear más platos!</p></div>
              </div>
              <div class="text-center mt-8">
                  <button id="how-to-play-close-button" class="btn btn-primary">¡Entendido!</button>
@@ -741,7 +750,7 @@
                         }
                     }
                 } else {
-                    plateArea.classList.add('locked'); plateArea.innerHTML = `<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div>`;
+                    plateArea.classList.add('locked'); plateArea.innerHTML = `<div class="lock-icon"><span><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></span></div>`;
                     wrapper.onclick = () => handleUnlockPlateClick(); 
                 }
             });
