@@ -173,12 +173,9 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            /* YA NO TENEMOS ROTACIÓN AQUÍ.
-               Solo centramos el candado y lo levantamos 2px para evitar que se corte.
-            */
             transform: translate(-50%, -50%) translateZ(2px);
-            width: 2.5rem;  /* Lo hacemos un poco más grande */
-            height: 2.5rem; /* para que se vea bien sin la distorsión de la rotación */
+            width: 2.5rem;
+            height: 2.5rem;
             display: none;
             z-index: 10;
         }
@@ -193,19 +190,17 @@
             display: flex; align-items: center; justify-content: center;
             transform: translateX(-50%); border-radius: 9999px; padding: 6px; 
         }
-        /* MODIFIED: CSS for the ingredient's inner circle and image */
         .ingredient-inner {
             width: 100%; height: 100%; border-radius: 9999px;
             background: radial-gradient(circle, #ffffff 60%, #f0efeb 100%);
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             display: flex; align-items: center; justify-content: center;
-            /* font-size property is no longer needed for images */
         }
         .ingredient-inner img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Use 'contain' to prevent images from being cropped */
-            border-radius: 9999px; /* Ensure the image itself is circular */
+            object-fit: contain;
+            border-radius: 9999px;
         }
         .ingredient.golden .ingredient-inner {
             filter: drop-shadow(0 0 8px gold) drop-shadow(0 0 3px #fff);
@@ -235,7 +230,7 @@
 
     <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4">
         <div class="my-4 animate-bounce">
-            <img src="/img/logo.png" alt="Logo de Dish & Dash" class="w-36 h-36 rounded-full">
+            <img src="/img/logo.png" alt="Logo de Dish & Dash" class="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-white">
         </div>
         <p class="text-2xl text-stone-600 my-4">Un rompecabezas de cocina</p>
         <p id="user-greeting" class="text-xl text-stone-500 max-w-md mb-8">¡Por favor, inicia sesión para empezar a cocinar!</p>
@@ -431,7 +426,6 @@
         const DEAL_LIMIT = 15;
         const TOTAL_LEVELS = 100;
 
-        // NEW: Ingredient and Special Item Definitions
         const allPossibleIngredients = [
             { id: 'strawberry', name: 'Fresa', emoji: '🍓', imageUrl: '/img/strawberry.png' },
             { id: 'banana', name: 'Banana', emoji: '🍌', imageUrl: '/img/banana.png' },
@@ -603,7 +597,6 @@
             showScreen(gameUiEl); gameState.currentLevelIndex = levelIndex; gameState.ordersCompletedInLevel = 0;
             gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []); gameState.trashUsesLeft = 3 + Math.floor(levelIndex / 5);
             let unlockedCount = 2; for(let i = 0; i < levelIndex; i++) unlockedCount += generateLevelData(i).unlocks || 0;
-            // UPDATED: Get ingredient IDs instead of full objects
             gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length)).map(ing => ing.id);
             serveNewOrder();
         }
@@ -612,7 +605,6 @@
             if (recipe && recipe.ingredients) {
                 for (const [ingredientId, count] of Object.entries(recipe.ingredients)) {
                     for (let i = 0; i < count; i++) {
-                        // UPDATED: Use 'golden' ID for type
                         const isGolden = Math.random() < 0.1; 
                         newDeck.push({ type: isGolden ? specialItems.golden.id : ingredientId, originalType: ingredientId, id: `req-${ingredientId}-${i}-${Math.random()}` });
                     }
@@ -622,7 +614,6 @@
             if (potentialDistractors.length > 0) { const distractor = potentialDistractors[0]; for (let i = 0; i < 5; i++) newDeck.push({ type: distractor, id: `distractor-${distractor}-${i}-${Math.random()}`}); }
             const specialIngredientCount = Math.floor(level.deckSize / 20);
             for (let i = 0; i < specialIngredientCount; i++) { 
-                // UPDATED: Use special item IDs
                 const type = Math.random() < 0.6 ? specialItems.bomb.id : specialItems.wildcard.id; 
                 newDeck.push({ type, id: `special-${type}-${i}-${Math.random()}` }); 
             }
@@ -638,7 +629,6 @@
         function generateRecipeForLevel(level, unlockedIngredients) {
             const recipeIngredients = {}; const shuffledPool = [...unlockedIngredients]; shuffleArray(shuffledPool);
             const ingredientCountForRecipe = Math.min(shuffledPool.length, 3); const ingredientsForRecipe = shuffledPool.slice(0, ingredientCountForRecipe);
-            // Recipe ingredients are now stored by ID
             ingredientsForRecipe.forEach(ingredientId => { recipeIngredients[ingredientId] = 10; });
             return { name: generateRandomRecipeName(), ingredients: recipeIngredients };
         }
@@ -664,27 +654,68 @@
             gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
             gameState.selectedStack = null; renderGame();
         }
+       
+        // --- LOGIC UPDATED ---
         function dealRow() {
             if (gameState.isAnimating || gameState.deck.length === 0) return;
-            if (gameState.selectedStack) gameState.selectedStack = null; const deals = [];
-            const availablePlates = gameState.plates.map((p, i) => i).filter(i => gameState.plates[i].length < DEAL_LIMIT);
-            if (availablePlates.length === 0) { dealButton.classList.add('shake'); setTimeout(() => dealButton.classList.remove('shake'), 500); return; }
-            shuffleArray(availablePlates); const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
-            let priorityDeck = gameState.deck.filter(ing => neededTypes.includes(ing.type) || neededTypes.includes(ing.originalType));
-            let regularDeck = gameState.deck.filter(ing => !priorityDeck.includes(ing));
-            availablePlates.forEach(plateIndex => {
-                const countToServe = Math.floor(Math.random() * 3) + 1; let servedToThisPlate = 0;
-                for (let i = 0; i < countToServe; i++) {
-                    if (gameState.plates[plateIndex].length + servedToThisPlate >= DEAL_LIMIT) break; 
-                    let ingredientToDeal = null; const pullFromPriority = Math.random() < 0.4;
-                    if (pullFromPriority && priorityDeck.length > 0) ingredientToDeal = priorityDeck.pop();
-                    else if (regularDeck.length > 0) ingredientToDeal = regularDeck.pop();
-                    else if (priorityDeck.length > 0) ingredientToDeal = priorityDeck.pop();
-                    else break; 
-                    if (ingredientToDeal) { deals.push({ toPlateIndex: plateIndex, ingredient: ingredientToDeal }); servedToThisPlate++; }
+            // Deselect any held stack for a cleaner user experience
+            if (gameState.selectedStack) {
+                gameState.selectedStack = null;
+                renderGame(); 
+            }
+            const deals = [];
+            // Find all plates that are unlocked and not full
+            const availablePlates = [];
+            for (let i = 0; i < gameState.platesUnlocked; i++) {
+                if (gameState.plates[i].length < DEAL_LIMIT) {
+                    availablePlates.push(i);
+                }
+            }
+
+            if (availablePlates.length === 0) {
+                dealButton.classList.add('shake');
+                setTimeout(() => dealButton.classList.remove('shake'), 500);
+                return;
+            }
+
+            // Separate the deck into ingredients the player needs vs. other ingredients
+            const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
+            const priorityDeck = [];
+            const regularDeck = [];
+            gameState.deck.forEach(ing => {
+                if (neededTypes.includes(ing.type) || neededTypes.includes(ing.originalType)) {
+                    priorityDeck.push(ing);
+                } else {
+                    regularDeck.push(ing);
                 }
             });
-            gameState.deck = [...priorityDeck, ...regularDeck]; shuffleArray(gameState.deck); if (deals.length > 0) animateDeal(deals);
+
+            shuffleArray(priorityDeck);
+            shuffleArray(regularDeck);
+
+            // Deal one ingredient to each available plate, prioritizing needed ones
+            availablePlates.forEach(plateIndex => {
+                let ingredientToDeal = null;
+
+                // Always try to deal a needed ingredient first
+                if (priorityDeck.length > 0) {
+                    ingredientToDeal = priorityDeck.pop();
+                } else if (regularDeck.length > 0) {
+                    ingredientToDeal = regularDeck.pop();
+                }
+
+                if (ingredientToDeal) {
+                    deals.push({ toPlateIndex: plateIndex, ingredient: ingredientToDeal });
+                }
+            });
+
+            // Rebuild the main deck with the remaining ingredients
+            gameState.deck = [...priorityDeck, ...regularDeck];
+            shuffleArray(gameState.deck);
+
+            if (deals.length > 0) {
+                animateDeal(deals);
+            }
         }
         
         // --- CORE GAME LOGIC & RENDERING ---
@@ -701,7 +732,6 @@
             if (recipe.isVIP) { const percentage = (recipe.timeLeft / recipe.timerDuration) * 100; timerBar.style.width = `${percentage}%`; }
             recipeIngredientsEl.innerHTML = '';
             
-            // UPDATED: Render recipe ingredients using images
             if(recipe.customerType === 'picky') {
                 recipe.ingredientOrder.forEach((ingredientId, index) => {
                     const masterData = allIngredientData[ingredientId];
@@ -716,9 +746,9 @@
                 recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
                     .map(([ingredientId, targetCount]) => {
                         const masterData = allIngredientData[ingredientId];
-                        const needed = Math.max(0, recipe.needed[ingredientId]); // This will now be targetCount or 0
+                        const needed = Math.max(0, recipe.needed[ingredientId]);
                         const isComplete = needed <= 0;
-                        const displayCount = isComplete ? 0 : targetCount; // Show the target count
+                        const displayCount = isComplete ? 0 : targetCount;
                         const imgTag = masterData ? `<img src="${masterData.imageUrl}" class="recipe-img" alt="${masterData.name}">` : `<span>${ingredientId}</span>`;
                         return `<span class="recipe-ingredient inline-flex items-center ${isComplete ? 'line-through text-stone-400 opacity-60' : ''}">${imgTag} x${displayCount}</span>`;
                     }).join(' ');
@@ -763,17 +793,15 @@
             dealButton.disabled = allPlatesFull || isOrderComplete(); deckCountEl.textContent = gameState.deck.length;
         }
 
-        // --- CORE LOGIC FUNCTIONS ---
         function handlePlateClick(plateIndex) {
             if (gameState.isAnimating) return;
             const clickedPlate = gameState.plates[plateIndex];
 
-            if (!gameState.selectedStack) { // No stack selected, so we are selecting one now
+            if (!gameState.selectedStack) {
                 if (clickedPlate.length === 0) return;
                 
                 const topIngredient = clickedPlate[clickedPlate.length - 1];
                 const movableStack = [];
-                // Allow selecting golden ingredients with their original type
                 const typeToMatch = topIngredient.type === specialItems.golden.id ? topIngredient.originalType : topIngredient.type;
 
                 for (let i = clickedPlate.length - 1; i >= 0; i--) {
@@ -788,7 +816,7 @@
                 }
                 gameState.selectedStack = { fromPlate: plateIndex, stack: movableStack };
 
-            } else { // A stack is already selected, we are choosing a destination
+            } else {
                 const { fromPlate, stack } = gameState.selectedStack;
                 
                 if (stack[0].type === specialItems.bomb.id) {
@@ -821,14 +849,11 @@
             const destType = destTop.type;
             if ([specialItems.bomb.id, '🤢'].includes(destType)) return false;
         
-            // Moving a wildcard stack
             if (stackType === specialItems.wildcard.id) return true; 
         
-            // Moving a regular or golden ingredient stack
             const stackOriginalType = stack[0].originalType || stackType;
             const destOriginalType = destTop.originalType || destType;
             
-            // An ingredient can be placed on a wildcard OR a matching ingredient (including golden versions)
             return destType === specialItems.wildcard.id || stackOriginalType === destOriginalType;
         }
         
@@ -857,18 +882,14 @@
                 img.alt = masterData.name;
                 inner.appendChild(img);
             } else {
-                // Fallback to emoji if needed
                 inner.textContent = masterData ? masterData.emoji : '?';
-                inner.style.fontSize = '2.5rem'; // Keep emoji visible for fallbacks
+                inner.style.fontSize = '2.5rem';
             }
             
             clone.appendChild(inner);
             return clone;
         }
 
-        // --- ACTION FUNCTIONS ---
-        
-        // LOGIC UPDATED
         function handleRecipeClick() {
             if (gameState.isAnimating || !isStackDeliverable(gameState.selectedStack)) {
                 if (gameState.selectedStack) {
@@ -884,14 +905,10 @@
             const originalType = stack[0].originalType || type;
             gameState.isAnimating = true;
 
-            // --- LOGIC UPDATE ---
             if (gameState.currentRecipe.customerType === 'picky') {
-                // Logic is unchanged: remove N items from the ordered list.
                 gameState.currentRecipe.ingredientOrder.splice(0, stack.length);
             } else {
-                // New Logic: complete the requirement in one go.
                 if (type === specialItems.wildcard.id) {
-                    // Fulfills the first compatible requirement
                     const neededIngredientId = Object.keys(gameState.currentRecipe.ingredients).find(ingId =>
                         gameState.currentRecipe.needed[ingId] > 0 && stack.length >= gameState.currentRecipe.ingredients[ingId]
                     );
@@ -899,13 +916,11 @@
                         gameState.currentRecipe.needed[neededIngredientId] = 0;
                     }
                 } else {
-                    // Fulfills its own requirement
                     if (gameState.currentRecipe.needed[originalType] > 0) {
                          gameState.currentRecipe.needed[originalType] = 0;
                     }
                 }
             }
-            // --- END LOGIC UPDATE ---
 
             let starsEarned = type === specialItems.golden.id ? 50 : 15;
             if (gameState.currentRecipe.isVIP) starsEarned += 20;
@@ -913,7 +928,7 @@
             gameState.stars += starsEarned;
             gameState.selectedStack = null;
             const deliveredIngredients = gameState.plates[fromPlate].splice(-stack.length);
-            renderGame(); // Immediate visual feedback
+            renderGame(); 
 
             const orderRect = orderInfoEl.getBoundingClientRect();
             const startRect = document.getElementById(`plate-${fromPlate}`).parentElement.getBoundingClientRect();
@@ -967,7 +982,6 @@
             });
         }
         
-        // LOGIC UPDATED
         function isStackDeliverable(selectedStack) {
             if (!selectedStack) return false;
             const recipe = gameState.currentRecipe;
@@ -978,32 +992,23 @@
             const originalType = stack[0].originalType || type;
             if (type === specialItems.bomb.id || type === '🤢') return false;
 
-            // Picky Customer Logic (unchanged) - they care about the correct type in order, not stack size
             if (recipe.customerType === 'picky') {
                 if (recipe.ingredientOrder.length === 0) return false;
-                // The type must match the next item in the order. Stack can be any size > 0.
                 return type === specialItems.wildcard.id || originalType === recipe.ingredientOrder[0];
             }
 
-            // Standard/VIP Customer Logic (NEW) - they care about stack size
-            
-            // Handle wildcards: Can they fulfill any pending requirement?
             if (type === specialItems.wildcard.id) {
-                // Find if there's any ingredient needed that this stack is large enough to satisfy
                 return Object.entries(recipe.ingredients).some(([ingId, requiredCount]) => {
-                    // Check if this ingredient is still needed and if the stack is big enough
                     return recipe.needed[ingId] > 0 && stack.length >= requiredCount;
                 });
             }
             
-            // Handle regular/golden ingredients
             const isStillNeeded = recipe.needed[originalType] > 0;
             const requiredAmount = recipe.ingredients[originalType];
             if (!isStillNeeded || !requiredAmount) {
-                return false; // Not needed or not part of the recipe
+                return false;
             }
             
-            // Check if the stack is large enough
             return stack.length >= requiredAmount;
         }
 
