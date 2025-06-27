@@ -230,8 +230,9 @@
 
     <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4">
         <div class="my-4 animate-bounce">
-            <img src="/img/logo.png" alt="Logo de Dish & Dash" class="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-white">
+            <img src="https://placehold.co/128x128/a3b18a/FBF7F3?text=D%26D&font=kalam" alt="Logo de Dish & Dash" class="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-white">
         </div>
+        <h1 class="text-7xl md:text-9xl text-amber-800">Dish & Dash</h1>
         <p class="text-2xl text-stone-600 my-4">Un rompecabezas de cocina</p>
         <p id="user-greeting" class="text-xl text-stone-500 max-w-md mb-8">¡Por favor, inicia sesión para empezar a cocinar!</p>
         
@@ -452,6 +453,7 @@
         
         const initialGameState = {
             highestLevelUnlocked: 0, currentLevelIndex: 0, ordersCompletedInLevel: 0,
+            totalOrdersInLevel: 0, levelOrderQueue: [],
             stars: 0, platesUnlocked: 3, currentRecipe: null, plates: [],
             deck: [], selectedStack: null, isAnimating: false,
             unlockedIngredients: [], trashUsesLeft: 0,
@@ -524,15 +526,33 @@
         }
         
         // --- GAME FLOW FUNCTIONS ---
+        // LOGIC UPDATED
+        function handleOrderCompletion() {
+            if(timerInterval) clearInterval(timerInterval);
+            gameState.levelOrderQueue.shift(); // Consume the completed recipe
+            gameState.ordersCompletedInLevel++;
+            
+            if(gameState.levelOrderQueue.length === 0) {
+                 handleLevelComplete(); 
+            } else { 
+                serveNewOrder(); 
+            }
+        }
+
         async function handleLevelComplete() {
-            if (gameState.currentLevelIndex >= gameState.highestLevelUnlocked) gameState.highestLevelUnlocked = gameState.currentLevelIndex + 1;
+            if (gameState.currentLevelIndex >= gameState.highestLevelUnlocked) {
+                gameState.highestLevelUnlocked = gameState.currentLevelIndex + 1;
+            }
             gameState.currentRecipe = null;
             await saveProgress();
             const onConfirm = () => {
-                if (gameState.currentLevelIndex >= TOTAL_LEVELS - 1) handleGameWon();
-                else startGame(gameState.currentLevelIndex + 1);
+                if (gameState.currentLevelIndex >= TOTAL_LEVELS - 1) {
+                    handleGameWon();
+                } else {
+                    startGame(gameState.currentLevelIndex + 1);
+                }
             };
-            showMessage("¡Receta Completada!", `¡Has desbloqueado la siguiente receta!`, [{ text: "Siguiente Receta", action: onConfirm, primary: true }]);
+            showMessage("¡Nivel Completado!", `¡Has completado todos los pedidos! Has desbloqueado la siguiente receta.`, [{ text: "Próximo Nivel", action: onConfirm, primary: true }]);
         }
         async function handleUnlockPlateClick() {
             if (gameState.platesUnlocked >= 11) return;
@@ -593,11 +613,29 @@
             const deckSize = 80 + levelIndex * 15; const ingredientCount = Math.min(Math.floor(2 + levelIndex / 3), allPossibleIngredients.length);
             return { id: levelNumber, ordersToComplete, platesActive, deckSize, unlocks, ingredientCount };
         }
+        // LOGIC UPDATED
         function startGame(levelIndex) {
-            showScreen(gameUiEl); gameState.currentLevelIndex = levelIndex; gameState.ordersCompletedInLevel = 0;
-            gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []); gameState.trashUsesLeft = 3 + Math.floor(levelIndex / 5);
-            let unlockedCount = 2; for(let i = 0; i < levelIndex; i++) unlockedCount += generateLevelData(i).unlocks || 0;
+            showScreen(gameUiEl); 
+            gameState.currentLevelIndex = levelIndex;
+            gameState.ordersCompletedInLevel = 0;
+            gameState.levelOrderQueue = [];
+            gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []); 
+            gameState.trashUsesLeft = 3 + Math.floor(levelIndex / 5);
+
+            const currentLevel = generateLevelData(levelIndex);
+            gameState.totalOrdersInLevel = currentLevel.ordersToComplete;
+            
+            let unlockedCount = 2; 
+            for(let i = 0; i < levelIndex; i++) {
+                unlockedCount += generateLevelData(i).unlocks || 0;
+            }
             gameState.unlockedIngredients = allPossibleIngredients.slice(0, Math.min(unlockedCount, allPossibleIngredients.length)).map(ing => ing.id);
+            
+            // Generate all recipes for the level in advance
+            for (let i = 0; i < currentLevel.ordersToComplete; i++) {
+                gameState.levelOrderQueue.push(generateRecipeForLevel(currentLevel, gameState.unlockedIngredients));
+            }
+            
             serveNewOrder();
         }
         function createDeck(level, ingredientPool, recipe, extraIngredients = []) {
@@ -636,35 +674,62 @@
             if (timerInterval) clearInterval(timerInterval); const recipe = gameState.currentRecipe; if (!recipe || !recipe.isVIP) return;
             timerInterval = setInterval(() => {
                 recipe.timeLeft--; const percentage = (recipe.timeLeft / recipe.timerDuration) * 100; timerBar.style.width = `${percentage}%`;
-                if (recipe.timeLeft <= 0) { clearInterval(timerInterval); showMessage("¡Se acabó el tiempo!", "El cliente VIP se ha ido. ¡Inténtalo de nuevo!", [{ text: "OK", action: serveNewOrder, primary: true }]); }
+                if (recipe.timeLeft <= 0) { clearInterval(timerInterval); showMessage("¡Se acabó el tiempo!", "El cliente VIP se ha ido. ¡Inténtalo de nuevo!", [{ text: "OK", primary: true, action: () => {
+                    gameState.levelOrderQueue.shift(); // Skip the failed VIP order
+                    if (gameState.levelOrderQueue.length === 0) {
+                        handleLevelComplete();
+                    } else {
+                        serveNewOrder();
+                    }
+                } }]); }
             }, 1000);
         }
+        // LOGIC UPDATED
         function serveNewOrder() {
-            if (timerInterval) clearInterval(timerInterval); const currentLevel = generateLevelData(gameState.currentLevelIndex);
-            gameState.currentRecipe = generateRecipeForLevel(currentLevel, gameState.unlockedIngredients);
-            gameState.currentRecipe.isVIP = false; gameState.currentRecipe.customerType = 'normal'; const randomCustomer = Math.random();
-            if (gameState.currentLevelIndex >= 5 && randomCustomer < 0.3) {
-                gameState.currentRecipe.customerType = 'picky'; const order = [];
-                for(const [ing, count] of Object.entries(gameState.currentRecipe.ingredients)) { for(let i=0; i < count; i++) order.push(ing); }
-                shuffleArray(order); gameState.currentRecipe.ingredientOrder = order;
-            } else if (gameState.currentLevelIndex >= 2 && randomCustomer < 0.5) {
-                gameState.currentRecipe.isVIP = true; gameState.currentRecipe.timerDuration = 60; gameState.currentRecipe.timeLeft = 60; startTimer();
+            if (timerInterval) clearInterval(timerInterval);
+
+            if (gameState.levelOrderQueue.length === 0) {
+                // This case should be handled by handleOrderCompletion, but as a safeguard:
+                console.log("Attempted to serve new order, but queue is empty. Finishing level.");
+                handleLevelComplete();
+                return;
             }
+            
+            gameState.currentRecipe = gameState.levelOrderQueue[0]; // Peek at the next recipe
+
+            const currentLevel = generateLevelData(gameState.currentLevelIndex);
+            
+            // Set up special customer types
+            gameState.currentRecipe.isVIP = false;
+            gameState.currentRecipe.customerType = 'normal';
+            const randomCustomer = Math.random();
+            if (gameState.currentLevelIndex >= 5 && randomCustomer < 0.3) {
+                gameState.currentRecipe.customerType = 'picky';
+                const order = [];
+                for(const [ing, count] of Object.entries(gameState.currentRecipe.ingredients)) { 
+                    for(let i=0; i < count; i++) order.push(ing);
+                }
+                shuffleArray(order); 
+                gameState.currentRecipe.ingredientOrder = order;
+            } else if (gameState.currentLevelIndex >= 2 && randomCustomer < 0.5) {
+                gameState.currentRecipe.isVIP = true; 
+                gameState.currentRecipe.timerDuration = 60; 
+                gameState.currentRecipe.timeLeft = 60; 
+                startTimer();
+            }
+            
             gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
             gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
-            gameState.selectedStack = null; renderGame();
+            gameState.selectedStack = null; 
+            renderGame();
         }
        
-        // --- LOGIC UPDATED ---
+        // LOGIC UPDATED
         function dealRow() {
             if (gameState.isAnimating || gameState.deck.length === 0) return;
-            // Deselect any held stack for a cleaner user experience
-            if (gameState.selectedStack) {
-                gameState.selectedStack = null;
-                renderGame(); 
-            }
+            if (gameState.selectedStack) gameState.selectedStack = null;
+            
             const deals = [];
-            // Find all plates that are unlocked and not full
             const availablePlates = [];
             for (let i = 0; i < gameState.platesUnlocked; i++) {
                 if (gameState.plates[i].length < DEAL_LIMIT) {
@@ -678,52 +743,84 @@
                 return;
             }
 
-            // Separate the deck into ingredients the player needs vs. other ingredients
-            const neededTypes = Object.keys(gameState.currentRecipe.needed).filter(type => gameState.currentRecipe.needed[type] > 0);
-            const priorityDeck = [];
-            const regularDeck = [];
+            // --- STRATEGIC DEAL LOGIC ---
+            // 1. Identify types of ingredients
+            const neededNowTypes = Object.keys(gameState.currentRecipe.needed || {}).filter(type => gameState.currentRecipe.needed[type] > 0);
+            
+            let neededSoonTypes = [];
+            if (gameState.levelOrderQueue.length > 1) { // Check if there is a "next" recipe
+                const nextRecipe = gameState.levelOrderQueue[1];
+                if (nextRecipe) {
+                    neededSoonTypes = Object.keys(nextRecipe.ingredients || {}).filter(type => !neededNowTypes.includes(type));
+                }
+            }
+
+            // 2. Partition the deck
+            const neededNowDeck = [];
+            const neededSoonDeck = [];
+            const otherDeck = [];
+
             gameState.deck.forEach(ing => {
-                if (neededTypes.includes(ing.type) || neededTypes.includes(ing.originalType)) {
-                    priorityDeck.push(ing);
+                const type = ing.originalType || ing.type;
+                if (neededNowTypes.includes(type)) {
+                    neededNowDeck.push(ing);
+                } else if (neededSoonTypes.includes(type)) {
+                    neededSoonDeck.push(ing);
                 } else {
-                    regularDeck.push(ing);
+                    otherDeck.push(ing);
                 }
             });
 
-            shuffleArray(priorityDeck);
-            shuffleArray(regularDeck);
+            shuffleArray(neededNowDeck);
+            shuffleArray(neededSoonDeck);
+            shuffleArray(otherDeck);
 
-            // Deal one ingredient to each available plate, prioritizing needed ones
+            // 3. Deal based on probability
             availablePlates.forEach(plateIndex => {
                 let ingredientToDeal = null;
+                const chance = Math.random();
 
-                // Always try to deal a needed ingredient first
-                if (priorityDeck.length > 0) {
-                    ingredientToDeal = priorityDeck.pop();
-                } else if (regularDeck.length > 0) {
-                    ingredientToDeal = regularDeck.pop();
+                // 70% chance for a currently needed ingredient
+                if (chance < 0.7) { 
+                    if (neededNowDeck.length > 0) ingredientToDeal = neededNowDeck.pop();
+                    else if (neededSoonDeck.length > 0) ingredientToDeal = neededSoonDeck.pop();
+                    else if (otherDeck.length > 0) ingredientToDeal = otherDeck.pop();
+                } 
+                // 20% chance for a soon-to-be-needed ingredient (70% -> 90%)
+                else if (chance < 0.9) { 
+                    if (neededSoonDeck.length > 0) ingredientToDeal = neededSoonDeck.pop();
+                    else if (neededNowDeck.length > 0) ingredientToDeal = neededNowDeck.pop();
+                    else if (otherDeck.length > 0) ingredientToDeal = otherDeck.pop();
+                } 
+                // 10% chance for any other ingredient
+                else { 
+                    if (otherDeck.length > 0) ingredientToDeal = otherDeck.pop();
+                    else if (neededSoonDeck.length > 0) ingredientToDeal = neededSoonDeck.pop();
+                    else if (neededNowDeck.length > 0) ingredientToDeal = neededNowDeck.pop();
                 }
-
+                
                 if (ingredientToDeal) {
                     deals.push({ toPlateIndex: plateIndex, ingredient: ingredientToDeal });
                 }
             });
 
-            // Rebuild the main deck with the remaining ingredients
-            gameState.deck = [...priorityDeck, ...regularDeck];
+            // 4. Rebuild and animate
+            gameState.deck = [...neededNowDeck, ...neededSoonDeck, ...otherDeck];
             shuffleArray(gameState.deck);
 
             if (deals.length > 0) {
                 animateDeal(deals);
+            } else {
+                renderGame();
             }
         }
         
         // --- CORE GAME LOGIC & RENDERING ---
         function renderGame() {
             const recipe = gameState.currentRecipe; if (!recipe) return;
-            const currentLevel = generateLevelData(gameState.currentLevelIndex);
+            
             levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
-            orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${currentLevel.ordersToComplete}`;
+            orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${gameState.totalOrdersInLevel}`;
             starCounterEl.textContent = gameState.stars; recipeNameEl.textContent = recipe.name;
             vipBadge.classList.toggle('hidden', !recipe.isVIP);
             customerTypeBadge.classList.toggle('hidden', recipe.customerType !== 'picky');
@@ -1013,11 +1110,7 @@
         }
 
         function isOrderComplete() { if (!gameState.currentRecipe) return false; if(gameState.currentRecipe.customerType === 'picky') return gameState.currentRecipe.ingredientOrder.length === 0; return Object.values(gameState.currentRecipe.needed).every(count => count <= 0); }
-        function handleOrderCompletion() {
-            if(timerInterval) clearInterval(timerInterval); gameState.ordersCompletedInLevel++;
-            const currentLevel = generateLevelData(gameState.currentLevelIndex);
-            if(gameState.ordersCompletedInLevel >= currentLevel.ordersToComplete) { handleLevelComplete(); } else { serveNewOrder(); }
-        }
+        
         function handleGameWon() { showMessage("¡Felicitaciones!", "¡Has dominado la cocina!", [{ text: "Jugar de Nuevo", action: () => showScreen(homeScreenEl), primary: true }]); }
         function handleTrashClick() {
             if (gameState.isAnimating || !gameState.selectedStack || gameState.trashUsesLeft <= 0) return;
