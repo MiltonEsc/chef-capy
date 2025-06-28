@@ -227,28 +227,31 @@
     
     <div id="animation-layer" class="fixed inset-0 pointer-events-none z-50"></div>
 
-    <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4">
+    <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4 relative">
+        <div class="absolute top-4 right-4">
+            <button id="lang-toggle-button" class="btn btn-secondary">English</button>
+        </div>
         <div class="my-4 animate-bounce">
             <img src="/img/logo.png" alt="Logo de Dish & Dash" class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-white">
         </div>
-        <p class="text-2xl text-stone-600 my-4">Un rompecabezas de cocina</p>
-        <p id="user-greeting" class="text-xl text-stone-500 max-w-md mb-8">¡Por favor, inicia sesión para empezar a cocinar!</p>
+        <p class="text-2xl text-stone-600 my-4" data-lang-key="subtitle">Un rompecabezas de cocina</p>
+        <p id="user-greeting" class="text-xl text-stone-500 max-w-md mb-8" data-lang-key="login_prompt">¡Por favor, inicia sesión para empezar a cocinar!</p>
         
         <button id="login-button" class="btn btn-primary text-2xl">
-            <span class="flex items-center gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.956 0 8.327-3.453 8.327-8.546 0-.533-.063-1.036-.121-1.472z"></path></svg> Iniciar sesión con Google</span>
+            <span class="flex items-center gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.956 0 8.327-3.453 8.327-8.546 0-.533-.063-1.036-.121-1.472z"></path></svg> <span data-lang-key="login_google">Iniciar sesión con Google</span></span>
         </button>
 
-        <button id="start-game-button" class="btn btn-primary text-2xl hidden">
+        <button id="start-game-button" class="btn btn-primary text-2xl hidden" data-lang-key="start_cooking">
             ¡Empezar a cocinar!
         </button>
         <div class="mt-4 flex gap-4">
-            <button id="how-to-play-button" class="btn btn-secondary text-sm">
+            <button id="how-to-play-button" class="btn btn-secondary text-sm" data-lang-key="how_to_play">
                 Cómo Jugar
             </button>
-            <button id="reset-progress-button" class="btn btn-danger text-sm hidden">
+            <button id="reset-progress-button" class="btn btn-danger text-sm hidden" data-lang-key="reset_progress">
                 Reiniciar Progreso
             </button>
-             <button id="logout-button" class="btn btn-secondary text-sm hidden">
+             <button id="logout-button" class="btn btn-secondary text-sm hidden" data-lang-key="logout">
                 Cerrar Sesión
             </button>
        </div>
@@ -256,14 +259,14 @@
     
     <div id="level-map-screen" class="w-full h-screen mx-auto hidden flex flex-col relative overflow-hidden">
         <div class="flex-shrink-0 text-center z-10 p-6">
-            <h2 class="text-5xl md:text-6xl text-amber-900" style="text-shadow: 2px 2px 0px #FBF7F3;">Selecciona un Nivel</h2>
+            <h2 class="text-5xl md:text-6xl text-amber-900" style="text-shadow: 2px 2px 0px #FBF7F3;" data-lang-key="select_level">Selecciona un Nivel</h2>
         </div>
         <div class="flex-grow overflow-y-auto z-10">
              <div id="level-map-container">
                 </div>
         </div>
          <div class="text-center flex-shrink-0 z-10 p-4">
-            <button id="back-to-home-button" class="btn btn-secondary">
+            <button id="back-to-home-button" class="btn btn-secondary" data-lang-key="back_to_main_menu">
                  Volver al Menú Principal
             </button>
         </div>
@@ -273,14 +276,14 @@
         <header class="text-center p-2 flex-shrink-0">
             <h1 class="text-3xl md:text-4xl text-amber-800">Dish & Dash</h1>
             <div class="flex justify-center items-center flex-wrap gap-x-4 gap-y-2 mt-2">
-                 <div id="level-display" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span>Nivel: 1</span></div>
-                 <div id="order-progress" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span>Pedidos: 0/0</span></div>
+                 <div id="level-display" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span data-lang-key="level_prefix">Nivel</span>: <span>1</span></div>
+                 <div id="order-progress" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span data-lang-key="orders_prefix">Pedidos</span>: <span>0/0</span></div>
                  <div id="star-counter" class="bg-yellow-400/80 text-yellow-900 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><img src="/img/corbys.png" alt="Estrella" class="w-4 h-4"> <span>0</span></div>
             </div>
             <div id="order-info" class="mt-2 p-3 mx-auto max-w-2xl">
                 <div id="customer-type-badge" class="absolute -top-3 -left-3 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full transform -rotate-12 hidden"></div>
                 <div id="vip-badge" class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full transform rotate-12 hidden">VIP!</div>
-                <h2 id="recipe-title" class="text-xl font-semibold text-stone-700">Pedido de Hoy:</h2>
+                <h2 id="recipe-title" class="text-xl font-semibold text-stone-700" data-lang-key="todays_order">Pedido de Hoy:</h2>
                 <p id="recipe-name" class="text-3xl font-bold mt-1 text-accent">-</p>
                 <div id="recipe-ingredients" class="flex justify-center items-center flex-wrap gap-x-3 gap-y-1 mt-2 text-base font-medium text-stone-600"></div>
                  <div id="timer-container" class="w-full bg-gray-200 rounded-full h-2 mt-3 hidden">
@@ -310,14 +313,15 @@
             </div>
         </main>
         <footer class="flex-shrink-0 py-3 flex justify-center items-center gap-4">
-            <button id="back-to-map-button" class="btn btn-secondary"> Ver Niveles </button>
-            <button id="deal-button" class="btn btn-primary" disabled> Servir (<span id="deck-count">0</span>) </button>
+            <button id="back-to-map-button" class="btn btn-secondary" data-lang-key="back_to_levels"> Ver Niveles </button>
+            <button id="deal-button" class="btn btn-primary" disabled><span data-lang-key="serve_btn">Servir</span> (<span id="deck-count">0</span>)</button>
             <button id="trash-can" class="bg-stone-500 hover:bg-stone-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 relative" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
                 </svg>
                 <div id="trash-counter" class="absolute -top-1 -right-1 bg-sky-500 text-white w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border-2 border-white">0</div>
             </button>
+            <button id="lang-toggle-button-game" class="btn btn-secondary text-sm !p-2">EN</button>
         </footer>
     </div>
 
@@ -334,31 +338,12 @@
              <button id="how-to-play-close-button-x" class="absolute top-4 right-4 text-stone-400 hover:text-stone-800 z-10">
                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
              </button>
-             <h2 class="text-3xl md:text-4xl text-amber-800 mb-6 text-center">Cómo Jugar</h2>
-             <div class="text-left text-stone-600 space-y-4 text-base">
-                 <div class="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <h3 class="font-bold text-lg text-amber-900 mb-2">Recetas Clásicas 🧑‍🍳</h3>
-                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/note.png" alt="Icono de Receta" class="rounded-md"></span> <p><strong>El Pedido:</strong> Reúne los ingredientes de la tarjeta de receta. Debes crear una pila de la cantidad exacta (o más) y entregarla toda junta.</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/upfinger.png" alt="Icono de Comodín" class="rounded-md"></span> <p><strong>Mover Pilas:</strong> Puedes mover una pila sobre un ingrediente del mismo tipo o sobre un comodín (🌟).</p></div>
-                 </div>
-
-                 <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
-                    <h3 class="font-bold text-lg text-sky-900 mb-2">Puzzle de Clasificación 🧩</h3>
-                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/tube.png" alt="Icono de Clasificación" class="rounded-md"></span> <p><strong>El Objetivo:</strong> Clasifica los ingredientes para crear platos "puros" (de un solo tipo).</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/up.png" alt="Icono de Mover" class="rounded-md"></span> <p><strong>Reglas de Movimiento:</strong> Solo puedes mover una pila a un plato vacío o sobre un ingrediente idéntico. ¡Piensa bien tus movimientos!</p></div>
-                     <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/box.png" alt="Icono de Entrega" class="rounded-md"></span> <p><strong>Entrega:</strong> Una vez que un plato está puro (lleno de un solo ingrediente), puedes entregarlo para completar esa parte de la receta.</p></div>
-                 </div>
-                
-                 <hr class="my-4">
-
-                 <h3 class="font-bold text-lg text-stone-800 text-center">Objetos Especiales</h3>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/golden.png" alt="Ingrediente Dorado"></span> <p><strong>Ingredientes Dorados:</strong> ¡Valen una enorme bonificación de estrellas!</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/trash.png" alt="Comodín"></span> <p><strong>Bote de Basura:</strong> Descarta los ingredientes no deseados. ¡Los usos son limitados!</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/bomb.png" alt="Bomba"></span> <p><strong>Bomba:</strong> Selecciona una bomba y haz clic en cualquier plato para eliminar todos sus ingredientes.</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/star.png" alt="Comodín"></span> <p><strong>Comodín:</strong> Este ítem especial solo aparece en niveles Clásicos. Se puede apilar sobre cualquier cosa y cuenta como cualquier ingrediente.</p></div>
+             <h2 class="text-3xl md:text-4xl text-amber-800 mb-6 text-center" data-lang-key="how_to_play_title">Cómo Jugar</h2>
+             <div id="how-to-play-text-container" class="text-left text-stone-600 space-y-4 text-base">
+                 <!-- Content is now generated by JS -->
              </div>
              <div class="text-center mt-8">
-                 <button id="how-to-play-close-button" class="btn btn-primary">¡Entendido!</button>
+                 <button id="how-to-play-close-button" class="btn btn-primary" data-lang-key="got_it">¡Entendido!</button>
              </div>
         </div>
     </div>
@@ -389,15 +374,13 @@
         onAuthStateChanged(auth, user => {
             if (user) {
                 currentUserId = user.uid;
-                userGreetingEl.textContent = `¡Bienvenido de nuevo, ${user.displayName.split(' ')[0]}!`;
                 loginButton.classList.add('hidden');
                 logoutButton.classList.remove('hidden');
                 startGameButton.classList.remove('hidden');
                 resetProgressButton.classList.remove('hidden');
-                window.dishDashGame.loadProgress(); 
+                window.dishDashGame.loadProgress(user); 
             } else {
                 currentUserId = null;
-                userGreetingEl.textContent = `¡Por favor, inicia sesión para empezar a cocinar!`;
                 loginButton.classList.remove('hidden');
                 logoutButton.classList.add('hidden');
                 startGameButton.classList.add('hidden');
@@ -427,7 +410,7 @@
         }
         loginButton.addEventListener('click', signInWithGoogle);
         logoutButton.addEventListener('click', logout);
-        window.firebaseIntegration = { loadProgressFromFirestore, saveProgressToFirestore, resetProgressInFirestore };
+        window.firebaseIntegration = { auth, loadProgressFromFirestore, saveProgressToFirestore, resetProgressInFirestore };
     </script>
     
     <script>
@@ -438,22 +421,22 @@
         const TOTAL_LEVELS = 100;
 
         const allPossibleIngredients = [
-            { id: 'strawberry', name: 'Fresa', emoji: '🍓', imageUrl: '/img/strawberry.png' },
-            { id: 'banana', name: 'Banana', emoji: '🍌', imageUrl: '/img/banana.png' },
-            { id: 'grapes', name: 'Uvas', emoji: '🍇', imageUrl: '/img/grape.png' },
-            { id: 'carrot', name: 'Zanahoria', emoji: '🥕', imageUrl: '/img/carrot.png' },
-            { id: 'broccoli', name: 'Brócoli', emoji: '🥦', imageUrl: '/img/broccoli.png' },
-            { id: 'mushroom', name: 'Champiñón', emoji: '🍄', imageUrl: '/img/mushroom.png' },
-            { id: 'tomato', name: 'Tomate', emoji: '🍅', imageUrl: '/img/tomato.png' },
-            { id: 'avocado', name: 'Aguacate', emoji: '🥑', imageUrl: '/img/avocado.png' },
-            { id: 'eggplant', name: 'Berenjena', emoji: '🍆', imageUrl: '/img/eggplant.png' },
-            { id: 'chili', name: 'Chile', emoji: '🌶️', imageUrl: '/img/pepper.png' }
+            { id: 'strawberry', name: 'Fresa', name_en: 'Strawberry', emoji: '🍓', imageUrl: '/img/strawberry.png' },
+            { id: 'banana', name: 'Banana', name_en: 'Banana', emoji: '🍌', imageUrl: '/img/banana.png' },
+            { id: 'grapes', name: 'Uvas', name_en: 'Grapes', emoji: '🍇', imageUrl: '/img/grape.png' },
+            { id: 'carrot', name: 'Zanahoria', name_en: 'Carrot', emoji: '🥕', imageUrl: '/img/carrot.png' },
+            { id: 'broccoli', name: 'Brócoli', name_en: 'Broccoli', emoji: '🥦', imageUrl: '/img/broccoli.png' },
+            { id: 'mushroom', name: 'Champiñón', name_en: 'Mushroom', emoji: '🍄', imageUrl: '/img/mushroom.png' },
+            { id: 'tomato', name: 'Tomate', name_en: 'Tomato', emoji: '🍅', imageUrl: '/img/tomato.png' },
+            { id: 'avocado', name: 'Aguacate', name_en: 'Avocado', emoji: '🥑', imageUrl: '/img/avocado.png' },
+            { id: 'eggplant', name: 'Berenjena', name_en: 'Eggplant', emoji: '�', imageUrl: '/img/eggplant.png' },
+            { id: 'chili', name: 'Chile', name_en: 'Chili', emoji: '🌶️', imageUrl: '/img/pepper.png' }
         ];
 
         const specialItems = {
-            wildcard: { id: 'wildcard', name: 'Comodín', emoji: '🌟', imageUrl: '/img/star.png' },
-            bomb: { id: 'bomb', name: 'Bomba', emoji: '💣', imageUrl: '/img/bomb.png' },
-            golden: { id: 'golden', name: 'Dorado', emoji: '🏆', imageUrl: '/img/golden.png' }
+            wildcard: { id: 'wildcard', name: 'Comodín', name_en: 'Wildcard', emoji: '🌟', imageUrl: '/img/star.png' },
+            bomb: { id: 'bomb', name: 'Bomba', name_en: 'Bomb', emoji: '💣', imageUrl: '/img/bomb.png' },
+            golden: { id: 'golden', name: 'Dorado', name_en: 'Golden', emoji: '🏆', imageUrl: '/img/golden.png' }
         };
 
         const allIngredientData = {
@@ -464,46 +447,175 @@
         const initialGameState = {
             highestLevelUnlocked: 0, currentLevelIndex: 0, currentLevelType: 'classic', 
             ordersCompletedInLevel: 0, totalOrdersInLevel: 0, levelOrderQueue: [],
-            stars: 0, platesUnlocked: 3, currentRecipe: null, plates: [],
+            stars: 0, platesUnlocked: 4, currentRecipe: null, plates: [],
             deck: [], selectedStack: null, isAnimating: false,
             unlockedIngredients: [], trashUsesLeft: 0,
         };
         let gameState = { ...initialGameState };
         
         // --- UI ELEMENTS ---
-        const homeScreenEl = document.getElementById('home-screen');
-        const gameUiEl = document.getElementById('game-ui');
-        const levelMapScreenEl = document.getElementById('level-map-screen');
-        const levelMapContainer = document.getElementById('level-map-container');
-        const startGameButton = document.getElementById('start-game-button');
-        const resetProgressButton = document.getElementById('reset-progress-button');
-        const backToHomeButton = document.getElementById('back-to-home-button');
-        const backToMapButton = document.getElementById('back-to-map-button');
-        const dealButton = document.getElementById('deal-button');
-        const deckCountEl = document.getElementById('deck-count');
-        const recipeTitleEl = document.getElementById('recipe-title');
-        const recipeNameEl = document.getElementById('recipe-name');
-        const recipeIngredientsEl = document.getElementById('recipe-ingredients');
-        const levelDisplayEl = document.getElementById('level-display').querySelector('span');
-        const orderProgressEl = document.getElementById('order-progress').querySelector('span');
-        const starCounterEl = document.getElementById('star-counter').querySelector('span');
-        const orderInfoEl = document.getElementById('order-info');
-        const animationLayer = document.getElementById('animation-layer');
-        const messageBox = document.getElementById('message-box');
-        const messageTitle = document.getElementById('message-title');
-        const messageText = document.getElementById('message-text');
-        const messageButtonsContainer = document.getElementById('message-buttons');
-        const timerContainer = document.getElementById('timer-container');
-        const timerBar = document.getElementById('timer-bar');
-        const vipBadge = document.getElementById('vip-badge');
-        const customerTypeBadge = document.getElementById('customer-type-badge');
-        const howToPlayButton = document.getElementById('how-to-play-button');
-        const howToPlayModal = document.getElementById('how-to-play-modal');
-        const howToPlayContent = document.getElementById('how-to-play-content');
-        const howToPlayCloseButton = document.getElementById('how-to-play-close-button');
-        const howToPlayCloseButtonX = document.getElementById('how-to-play-close-button-x');
-        const trashCanEl = document.getElementById('trash-can');
-        const trashCounterEl = document.getElementById('trash-counter');
+        const uiElements = {
+            homeScreen: document.getElementById('home-screen'),
+            gameUi: document.getElementById('game-ui'),
+            levelMapScreen: document.getElementById('level-map-screen'),
+            levelMapContainer: document.getElementById('level-map-container'),
+            startGameButton: document.getElementById('start-game-button'),
+            resetProgressButton: document.getElementById('reset-progress-button'),
+            backToHomeButton: document.getElementById('back-to-home-button'),
+            backToMapButton: document.getElementById('back-to-map-button'),
+            dealButton: document.getElementById('deal-button'),
+            deckCount: document.getElementById('deck-count'),
+            recipeTitle: document.getElementById('recipe-title'),
+            recipeName: document.getElementById('recipe-name'),
+            recipeIngredients: document.getElementById('recipe-ingredients'),
+            levelDisplay: document.getElementById('level-display'),
+            orderProgress: document.getElementById('order-progress'),
+            starCounter: document.getElementById('star-counter').querySelector('span'),
+            orderInfo: document.getElementById('order-info'),
+            animationLayer: document.getElementById('animation-layer'),
+            messageBox: document.getElementById('message-box'),
+            messageTitle: document.getElementById('message-title'),
+            messageText: document.getElementById('message-text'),
+            messageButtonsContainer: document.getElementById('message-buttons'),
+            timerContainer: document.getElementById('timer-container'),
+            timerBar: document.getElementById('timer-bar'),
+            vipBadge: document.getElementById('vip-badge'),
+            customerTypeBadge: document.getElementById('customer-type-badge'),
+            howToPlayButton: document.getElementById('how-to-play-button'),
+            howToPlayModal: document.getElementById('how-to-play-modal'),
+            howToPlayContent: document.getElementById('how-to-play-content'),
+            howToPlayCloseButton: document.getElementById('how-to-play-close-button'),
+            howToPlayCloseButtonX: document.getElementById('how-to-play-close-button-x'),
+            trashCan: document.getElementById('trash-can'),
+            trashCounter: document.getElementById('trash-counter'),
+            langToggleButton: document.getElementById('lang-toggle-button'),
+            langToggleButtonGame: document.getElementById('lang-toggle-button-game'),
+            userGreeting: document.getElementById('user-greeting'),
+        };
+
+        // --- INTERNATIONALIZATION (i18n) ---
+        let currentLang = 'es';
+        const translations = {
+            es: {
+                subtitle: "Un rompecabezas de cocina",
+                login_prompt: "¡Por favor, inicia sesión para empezar a cocinar!",
+                welcome_back: (name) => `¡Bienvenido de nuevo, ${name}!`,
+                login_google: "Iniciar sesión con Google",
+                start_cooking: "¡Empezar a cocinar!",
+                how_to_play: "Cómo Jugar",
+                reset_progress: "Reiniciar Progreso",
+                logout: "Cerrar Sesión",
+                select_level: "Selecciona un Nivel",
+                back_to_main_menu: "Volver al Menú Principal",
+                level_prefix: "Nivel",
+                orders_prefix: "Pedidos",
+                todays_order: "Pedido de Hoy:",
+                sort_goal: "Objetivo de Clasificación:",
+                back_to_levels: "Ver Niveles",
+                serve_btn: "Servir",
+                how_to_play_title: "Cómo Jugar",
+                got_it: "¡Entendido!",
+                // How-to-play text
+                h2p_classic_title: "Recetas Clásicas 🧑‍🍳",
+                h2p_classic_1: "<strong>El Pedido:</strong> Reúne los ingredientes de la tarjeta de receta. Debes crear una pila de la cantidad exacta (o más) y entregarla toda junta.",
+                h2p_classic_2: "<strong>Mover Pilas:</strong> Puedes mover una pila sobre un ingrediente del mismo tipo o sobre un comodín (🌟).",
+                h2p_sort_title: "Puzzle de Clasificación 🧩",
+                h2p_sort_1: "<strong>El Objetivo:</strong> Clasifica los ingredientes para crear platos \"puros\" (de un solo tipo).",
+                h2p_sort_2: "<strong>Reglas de Movimiento:</strong> Solo puedes mover una pila a un plato vacío o sobre un ingrediente idéntico. ¡Piensa bien tus movimientos!",
+                h2p_sort_3: "<strong>Entrega:</strong> Una vez que un plato está puro (lleno de un solo ingrediente), puedes entregarlo para completar esa parte de la receta.",
+                h2p_special_title: "Objetos Especiales",
+                h2p_golden: "<strong>Ingredientes Dorados:</strong> ¡Valen una enorme bonificación de estrellas!",
+                h2p_trash: "<strong>Bote de Basura:</strong> Descarta los ingredientes no deseados. ¡Los usos son limitados!",
+                h2p_bomb: "<strong>Bomba:</strong> Selecciona una bomba y haz clic en cualquier plato para eliminar todos sus ingredientes.",
+                h2p_wildcard: "<strong>Comodín:</strong> Este ítem especial solo aparece en niveles Clásicos. Se puede apilar sobre cualquier cosa y cuenta como cualquier ingrediente.",
+                // Message Box Text
+                reset_confirm_title: "Reiniciar Progreso",
+                reset_confirm_text: "¿Estás seguro de que quieres empezar de nuevo? Todas tus estrellas y niveles desbloqueados se perderán para siempre.",
+                cancel: "Cancelar",
+                yes_reset: "Sí, Reiniciar",
+                level_complete_title: "¡Nivel Completado!",
+                level_complete_text: "¡Has completado todos los pedidos! Has desbloqueado el siguiente nivel.",
+                next_level: "Próximo Nivel",
+                game_won_title: "¡Felicitaciones!",
+                game_won_text: "¡Has dominado la cocina!",
+                play_again: "Jugar de Nuevo",
+                unlock_plate_title: "Desbloquear Plato",
+                unlock_plate_text: (cost) => `¿Gastar ${cost} ⭐ para desbloquear este plato?`,
+                not_now: "Ahora no",
+                unlock: "Desbloquear",
+                not_enough_stars_title: "¡Estrellas Insuficientes!",
+                not_enough_stars_text: (cost) => `Necesitas ${cost} ⭐ para desbloquear este plato.`,
+                ok: "OK",
+                time_up_title: "¡Se acabó el tiempo!",
+                time_up_text: "El cliente VIP se ha ido. ¡Inténtalo de nuevo!",
+                stalemate_title: "¡Atascado!",
+                stalemate_text: "No hay más movimientos. ¡Vamos a barajar de nuevo los ingredientes!",
+                lets_go: "¡Vamos!",
+                // Level labels
+                recipe: "Receta",
+                puzzle: "Puzzle"
+            },
+            en: {
+                subtitle: "A cozy kitchen puzzle",
+                login_prompt: "Please sign in to start cooking!",
+                welcome_back: (name) => `Welcome back, ${name}!`,
+                login_google: "Sign in with Google",
+                start_cooking: "Start Cooking!",
+                how_to_play: "How to Play",
+                reset_progress: "Reset Progress",
+                logout: "Logout",
+                select_level: "Select a Level",
+                back_to_main_menu: "Back to Main Menu",
+                level_prefix: "Level",
+                orders_prefix: "Orders",
+                todays_order: "Today's Order:",
+                sort_goal: "Sorting Goal:",
+                back_to_levels: "See Levels",
+                serve_btn: "Serve",
+                how_to_play_title: "How to Play",
+                got_it: "Got it!",
+                 // How-to-play text
+                h2p_classic_title: "Classic Recipes 🧑‍🍳",
+                h2p_classic_1: "<strong>The Order:</strong> Gather the ingredients on the recipe card. You must create a stack of the exact amount (or more) and deliver it all at once.",
+                h2p_classic_2: "<strong>Moving Stacks:</strong> You can move a stack onto an ingredient of the same type or onto a wildcard (🌟).",
+                h2p_sort_title: "Sorting Puzzles 🧩",
+                h2p_sort_1: "<strong>The Goal:</strong> Sort the ingredients to create \"pure\" plates (of a single type).",
+                h2p_sort_2: "<strong>Move Rules:</strong> You can only move a stack to an empty plate or onto an identical ingredient. Think your moves through!",
+                h2p_sort_3: "<strong>Delivery:</strong> Once a plate is pure (full of a single ingredient), you can deliver it to fulfill that part of the recipe.",
+                h2p_special_title: "Special Items",
+                h2p_golden: "<strong>Golden Ingredients:</strong> These rare items are worth a huge star bonus!",
+                h2p_trash: "<strong>Trash Can:</strong> Discard unwanted ingredients. Uses are limited!",
+                h2p_bomb: "<strong>Bomb:</strong> Select a bomb and click any plate to clear all ingredients from it.",
+                h2p_wildcard: "<strong>Wildcard:</strong> This special item only appears in Classic levels. It can be stacked on anything and counts as any ingredient you need.",
+                // Message Box Text
+                reset_confirm_title: "Reset Progress",
+                reset_confirm_text: "Are you sure you want to start over? All your stars and unlocked levels will be lost forever.",
+                cancel: "Cancel",
+                yes_reset: "Yes, Reset",
+                level_complete_title: "Level Complete!",
+                level_complete_text: "You've completed all the orders! You've unlocked the next level.",
+                next_level: "Next Level",
+                game_won_title: "Congratulations!",
+                game_won_text: "You've mastered the kitchen!",
+                play_again: "Play Again",
+                unlock_plate_title: "Unlock Plate",
+                unlock_plate_text: (cost) => `Spend ${cost} ⭐ to unlock this plate?`,
+                not_now: "Not Now",
+                unlock: "Unlock",
+                not_enough_stars_title: "Not Enough Stars!",
+                not_enough_stars_text: (cost) => `You need ${cost} ⭐ to unlock this plate.`,
+                ok: "OK",
+                time_up_title: "Time's Up!",
+                time_up_text: "The VIP customer left. Try again!",
+                stalemate_title: "Stuck!",
+                stalemate_text: "There are no more moves. Let's reshuffle the ingredients!",
+                lets_go: "Let's Go!",
+                 // Level labels
+                recipe: "Recipe",
+                puzzle: "Puzzle"
+            }
+        };
+
         const cozyGradientMap = {
             'strawberry': 'bg-gradient-to-br from-pink-300 to-red-400', 'banana': 'bg-gradient-to-br from-yellow-200 to-yellow-300', 'grapes': 'bg-gradient-to-br from-purple-300 to-indigo-400', 'carrot': 'bg-gradient-to-br from-orange-200 to-amber-400', 'broccoli': 'bg-gradient-to-br from-green-300 to-emerald-400', 'mushroom': 'bg-gradient-to-br from-stone-300 to-stone-400', 'tomato': 'bg-gradient-to-br from-red-400 to-red-500', 'avocado': 'bg-gradient-to-br from-lime-300 to-green-500', 'eggplant': 'bg-gradient-to-br from-purple-400 to-violet-600', 'chili': 'bg-gradient-to-br from-red-500 to-orange-600',
             [specialItems.wildcard.id]: 'bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-400',
@@ -513,27 +625,36 @@
         let timerInterval = null;
 
         // --- CORE DATA & STATE FUNCTIONS ---
-        async function loadProgress() {
-            if (!window.firebaseIntegration) { setTimeout(loadProgress, 100); return; }
+        async function loadProgress(user) {
+            if (!window.firebaseIntegration) { setTimeout(() => loadProgress(user), 100); return; }
             const savedState = await window.firebaseIntegration.loadProgressFromFirestore();
             Object.assign(gameState, initialGameState, savedState || {});
             if (!savedState) await saveProgress();
-            renderLevelMap();
+            
+            const savedLang = localStorage.getItem('dishDashLang') || 'es';
+            setLanguage(savedLang, user);
         }
         async function saveProgress() {
             if (!window.firebaseIntegration) return;
             const progressToSave = { highestLevelUnlocked: gameState.highestLevelUnlocked, currentLevelIndex: gameState.currentLevelIndex, stars: gameState.stars, platesUnlocked: gameState.platesUnlocked };
             await window.firebaseIntegration.saveProgressToFirestore(progressToSave);
         }
-        function resetGameStateToDefault() { Object.assign(gameState, initialGameState); renderLevelMap(); }
+        function resetGameStateToDefault() { 
+            Object.assign(gameState, initialGameState);
+            setLanguage(currentLang);
+        }
         function resetProgress() {
-            showMessage("Reiniciar Progreso", "¿Estás seguro de que quieres empezar de nuevo? Todas tus estrellas y niveles desbloqueados se perderán para siempre.", [
-                {text: "Cancelar", primary: false},
-                {text: "Sí, Reiniciar", primary: true, action: async () => {
-                    if (window.firebaseIntegration) await window.firebaseIntegration.resetProgressInFirestore();
-                    resetGameStateToDefault(); renderLevelMap();
-                }}
-            ]);
+            showMessage(
+                translations[currentLang].reset_confirm_title, 
+                translations[currentLang].reset_confirm_text, 
+                [
+                    {text: translations[currentLang].cancel, primary: false},
+                    {text: translations[currentLang].yes_reset, primary: true, action: async () => {
+                        if (window.firebaseIntegration) await window.firebaseIntegration.resetProgressInFirestore();
+                        resetGameStateToDefault(); 
+                    }}
+                ]
+            );
         }
         
         // --- GAME FLOW FUNCTIONS ---
@@ -562,50 +683,50 @@
                     startGame(gameState.currentLevelIndex + 1);
                 }
             };
-            showMessage("¡Nivel Completado!", `¡Has completado todos los pedidos! Has desbloqueado el siguiente nivel.`, [{ text: "Próximo Nivel", action: onConfirm, primary: true }]);
+            showMessage(translations[currentLang].level_complete_title, translations[currentLang].level_complete_text, [{ text: translations[currentLang].next_level, action: onConfirm, primary: true }]);
         }
         async function handleUnlockPlateClick() {
             if (gameState.platesUnlocked >= 11) return;
             const cost = 1150 + (gameState.platesUnlocked - 3) * 500;
             if (gameState.stars >= cost) {
-                showMessage("Desbloquear Plato", `¿Gastar ${cost} ⭐ para desbloquear este plato?`, [
-                    { text: "Ahora no", primary: false },
-                    { text: "Desbloquear", primary: true, action: async () => {
+                showMessage(translations[currentLang].unlock_plate_title, translations[currentLang].unlock_plate_text(cost), [
+                    { text: translations[currentLang].not_now, primary: false },
+                    { text: translations[currentLang].unlock, primary: true, action: async () => {
                         gameState.stars -= cost; gameState.platesUnlocked++; gameState.plates.push([]);
                         await saveProgress(); renderGame();
                     }}
                 ]);
-            } else showMessage("¡Estrellas Insuficientes!", `Necesitas ${cost} ⭐ para desbloquear este plato.`, [{ text: 'OK', primary: true }]);
+            } else showMessage(translations[currentLang].not_enough_stars_title, translations[currentLang].not_enough_stars_text(cost), [{ text: translations[currentLang].ok, primary: true }]);
         }
         
         // --- UI & HELPER FUNCTIONS ---
         function showMessage(title, text, buttonsConfig) {
-            messageTitle.textContent = title; messageText.innerHTML = text; messageButtonsContainer.innerHTML = ''; 
+            uiElements.messageTitle.textContent = title; uiElements.messageText.innerHTML = text; uiElements.messageButtonsContainer.innerHTML = ''; 
             if (!buttonsConfig || buttonsConfig.length === 0) {
-                const okButton = document.createElement('button'); okButton.textContent = '¡Entendido!'; okButton.className = 'btn btn-primary'; okButton.onclick = closeMessage; messageButtonsContainer.appendChild(okButton);
+                const okButton = document.createElement('button'); okButton.textContent = translations[currentLang].got_it; okButton.className = 'btn btn-primary'; okButton.onclick = closeMessage; uiElements.messageButtonsContainer.appendChild(okButton);
             } else {
                  buttonsConfig.forEach(config => {
                      const button = document.createElement('button'); button.textContent = config.text; button.className = `btn ${config.primary ? 'btn-primary' : 'btn-secondary'}`;
                      button.onclick = () => { if(!config.noClose) closeMessage(); if (config.action) config.action(); };
-                     messageButtonsContainer.appendChild(button);
+                     uiElements.messageButtonsContainer.appendChild(button);
                  });
             }
-            messageBox.classList.remove('opacity-0', 'pointer-events-none'); messageBox.querySelector('div').classList.remove('scale-95');
+            uiElements.messageBox.classList.remove('opacity-0', 'pointer-events-none'); uiElements.messageBox.querySelector('div').classList.remove('scale-95');
         }
         function closeMessage() {
-            messageBox.classList.add('opacity-0'); setTimeout(() => messageBox.classList.add('pointer-events-none'), 300); messageBox.querySelector('div').classList.add('scale-95');
+            uiElements.messageBox.classList.add('opacity-0'); setTimeout(() => uiElements.messageBox.classList.add('pointer-events-none'), 300); uiElements.messageBox.querySelector('div').classList.add('scale-95');
         }
         function showScreen(screenEl) {
-            homeScreenEl.classList.add('hidden');
-            gameUiEl.classList.add('hidden');
-            levelMapScreenEl.classList.add('hidden');
+            uiElements.homeScreen.classList.add('hidden');
+            uiElements.gameUi.classList.add('hidden');
+            uiElements.levelMapScreen.classList.add('hidden');
             screenEl.classList.remove('hidden');
         }
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
         
         // --- RENDER & GAME SETUP FUNCTIONS ---
         function renderLevelMap() {
-            levelMapContainer.innerHTML = '';
+            uiElements.levelMapContainer.innerHTML = '';
             for (let i = 0; i < TOTAL_LEVELS; i++) {
                 const levelData = generateLevelData(i);
                 const isCompleted = i < gameState.highestLevelUnlocked;
@@ -638,7 +759,7 @@
                 if (isLocked) {
                     content.innerHTML = `<div class="lock-icon-map"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div>`;
                 } else { // For both completed and current levels
-                    const label = levelData.levelType === 'sort' ? 'Puzzle' : 'Receta';
+                    const label = translations[currentLang][levelData.levelType === 'sort' ? 'puzzle' : 'recipe'];
                     let icon = levelData.levelType === 'sort' ? '🧩' : '🧑‍🍳';
                     if (isCompleted) {
                         icon = '✅'; // Use a checkmark for completed levels
@@ -648,12 +769,12 @@
 
                 button.appendChild(content); 
                 nodeContainer.appendChild(button); 
-                levelMapContainer.appendChild(nodeContainer);
+                uiElements.levelMapContainer.appendChild(nodeContainer);
             }
         }
 
 
-        function showLevelMap() { renderLevelMap(); showScreen(levelMapScreenEl); }
+        function showLevelMap() { renderLevelMap(); showScreen(uiElements.levelMapScreen); }
         
         function generateLevelData(levelIndex) {
             const levelNumber = levelIndex + 1;
@@ -667,7 +788,7 @@
         }
 
         function startGame(levelIndex) {
-            showScreen(gameUiEl); 
+            showScreen(uiElements.gameUi); 
             const levelData = generateLevelData(levelIndex);
             
             Object.assign(gameState, {
@@ -723,6 +844,12 @@
         function generateRandomRecipeName() {
             const adjectives = ["Acogedor", "Cálido", "Dorado", "Rústico", "Hogareño", "Brillante", "Crepuscular", "Campestre"];
             const nouns = ["Deleite", "Guiso", "Manjar", "Festín", "Pastel", "Néctar", "Bocado", "Breveje"];
+            const adjectives_en = ["Cozy", "Warm", "Golden", "Rustic", "Homely", "Bright", "Twilight", "Country"];
+            const nouns_en = ["Delight", "Stew", "Feast", "Banquet", "Pie", "Nectar", "Morsel", "Brew"];
+            
+            if (currentLang === 'en') {
+                return `${adjectives_en[Math.floor(Math.random() * adjectives_en.length)]} ${nouns_en[Math.floor(Math.random() * nouns_en.length)]}`;
+            }
             return `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
         }
 
@@ -739,8 +866,8 @@
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval); const recipe = gameState.currentRecipe; if (!recipe || !recipe.isVIP) return;
             timerInterval = setInterval(() => {
-                recipe.timeLeft--; const percentage = (recipe.timeLeft / recipe.timerDuration) * 100; timerBar.style.width = `${percentage}%`;
-                if (recipe.timeLeft <= 0) { clearInterval(timerInterval); showMessage("¡Se acabó el tiempo!", "El cliente VIP se ha ido. ¡Inténtalo de nuevo!", [{ text: "OK", primary: true, action: () => {
+                recipe.timeLeft--; const percentage = (recipe.timeLeft / recipe.timerDuration) * 100; uiElements.timerBar.style.width = `${percentage}%`;
+                if (recipe.timeLeft <= 0) { clearInterval(timerInterval); showMessage(translations[currentLang].time_up_title, translations[currentLang].time_up_text, [{ text: translations[currentLang].ok, primary: true, action: () => {
                     gameState.levelOrderQueue.shift(); 
                     if (gameState.levelOrderQueue.length === 0) {
                         handleLevelComplete();
@@ -833,8 +960,8 @@
             }
 
             if (availablePlates.length === 0) {
-                dealButton.classList.add('shake');
-                setTimeout(() => dealButton.classList.remove('shake'), 500);
+                uiElements.dealButton.classList.add('shake');
+                setTimeout(() => uiElements.dealButton.classList.remove('shake'), 500);
                 return;
             }
 
@@ -894,25 +1021,29 @@
             if (deals.length > 0) {
                 animateDeal(deals);
             } else {
-                renderGame();
+                runPostMoveChecks();
             }
         }
         
         function renderGame() {
             const recipe = gameState.currentRecipe; if (!recipe) return;
             
-            recipeTitleEl.textContent = gameState.currentLevelType === 'sort' ? 'Objetivo de Clasificación:' : 'Pedido de Hoy:';
-            dealButton.style.display = gameState.currentLevelType === 'sort' ? 'none' : 'inline-flex';
+            uiElements.recipeTitle.textContent = translations[currentLang][gameState.currentLevelType === 'sort' ? 'sort_goal' : 'todays_order'];
+            uiElements.dealButton.style.display = gameState.currentLevelType === 'sort' ? 'none' : 'inline-flex';
 
-            levelDisplayEl.textContent = `Nivel: ${gameState.currentLevelIndex + 1}`;
-            orderProgressEl.textContent = `Pedidos: ${gameState.ordersCompletedInLevel + 1}/${gameState.totalOrdersInLevel}`;
-            starCounterEl.textContent = gameState.stars; recipeNameEl.textContent = recipe.name;
-            vipBadge.classList.toggle('hidden', !recipe.isVIP);
-            customerTypeBadge.classList.toggle('hidden', recipe.customerType !== 'picky');
-            if(recipe.customerType === 'picky') customerTypeBadge.textContent = '¡En Orden!';
-            timerContainer.classList.toggle('hidden', !recipe.isVIP);
-            if (recipe.isVIP) { const percentage = (recipe.timeLeft / recipe.timerDuration) * 100; timerBar.style.width = `${percentage}%`; }
-            recipeIngredientsEl.innerHTML = '';
+            uiElements.levelDisplay.querySelector('span:first-child').textContent = translations[currentLang].level_prefix;
+            uiElements.levelDisplay.querySelector('span:last-child').textContent = gameState.currentLevelIndex + 1;
+            uiElements.orderProgress.querySelector('span:first-child').textContent = translations[currentLang].orders_prefix;
+            uiElements.orderProgress.querySelector('span:last-child').textContent = `${gameState.ordersCompletedInLevel + 1}/${gameState.totalOrdersInLevel}`;
+            
+            uiElements.starCounter.textContent = gameState.stars; 
+            uiElements.recipeName.textContent = recipe.name;
+            uiElements.vipBadge.classList.toggle('hidden', !recipe.isVIP);
+            uiElements.customerTypeBadge.classList.toggle('hidden', recipe.customerType !== 'picky');
+            if(recipe.customerType === 'picky') uiElements.customerTypeBadge.textContent = currentLang === 'es' ? '¡En Orden!' : 'In Order!';
+            uiElements.timerContainer.classList.toggle('hidden', !recipe.isVIP);
+            if (recipe.isVIP) { const percentage = (recipe.timeLeft / recipe.timerDuration) * 100; uiElements.timerBar.style.width = `${percentage}%`; }
+            uiElements.recipeIngredients.innerHTML = '';
             
             if(recipe.customerType === 'picky') {
                 recipe.ingredientOrder.forEach((ingredientId, index) => {
@@ -922,10 +1053,10 @@
                     span.className = 'recipe-ingredient-ordered';
                     if (index === 0) span.classList.add('next-in-order', 'font-bold', 'text-accent', 'scale-125');
                     span.innerHTML = `<img src="${masterData.imageUrl}" class="recipe-img" alt="${masterData.name}">`;
-                    recipeIngredientsEl.appendChild(span);
+                    uiElements.recipeIngredients.appendChild(span);
                 });
             } else {
-                recipeIngredientsEl.innerHTML = Object.entries(recipe.ingredients)
+                uiElements.recipeIngredients.innerHTML = Object.entries(recipe.ingredients)
                     .map(([ingredientId, targetCount]) => {
                         const masterData = allIngredientData[ingredientId];
                         const needed = Math.max(0, recipe.needed[ingredientId]);
@@ -968,14 +1099,107 @@
                     wrapper.onclick = () => handleUnlockPlateClick(); 
                 }
             });
-            orderInfoEl.classList.toggle('ring-2', isStackDeliverable(gameState.selectedStack)); orderInfoEl.classList.toggle('ring-primary', isStackDeliverable(gameState.selectedStack));
-            trashCanEl.disabled = !gameState.selectedStack || gameState.trashUsesLeft <= 0 || (gameState.selectedStack && gameState.selectedStack.stack[0].type === specialItems.bomb.id);
-            trashCounterEl.textContent = gameState.trashUsesLeft;
+            uiElements.orderInfo.classList.toggle('ring-2', isStackDeliverable(gameState.selectedStack)); 
+            uiElements.orderInfo.classList.toggle('ring-primary', isStackDeliverable(gameState.selectedStack));
+            uiElements.trashCan.disabled = !gameState.selectedStack || gameState.trashUsesLeft <= 0 || (gameState.selectedStack && gameState.selectedStack.stack[0].type === specialItems.bomb.id);
+            uiElements.trashCounter.textContent = gameState.trashUsesLeft;
             const allPlatesFull = gameState.plates.every(p => p.length >= MAX_INGREDIENTS_PER_PLATE);
-            dealButton.disabled = allPlatesFull || isOrderComplete(); deckCountEl.textContent = gameState.deck.length;
+            uiElements.dealButton.disabled = allPlatesFull || isOrderComplete(); 
+            uiElements.deckCount.textContent = gameState.deck.length;
         }
 
-        // --- CORE GAME LOGIC (FORKED) ---
+        // --- CORE GAME LOGIC & CHECKS ---
+        function runPostMoveChecks() {
+            renderGame();
+            setTimeout(() => {
+                if (isOrderComplete()) {
+                    handleOrderCompletion();
+                } else if (checkForStalemate()) {
+                    handleStalemate();
+                }
+            }, 100);
+        }
+
+        function reshuffleLevel() {
+            // Put all ingredients from plates back into the deck
+            gameState.deck = [];
+            gameState.plates.forEach(plate => {
+                gameState.deck.push(...plate);
+            });
+            // Clear all plates
+            gameState.plates = Array.from({ length: gameState.platesUnlocked }, () => []);
+
+            // Re-create the deck with all necessary ingredients for this specific recipe
+            const currentLevelData = generateLevelData(gameState.currentLevelIndex);
+            gameState.deck = createDeck(currentLevelData, gameState.unlockedIngredients, gameState.currentRecipe, gameState.deck);
+            
+            renderGame();
+        }
+
+        function handleStalemate() {
+            showMessage(
+                translations[currentLang].stalemate_title,
+                translations[currentLang].stalemate_text,
+                [{
+                    text: translations[currentLang].lets_go,
+                    primary: true,
+                    action: reshuffleLevel
+                }]
+            );
+        }
+
+        function checkForStalemate() {
+            if (gameState.currentLevelType !== 'classic' || isOrderComplete()) {
+                return false;
+            }
+
+            const canDeal = gameState.plates.some(p => p.length < DEAL_LIMIT) && gameState.deck.length > 0;
+            if (canDeal) {
+                return false;
+            }
+            
+            // If trash is available, there's always a move
+            if (gameState.trashUsesLeft > 0) {
+                for(let plate of gameState.plates) {
+                    if (plate.length > 0) return false; // Can trash something
+                }
+            }
+            
+            for (let i = 0; i < gameState.platesUnlocked; i++) {
+                const sourcePlate = gameState.plates[i];
+                if (sourcePlate.length === 0) continue;
+
+                const topIngredient = sourcePlate[sourcePlate.length - 1];
+                const typeToMatch = topIngredient.originalType || topIngredient.type;
+                const movableStack = [];
+                for (let k = sourcePlate.length - 1; k >= 0; k--) {
+                    const current = sourcePlate[k];
+                    const currentType = current.originalType || current.type;
+                    if (currentType === typeToMatch) {
+                        movableStack.unshift(current);
+                    } else {
+                        break;
+                    }
+                }
+
+                const tempSelectedStack = { fromPlate: i, stack: movableStack };
+
+                if (isStackDeliverable(tempSelectedStack)) {
+                    return false;
+                }
+
+                for (let j = 0; j < gameState.platesUnlocked; j++) {
+                    if (i === j) continue;
+                    if (canMoveStackTo(movableStack, gameState.plates[j])) {
+                        return false; 
+                    }
+                }
+            }
+
+            return true;
+        }
+
+
         function handlePlateClick(plateIndex) {
             if (gameState.isAnimating) return;
             const clickedPlate = gameState.plates[plateIndex];
@@ -998,6 +1222,7 @@
                     }
                 }
                 gameState.selectedStack = { fromPlate: plateIndex, stack: movableStack };
+                renderGame();
 
             } else { // Move the selected stack
                 const { fromPlate, stack } = gameState.selectedStack;
@@ -1009,6 +1234,7 @@
                 
                 if (fromPlate === plateIndex) { // Deselect
                     gameState.selectedStack = null;
+                    renderGame();
                 } else if (canMoveStackTo(stack, clickedPlate)) {
                     moveStack(plateIndex);
                 } else {
@@ -1016,9 +1242,9 @@
                     plateWrapperEl.classList.add('shake');
                     setTimeout(() => plateWrapperEl.classList.remove('shake'), 500);
                     gameState.selectedStack = null;
+                    renderGame();
                 }
             }
-            renderGame();
         }
         
         function canMoveStackTo(stack, destinationPlate) {
@@ -1102,8 +1328,8 @@
         function handleRecipeClick() {
             if (gameState.isAnimating || !isStackDeliverable(gameState.selectedStack)) {
                 if (gameState.selectedStack) {
-                    orderInfoEl.classList.add('shake');
-                    setTimeout(() => orderInfoEl.classList.remove('shake'), 500);
+                    uiElements.orderInfo.classList.add('shake');
+                    setTimeout(() => uiElements.orderInfo.classList.remove('shake'), 500);
                     gameState.selectedStack = null;
                     renderGame();
                 }
@@ -1131,15 +1357,14 @@
                 }
             }
 
-            let starsEarned = type === specialItems.golden.id ? 50 : 15;
-            if (gameState.currentRecipe.isVIP) starsEarned += 20;
-            if (gameState.currentRecipe.customerType === 'picky') starsEarned += 10;
+            let starsEarned = type === specialItems.golden.id ? 150 : 40;
+            if (gameState.currentRecipe.isVIP) starsEarned += 400;
+            if (gameState.currentRecipe.customerType === 'picky') starsEarned += 200;
             gameState.stars += starsEarned;
             gameState.selectedStack = null;
             const deliveredIngredients = gameState.plates[fromPlate].splice(-stack.length);
-            renderGame(); 
-
-            const orderRect = orderInfoEl.getBoundingClientRect();
+            
+            const orderRect = uiElements.orderInfo.getBoundingClientRect();
             const startRect = document.getElementById(`plate-${fromPlate}`).parentElement.getBoundingClientRect();
             deliveredIngredients.reverse().forEach((ingredientData, index) => {
                 const clone = createAnimatedClone(ingredientData);
@@ -1150,7 +1375,7 @@
                     left: `${startRect.left + (startRect.width / 2) - 20}px`,
                     top: `${startRect.top + (startRect.height / 2) - 20}px`
                 });
-                animationLayer.appendChild(clone);
+                uiElements.animationLayer.appendChild(clone);
                 setTimeout(() => Object.assign(clone.style, {
                     left: `${orderRect.left + (orderRect.width / 2) - 20}px`,
                     top: `${orderRect.top + (orderRect.height / 2) - 20}px`,
@@ -1161,34 +1386,57 @@
                     clone.remove();
                     if (index === deliveredIngredients.length - 1) {
                         gameState.isAnimating = false;
-                        if (isOrderComplete()) {
-                            handleOrderCompletion();
-                        } else {
-                            renderGame();
-                        }
+                        runPostMoveChecks();
                     }
                 }, index * 50 + 400);
             });
+            runPostMoveChecks();
         }
         function moveStack(toPlateIndex) {
-            if (gameState.isAnimating) return; const { fromPlate, stack } = gameState.selectedStack; gameState.isAnimating = true; gameState.selectedStack = null; gameState.plates[fromPlate].splice(-stack.length); renderGame();
-            const startRect = document.getElementById(`plate-${fromPlate}`).parentElement.getBoundingClientRect(); const endRect = document.getElementById(`plate-${toPlateIndex}`).parentElement.getBoundingClientRect();
+            if (gameState.isAnimating) return; 
+            const { fromPlate, stack } = gameState.selectedStack; 
+            gameState.isAnimating = true; 
+            gameState.selectedStack = null; 
+            gameState.plates[fromPlate].splice(-stack.length); 
+            
+            const startRect = document.getElementById(`plate-${fromPlate}`).parentElement.getBoundingClientRect(); 
+            const endRect = document.getElementById(`plate-${toPlateIndex}`).parentElement.getBoundingClientRect();
             stack.slice().reverse().forEach((ingredientData, index) => {
-                const clone = createAnimatedClone(ingredientData); Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - index, transition: 'all 0.4s cubic-bezier(0.5, -0.5, 0.75, 1.2)', left: `${startRect.left + (startRect.width / 2) - 20}px`, top: `${startRect.top + (startRect.height / 2) - 20}px`, transform: `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 5 }px) scale(1.1)` });
-                animationLayer.appendChild(clone);
+                const clone = createAnimatedClone(ingredientData); 
+                Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - index, transition: 'all 0.4s cubic-bezier(0.5, -0.5, 0.75, 1.2)', left: `${startRect.left + (startRect.width / 2) - 20}px`, top: `${startRect.top + (startRect.height / 2) - 20}px`, transform: `translateZ(${ (gameState.plates[fromPlate].length + stack.length - index) * 5 }px) scale(1.1)` });
+                uiElements.animationLayer.appendChild(clone);
                 setTimeout(() => Object.assign(clone.style, { left: `${endRect.left + (endRect.width / 2) - 20}px`, top: `${endRect.top + (endRect.height / 2) - 20}px`, transform: `translateZ(${ (gameState.plates[toPlateIndex].length + stack.length - index) * 5 }px) scale(1)` }), index * 40);
-                setTimeout(() => { clone.remove(); if (index === stack.length - 1) { gameState.plates[toPlateIndex].push(...stack); gameState.isAnimating = false; renderGame(); } }, index * 40 + 400);
+                setTimeout(() => { 
+                    clone.remove(); 
+                    if (index === stack.length - 1) { 
+                        gameState.plates[toPlateIndex].push(...stack); 
+                        gameState.isAnimating = false; 
+                        runPostMoveChecks();
+                    } 
+                }, index * 40 + 400);
             });
+            renderGame();
         }
         function animateDeal(deals) {
-            gameState.isAnimating = true; const dealButtonRect = dealButton.getBoundingClientRect();
+            gameState.isAnimating = true; 
+            const dealButtonRect = uiElements.dealButton.getBoundingClientRect();
             deals.forEach((deal, dealIndex) => {
-                const { toPlateIndex, ingredient } = deal; const endRect = document.getElementById(`plate-${toPlateIndex}`).parentElement.getBoundingClientRect();
-                const clone = createAnimatedClone(ingredient); Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - dealIndex, transition: 'all 0.4s cubic-bezier(0.3, 0, 0.4, 1), opacity 0.3s ease-in-out', left: `${dealButtonRect.left + (dealButtonRect.width / 2) - 20}px`, top: `${dealButtonRect.top + (dealButtonRect.height / 2) - 20}px`, transform: 'scale(0.8)', opacity: '0' });
-                animationLayer.appendChild(clone);
+                const { toPlateIndex, ingredient } = deal; 
+                const endRect = document.getElementById(`plate-${toPlateIndex}`).parentElement.getBoundingClientRect();
+                const clone = createAnimatedClone(ingredient); 
+                Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - dealIndex, transition: 'all 0.4s cubic-bezier(0.3, 0, 0.4, 1), opacity 0.3s ease-in-out', left: `${dealButtonRect.left + (dealButtonRect.width / 2) - 20}px`, top: `${dealButtonRect.top + (dealButtonRect.height / 2) - 20}px`, transform: 'scale(0.8)', opacity: '0' });
+                uiElements.animationLayer.appendChild(clone);
                 setTimeout(() => Object.assign(clone.style, { opacity: '1', left: `${endRect.left + (endRect.width / 2) - 20}px`, top: `${endRect.top + (endRect.height / 2) - 20}px`, transform: `scale(1) translateZ(${gameState.plates[toPlateIndex].length * 5}px)` }), 50 + dealIndex * 70); 
-                setTimeout(() => { clone.remove(); if (dealIndex === deals.length - 1) { deals.forEach(d => { gameState.plates[d.toPlateIndex].push(d.ingredient); }); gameState.isAnimating = false; renderGame(); } }, 50 + dealIndex * 70 + 400);
+                setTimeout(() => { 
+                    clone.remove(); 
+                    if (dealIndex === deals.length - 1) { 
+                        deals.forEach(d => { gameState.plates[d.toPlateIndex].push(d.ingredient); }); 
+                        gameState.isAnimating = false; 
+                        runPostMoveChecks();
+                    } 
+                }, 50 + dealIndex * 70 + 400);
             });
+            renderGame();
         }
         
         function isStackDeliverable(selectedStack) {
@@ -1263,53 +1511,162 @@
 
         function isOrderComplete() { if (!gameState.currentRecipe) return false; if(gameState.currentRecipe.customerType === 'picky') return gameState.currentRecipe.ingredientOrder.length === 0; return Object.values(gameState.currentRecipe.needed).every(count => count <= 0); }
         
-        function handleGameWon() { showMessage("¡Felicitaciones!", "¡Has dominado la cocina!", [{ text: "Jugar de Nuevo", action: () => showScreen(homeScreenEl), primary: true }]); }
+        function handleGameWon() { showMessage(translations[currentLang].game_won_title, translations[currentLang].game_won_text, [{ text: translations[currentLang].play_again, action: () => showScreen(uiElements.homeScreen), primary: true }]); }
         function handleTrashClick() {
             if (gameState.isAnimating || !gameState.selectedStack || gameState.trashUsesLeft <= 0) return;
             const { fromPlate, stack } = gameState.selectedStack; if (stack[0].type === specialItems.bomb.id) return;
-            gameState.trashUsesLeft--; gameState.isAnimating = true; gameState.selectedStack = null;
-            const trashedIngredients = gameState.plates[fromPlate].splice(-stack.length); renderGame();
-            const trashRect = trashCanEl.getBoundingClientRect(); const startRect = document.getElementById(`plate-${fromPlate}`).parentElement.getBoundingClientRect();
+            gameState.trashUsesLeft--; 
+            gameState.isAnimating = true; 
+            gameState.selectedStack = null;
+            const trashedIngredients = gameState.plates[fromPlate].splice(-stack.length); 
+            
+            const trashRect = uiElements.trashCan.getBoundingClientRect(); 
+            const startRect = document.getElementById(`plate-${fromPlate}`).parentElement.getBoundingClientRect();
             trashedIngredients.reverse().forEach((ingredientData, index) => {
-                const clone = createAnimatedClone(ingredientData); Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - index, transition: 'all 0.5s cubic-bezier(0.5, -0.5, 0.2, 1)', left: `${startRect.left + (startRect.width / 2) - 20}px`, top: `${startRect.top + (startRect.height / 2) - 20}px` });
-                animationLayer.appendChild(clone);
+                const clone = createAnimatedClone(ingredientData); 
+                Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - index, transition: 'all 0.5s cubic-bezier(0.5, -0.5, 0.2, 1)', left: `${startRect.left + (startRect.width / 2) - 20}px`, top: `${startRect.top + (startRect.height / 2) - 20}px` });
+                uiElements.animationLayer.appendChild(clone);
                 setTimeout(() => Object.assign(clone.style, { left: `${trashRect.left + (trashRect.width / 2) - 15}px`, top: `${trashRect.top + (trashRect.height / 2) - 15}px`, transform: 'scale(0.3)', opacity: '0' }), index * 50);
-                setTimeout(() => { clone.remove(); if(index === trashedIngredients.length - 1) { gameState.isAnimating = false; renderGame(); } }, index * 50 + 500);
+                setTimeout(() => { 
+                    clone.remove(); 
+                    if(index === trashedIngredients.length - 1) { 
+                        gameState.isAnimating = false; 
+                        runPostMoveChecks();
+                    } 
+                }, index * 50 + 500);
             });
+            renderGame();
         }
         function clearPlateWithBomb(targetPlateIndex, bombPlateIndex) {
-            if (gameState.isAnimating) return; gameState.isAnimating = true; gameState.selectedStack = null; gameState.plates[bombPlateIndex].pop();
-            const ingredientsToClear = [...gameState.plates[targetPlateIndex]]; gameState.plates[targetPlateIndex] = []; renderGame();
+            if (gameState.isAnimating) return; 
+            gameState.isAnimating = true; 
+            gameState.selectedStack = null; 
+            gameState.plates[bombPlateIndex].pop();
+            const ingredientsToClear = [...gameState.plates[targetPlateIndex]]; 
+            gameState.plates[targetPlateIndex] = []; 
+            
             const targetRect = document.getElementById(`plate-${targetPlateIndex}`).parentElement.getBoundingClientRect();
-            if(ingredientsToClear.length === 0) { gameState.isAnimating = false; renderGame(); return; }
+            if(ingredientsToClear.length === 0) { 
+                gameState.isAnimating = false; 
+                runPostMoveChecks();
+                return; 
+            }
             ingredientsToClear.forEach((ingredient, index) => {
-                const clone = createAnimatedClone(ingredient); Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - index, transition: 'all 0.5s ease-out', left: `${targetRect.left + (targetRect.width / 2) - 20}px`, top: `${targetRect.top + (targetRect.height / 2) - 20}px` });
-                animationLayer.appendChild(clone);
+                const clone = createAnimatedClone(ingredient); 
+                Object.assign(clone.style, { position: 'fixed', zIndex: 1000 - index, transition: 'all 0.5s ease-out', left: `${targetRect.left + (targetRect.width / 2) - 20}px`, top: `${targetRect.top + (targetRect.height / 2) - 20}px` });
+                uiElements.animationLayer.appendChild(clone);
                 setTimeout(() => {
                     const angle = Math.random() * 2 * Math.PI, distance = 150 + Math.random() * 50;
                     clone.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0.5) rotate(${Math.random() * 360}deg)`;
                     clone.style.opacity = '0';
                 }, 50);
-                setTimeout(() => { clone.remove(); if(index === ingredientsToClear.length - 1) { gameState.isAnimating = false; renderGame(); } }, 550);
+                setTimeout(() => { 
+                    clone.remove(); 
+                    if(index === ingredientsToClear.length - 1) { 
+                        gameState.isAnimating = false; 
+                        runPostMoveChecks();
+                    } 
+                }, 550);
             });
+            renderGame();
+        }
+
+        // --- LANGUAGE SWITCHING ---
+        function setLanguage(lang, user) {
+            currentLang = lang;
+            localStorage.setItem('dishDashLang', lang);
+            document.documentElement.lang = lang;
+
+            // Update all static text
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.dataset.langKey;
+                if (translations[lang] && translations[lang][key]) {
+                    const translation = translations[lang][key];
+                    if (typeof translation === 'function') {
+                        // This case is handled in user-specific updates
+                    } else {
+                        el.innerHTML = translation;
+                    }
+                }
+            });
+
+            // Update dynamic text
+            if (user) {
+                uiElements.userGreeting.textContent = translations[lang].welcome_back(user.displayName.split(' ')[0]);
+            } else {
+                 uiElements.userGreeting.textContent = translations[lang].login_prompt;
+            }
+
+            // Update "How to Play" modal content
+            const h2pContainer = document.getElementById('how-to-play-text-container');
+            h2pContainer.innerHTML = `
+                <div class="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <h3 class="font-bold text-lg text-amber-900 mb-2">${translations[lang].h2p_classic_title}</h3>
+                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/note.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_classic_1}</p></div>
+                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/upfinger.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_classic_2}</p></div>
+                </div>
+                <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+                    <h3 class="font-bold text-lg text-sky-900 mb-2">${translations[lang].h2p_sort_title}</h3>
+                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/tube.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_1}</p></div>
+                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/up.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_2}</p></div>
+                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/box.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_3}</p></div>
+                </div>
+                <hr class="my-4">
+                <h3 class="font-bold text-lg text-stone-800 text-center">${translations[lang].h2p_special_title}</h3>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/golden.png" alt="Icon"></span> <p>${translations[lang].h2p_golden}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/trash.png" alt="Icon"></span> <p>${translations[lang].h2p_trash}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/bomb.png" alt="Icon"></span> <p>${translations[lang].h2p_bomb}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/star.png" alt="Icon"></span> <p>${translations[lang].h2p_wildcard}</p></div>
+            `;
+
+
+            // Update button text
+            uiElements.langToggleButton.textContent = lang === 'es' ? 'English' : 'Español';
+            uiElements.langToggleButtonGame.textContent = lang === 'es' ? 'EN' : 'ES';
+
+            // Re-render components that might have language-dependent text
+            if(uiElements.levelMapScreen.classList.contains('hidden') === false) {
+                renderLevelMap();
+            }
+            if(uiElements.gameUi.classList.contains('hidden') === false && gameState.currentRecipe) {
+                gameState.currentRecipe.name = generateRandomRecipeName();
+                renderGame();
+            }
+        }
+
+        function toggleLanguage() {
+            const newLang = currentLang === 'es' ? 'en' : 'es';
+            // Correctly access the currentUser from the auth object, not the integration object
+            setLanguage(newLang, window.firebaseIntegration.auth.currentUser);
         }
         
         // --- INITIALIZATION & LISTENERS ---
-        startGameButton.addEventListener('click', showLevelMap);
-        resetProgressButton.addEventListener('click', resetProgress);
-        backToHomeButton.addEventListener('click', () => showScreen(homeScreenEl));
-        backToMapButton.addEventListener('click', showLevelMap);
-        dealButton.addEventListener('click', dealRow);
-        orderInfoEl.addEventListener('click', handleRecipeClick);
-        trashCanEl.addEventListener('click', handleTrashClick);
-        const openHowToPlayModal = () => { howToPlayModal.classList.remove('opacity-0', 'pointer-events-none'); howToPlayContent.classList.remove('scale-95'); };
-        const closeHowToPlayModal = () => { howToPlayModal.classList.add('opacity-0'); howToPlayContent.classList.add('scale-95'); setTimeout(() => howToPlayModal.classList.add('pointer-events-none'), 300); };
-        howToPlayButton.addEventListener('click', openHowToPlayModal);
-        howToPlayCloseButton.addEventListener('click', closeHowToPlayModal);
-        howToPlayCloseButtonX.addEventListener('click', closeHowToPlayModal);
-        howToPlayModal.addEventListener('click', (e) => e.target === howToPlayModal && closeHowToPlayModal());
+        uiElements.startGameButton.addEventListener('click', showLevelMap);
+        uiElements.resetProgressButton.addEventListener('click', resetProgress);
+        uiElements.backToHomeButton.addEventListener('click', () => showScreen(uiElements.homeScreen));
+        uiElements.backToMapButton.addEventListener('click', showLevelMap);
+        uiElements.dealButton.addEventListener('click', dealRow);
+        uiElements.orderInfo.addEventListener('click', handleRecipeClick);
+        uiElements.trashCan.addEventListener('click', handleTrashClick);
+        uiElements.langToggleButton.addEventListener('click', toggleLanguage);
+        uiElements.langToggleButtonGame.addEventListener('click', toggleLanguage);
+
+        const openHowToPlayModal = () => { uiElements.howToPlayModal.classList.remove('opacity-0', 'pointer-events-none'); uiElements.howToPlayContent.classList.remove('scale-95'); };
+        const closeHowToPlayModal = () => { uiElements.howToPlayModal.classList.add('opacity-0'); uiElements.howToPlayContent.classList.add('scale-95'); setTimeout(() => uiElements.howToPlayModal.classList.add('pointer-events-none'), 300); };
+        uiElements.howToPlayButton.addEventListener('click', openHowToPlayModal);
+        uiElements.howToPlayCloseButton.addEventListener('click', closeHowToPlayModal);
+        uiElements.howToPlayCloseButtonX.addEventListener('click', closeHowToPlayModal);
+        uiElements.howToPlayModal.addEventListener('click', (e) => e.target === uiElements.howToPlayModal && closeHowToPlayModal());
         window.addEventListener('beforeunload', () => { if(window.firebaseIntegration) saveProgress(); });
-        window.dishDashGame = { loadProgress, resetGameStateToDefault };
+
+        // Initial language setup
+        const savedLang = localStorage.getItem('dishDashLang') || 'es';
+        setLanguage(savedLang);
+
+        window.dishDashGame = { 
+            loadProgress: (user) => loadProgress(user), 
+            resetGameStateToDefault: resetGameStateToDefault 
+        };
     });
     </script>
 </body>
