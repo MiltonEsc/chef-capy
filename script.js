@@ -1,436 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dish & Dash - Cozy Kitchen</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <style>
-        :root {
-            --bg-cozy: #FBF7F3;
-            --text-dark: #4a403a;
-            --text-light: #7a6c62;
-            --primary: #a3b18a;
-            --primary-hover: #919d7a;
-            --secondary: #e7c8a0;
-            --secondary-hover: #d7b58c;
-            --accent: #d4a373;
-            --danger: #c78080;
-            --locked: #a8a29e;
-        }
 
-        body {
-            font-family: 'Comfortaa', cursive;
-            background-color: var(--bg-cozy);
-            color: var(--text-dark);
-            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a373' fill-opacity='0.1'%3E%3Cpath d='M80 80V0h-29.333c1.05 4.333 1.575 8.833 1.575 13.5C52.242 27.667 45.575 39.583 36.417 46.5c-4.583 3.45-9.25 5.175-14 5.175-3.267 0-6.417-.833-9.5-2.5C11.083 47.333 9.417 44.833 7.5 41.5c-2.417-4.167-3.5-8.5-3.5-13C4 21.333 5.333 15.167 8 9.5V0H0v80h80z'/%3E%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            overflow: hidden;
-        }
-
-        h1, h2, #message-title, #recipe-name {
-             font-family: 'Kalam', cursive;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            transition: all 0.2s ease-in-out;
-            border: 2px solid transparent;
-            border-bottom: 4px solid rgba(0,0,0,0.2);
-        }
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .btn:active:not(:disabled) {
-            transform: translateY(1px);
-            border-bottom-width: 2px;
-        }
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: translateY(0);
-            box-shadow: none;
-        }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-        .btn-secondary { background-color: var(--secondary); color: var(--text-dark); }
-        .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
-        .btn-danger { background-color: var(--danger); color: white; }
-        .btn-danger:hover:not(:disabled) { background-color: #b96f6f; }
-        
-        #game-ui, #plate-tower-game { perspective: 1500px; }
-
-        #level-map-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-            justify-items: center;
-        }
-        .level-node-button {
-            width: 120px;
-            height: 150px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Kalam', cursive;
-            color: var(--text-dark);
-            border: 1px solid #e5e5e5;
-        }
-        .level-node-button:not(:disabled):hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-        }
-        .level-node-button.locked {
-            background: #d6d3d1;
-            filter: grayscale(80%);
-            cursor: not-allowed;
-        }
-        .level-node-button::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%) rotate(-3deg);
-            width: 60px;
-            height: 25px;
-            background: var(--secondary);
-            opacity: 0.6;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .level-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
-        .level-number { font-size: 3rem; font-weight: 700; line-height: 1; color: var(--accent); }
-        .level-text-label { font-size: 1rem; }
-        .lock-icon-map { width: 40px; height: 40px; color: rgba(0,0,0,0.3); }
-
-        #order-info {
-            background: white;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            position: relative;
-            background-image: linear-gradient(#f9fafb 1.1rem, #e5e7eb 1.1rem);
-            background-size: 100% 2.2rem;
-            padding-top: 2rem;
-        }
-        #order-info::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 1rem;
-            right: 1rem;
-            height: 10px;
-            background-image: radial-gradient(#d6d3d1 2px, transparent 2px);
-            background-size: 20px 10px;
-            background-repeat: repeat-x;
-        }
-        .recipe-img {
-            display: inline-block;
-            width: 1.5rem;
-            height: 1.5rem;
-            vertical-align: middle;
-            margin: 0 0.125rem;
-        }
-
-        .plate-wrapper {
-            perspective: 1000px;
-            transform-style: preserve-3d;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end; 
-            height: 7rem;
-            position: relative;
-        }
-
-        .plate-area {
-            width: calc(4.2rem + 8px); 
-            height: calc(4.2rem + 8px);
-            background: radial-gradient(circle, #f8f8f8 70%, #e0e0e0 100%);
-            border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.1);
-            position: relative;
-            transform-style: preserve-3d;
-            transform: rotateX(30deg) rotateZ(314deg);
-        }
-        
-        .lock-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) translateZ(2px);
-            width: 2.5rem;
-            height: 2.5rem;
-            display: none;
-            z-index: 10;
-        }
-        
-        .plate-area.locked .lock-icon { display: block; }
-
-        .ingredient {
-            position: absolute; bottom: 0px; left: 50%;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform-origin: bottom center; pointer-events: none; user-select: none;
-            width: 4.5rem; height: 4.5rem;
-            display: flex; align-items: center; justify-content: center;
-            transform: translateX(-50%); border-radius: 9999px; padding: 6px; 
-        }
-        .ingredient-inner {
-            width: 100%; height: 100%; border-radius: 9999px;
-            background: radial-gradient(circle, #ffffff 60%, #f0efeb 100%);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .ingredient-inner img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 9999px;
-        }
-        .ingredient.golden .ingredient-inner {
-            filter: drop-shadow(0 0 8px gold) drop-shadow(0 0 3px #fff);
-            background: radial-gradient(circle, #fffef5 60%, #f0efeb 100%);
-        }
-
-        #message-box > div, #how-to-play-content {
-            background-color: var(--bg-cozy);
-            border: 5px solid var(--accent);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border-radius: 20px;
-        }
-        
-        .stack-counter {
-            position: absolute; top: -5px; right: -5px;
-            background-color: #ef4444; color: white; border-radius: 50%;
-            width: 1.75rem; height: 1.75rem; font-size: 0.85rem; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            pointer-events: none; z-index: 10; border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3); font-family: 'Comfortaa', cursive;
-        }
-    </style>
-</head>
-<body class="text-stone-800">
-    
-    <div id="animation-layer" class="fixed inset-0 pointer-events-none z-50"></div>
-
-    <div id="home-screen" class="flex flex-col items-center justify-center text-center h-screen p-4">
-        <div class="my-4 animate-bounce">
-            <img src="/img/logo.png" alt="Logo de Dish & Dash" class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-white">
-        </div>
-        <p class="text-2xl text-stone-600 my-4">Un rompecabezas de cocina</p>
-        <p id="user-greeting" class="text-xl text-stone-500 max-w-md mb-8">¡Por favor, inicia sesión para empezar a cocinar!</p>
-        
-        <button id="login-button" class="btn btn-primary text-2xl">
-            <span class="flex items-center gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.956 0 8.327-3.453 8.327-8.546 0-.533-.063-1.036-.121-1.472z"></path></svg> Iniciar sesión con Google</span>
-        </button>
-
-        <button id="start-game-button" class="btn btn-primary text-2xl hidden">
-            ¡Empezar a cocinar!
-        </button>
-        <div class="mt-4 flex gap-4">
-            <button id="how-to-play-button" class="btn btn-secondary text-sm">
-                Cómo Jugar
-            </button>
-            <button id="reset-progress-button" class="btn btn-danger text-sm hidden">
-                Reiniciar Progreso
-            </button>
-             <button id="logout-button" class="btn btn-secondary text-sm hidden">
-                Cerrar Sesión
-            </button>
-       </div>
-    </div>
-    
-    <div id="level-map-screen" class="w-full h-screen mx-auto hidden flex flex-col relative overflow-hidden">
-        <div class="flex-shrink-0 text-center z-10 p-6">
-            <h2 class="text-5xl md:text-6xl text-amber-900" style="text-shadow: 2px 2px 0px #FBF7F3;">Selecciona un Nivel</h2>
-        </div>
-        <div class="flex-grow overflow-y-auto z-10">
-             <div id="level-map-container">
-                </div>
-        </div>
-         <div class="text-center flex-shrink-0 z-10 p-4">
-            <button id="back-to-home-button" class="btn btn-secondary">
-                 Volver al Menú Principal
-            </button>
-        </div>
-    </div>
-
-    <div id="game-ui" class="w-full max-w-5xl h-screen mx-auto hidden flex flex-col">
-        <header class="text-center p-2 flex-shrink-0">
-            <h1 class="text-3xl md:text-4xl text-amber-800">Dish & Dash</h1>
-            <div class="flex justify-center items-center flex-wrap gap-x-4 gap-y-2 mt-2">
-                 <div id="level-display" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span>Nivel: 1</span></div>
-                 <div id="order-progress" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span>Pedidos: 0/0</span></div>
-                 <div id="star-counter" class="bg-yellow-400/80 text-yellow-900 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><img src="/img/corbys.png" alt="Estrella" class="w-4 h-4"> <span>0</span></div>
-            </div>
-            <div id="order-info" class="mt-2 p-3 mx-auto max-w-2xl">
-                <div id="customer-type-badge" class="absolute -top-3 -left-3 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full transform -rotate-12 hidden"></div>
-                <div id="vip-badge" class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full transform rotate-12 hidden">VIP!</div>
-                <h2 id="recipe-title" class="text-xl font-semibold text-stone-700">Pedido de Hoy:</h2>
-                <p id="recipe-name" class="text-3xl font-bold mt-1 text-accent">-</p>
-                <div id="recipe-ingredients" class="flex justify-center items-center flex-wrap gap-x-3 gap-y-1 mt-2 text-base font-medium text-stone-600"></div>
-                 <div id="timer-container" class="w-full bg-gray-200 rounded-full h-2 mt-3 hidden">
-                      <div id="timer-bar" class="bg-red-500 h-2 rounded-full"></div>
-                 </div>
-            </div>
-        </header>
-        <main id="plates-container-wrapper" class="flex-grow flex justify-center">
-            <div id="plates-container" class="flex flex-col-reverse pt-2 pb-4">
-                 <div class="plate-row flex justify-center gap-x-2" style="z-index: 30;">
-                      <div class="plate-wrapper"><div id="plate-0" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-1" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-2" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-3" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                 </div>
-                 <div class="plate-row flex justify-center gap-x-2 -mb-8" style="z-index: 20;">
-                      <div class="plate-wrapper"><div id="plate-4" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-5" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-6" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                 </div>
-                 <div class="plate-row flex justify-center gap-x-2 -mb-8" style="z-index: 10;">
-                      <div class="plate-wrapper"><div id="plate-7" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-8" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-9" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                      <div class="plate-wrapper"><div id="plate-10" class="plate-area"><div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div></div></div>
-                 </div>
-            </div>
-        </main>
-        <footer class="flex-shrink-0 py-3 flex justify-center items-center gap-4">
-            <button id="back-to-map-button" class="btn btn-secondary"> Ver Niveles </button>
-            <button id="deal-button" class="btn btn-primary" disabled> Servir (<span id="deck-count">0</span>) </button>
-            <button id="trash-can" class="bg-stone-500 hover:bg-stone-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 relative" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
-                </svg>
-                <div id="trash-counter" class="absolute -top-1 -right-1 bg-sky-500 text-white w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border-2 border-white">0</div>
-            </button>
-        </footer>
-    </div>
-
-    <div id="message-box" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 opacity-0 pointer-events-none transform scale-95 z-50 transition-all duration-300">
-        <div class="w-full max-w-sm mx-auto p-6 text-center">
-            <h3 id="message-title" class="text-4xl text-stone-800 mb-4"></h3>
-            <p id="message-text" class="text-stone-600 mb-6"></p>
-            <div id="message-buttons" class="flex justify-center gap-4">
-            </div>
-        </div>
-    </div>
-    <div id="how-to-play-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 z-50">
-        <div id="how-to-play-content" class="w-full max-w-md mx-auto max-h-full overflow-y-auto relative transform scale-95 transition-transform duration-300 p-8">
-             <button id="how-to-play-close-button-x" class="absolute top-4 right-4 text-stone-400 hover:text-stone-800 z-10">
-                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-             </button>
-             <h2 class="text-3xl md:text-4xl text-amber-800 mb-6 text-center">Cómo Jugar</h2>
-             <div class="text-left text-stone-600 space-y-4 text-base">
-                 <div class="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <h3 class="font-bold text-lg text-amber-900 mb-2">Recetas Clásicas 🧑‍🍳</h3>
-                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/note.png" alt="Icono de Receta" class="rounded-md"></span> <p><strong>El Pedido:</strong> Reúne los ingredientes de la tarjeta de receta. Debes crear una pila de la cantidad exacta (o más) y entregarla toda junta.</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/upfinger.png" alt="Icono de Comodín" class="rounded-md"></span> <p><strong>Mover Pilas:</strong> Puedes mover una pila sobre un ingrediente del mismo tipo o sobre un comodín (🌟).</p></div>
-                 </div>
-
-                 <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
-                    <h3 class="font-bold text-lg text-sky-900 mb-2">Puzzle de Clasificación 🧩</h3>
-                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/tube.png" alt="Icono de Clasificación" class="rounded-md"></span> <p><strong>El Objetivo:</strong> Clasifica los ingredientes para crear platos "puros" (de un solo tipo).</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/up.png" alt="Icono de Mover" class="rounded-md"></span> <p><strong>Reglas de Movimiento:</strong> Solo puedes mover una pila a un plato vacío o sobre un ingrediente idéntico. ¡Piensa bien tus movimientos!</p></div>
-                     <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/box.png" alt="Icono de Entrega" class="rounded-md"></span> <p><strong>Entrega:</strong> Una vez que un plato está puro (lleno de un solo ingrediente), puedes entregarlo para completar esa parte de la receta.</p></div>
-                 </div>
-                
-                 <hr class="my-4">
-
-                 <h3 class="font-bold text-lg text-stone-800 text-center">Objetos Especiales</h3>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/golden.png" alt="Ingrediente Dorado"></span> <p><strong>Ingredientes Dorados:</strong> ¡Valen una enorme bonificación de estrellas!</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/trash.png" alt="Comodín"></span> <p><strong>Bote de Basura:</strong> Descarta los ingredientes no deseados. ¡Los usos son limitados!</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/bomb.png" alt="Bomba"></span> <p><strong>Bomba:</strong> Selecciona una bomba y haz clic en cualquier plato para eliminar todos sus ingredientes.</p></div>
-                 <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/star.png" alt="Comodín"></span> <p><strong>Comodín:</strong> Este ítem especial solo aparece en niveles Clásicos. Se puede apilar sobre cualquier cosa y cuenta como cualquier ingrediente.</p></div>
-             </div>
-             <div class="text-center mt-8">
-                 <button id="how-to-play-close-button" class="btn btn-primary">¡Entendido!</button>
-             </div>
-        </div>
-    </div>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyCItweZXDBw6X2E1qDVNi0HBHDq-Jo2yZE",
-            authDomain: "dish-dash-1ac95.firebaseapp.com",
-            projectId: "dish-dash-1ac95",
-            storageBucket: "dish-dash-1ac95.firebasestorage.app",
-            messagingSenderId: "901088920476",
-            appId: "1:901088920476:web:f54338cf449ee7ee99be59",
-            measurementId: "G-ZYQ277D98F"
-          };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-        const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
-        const userGreetingEl = document.getElementById('user-greeting');
-        const startGameButton = document.getElementById('start-game-button');
-        const resetProgressButton = document.getElementById('reset-progress-button');
-        let currentUserId = null;
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUserId = user.uid;
-                userGreetingEl.textContent = `¡Bienvenido de nuevo, ${user.displayName.split(' ')[0]}!`;
-                loginButton.classList.add('hidden');
-                logoutButton.classList.remove('hidden');
-                startGameButton.classList.remove('hidden');
-                resetProgressButton.classList.remove('hidden');
-                window.dishDashGame.loadProgress(); 
-            } else {
-                currentUserId = null;
-                userGreetingEl.textContent = `¡Por favor, inicia sesión para empezar a cocinar!`;
-                loginButton.classList.remove('hidden');
-                logoutButton.classList.add('hidden');
-                startGameButton.classList.add('hidden');
-                resetProgressButton.classList.add('hidden');
-                window.dishDashGame.resetGameStateToDefault(); 
-            }
-        });
-        const signInWithGoogle = async () => {
-            try { await signInWithPopup(auth, provider); } catch (error) { console.error("Error durante el inicio de sesión:", error); alert(`Error: ${error.message}`); }
-        };
-        const logout = async () => {
-            try { await signOut(auth); window.location.reload(); } catch (error) { console.error("Error al cerrar sesión:", error); }
-        };
-        async function loadProgressFromFirestore() {
-            if (!currentUserId) return null;
-            const docRef = doc(db, "userProgress", currentUserId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) { return docSnap.data(); } else { return null; }
-        }
-        async function saveProgressToFirestore(progressData) {
-            if (!currentUserId) return;
-            try { await setDoc(doc(db, "userProgress", currentUserId), progressData); } catch (e) { console.error("Error guardando documento: ", e); }
-        }
-        async function resetProgressInFirestore() {
-            if (!currentUserId) return;
-            try { await deleteDoc(doc(db, "userProgress", currentUserId)); } catch (e) { console.error("Error reiniciando el progreso: ", e); }
-        }
-        loginButton.addEventListener('click', signInWithGoogle);
-        logoutButton.addEventListener('click', logout);
-        window.firebaseIntegration = { loadProgressFromFirestore, saveProgressToFirestore, resetProgressInFirestore };
-    </script>
-    
-    <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- CONSTANTS AND STATE ---
         const MAX_INGREDIENTS_PER_PLATE = 30; // Max capacity for manual stacking
@@ -607,51 +175,29 @@
         function renderLevelMap() {
             levelMapContainer.innerHTML = '';
             for (let i = 0; i < TOTAL_LEVELS; i++) {
+                const isUnlocked = i <= gameState.highestLevelUnlocked;
                 const levelData = generateLevelData(i);
-                const isCompleted = i < gameState.highestLevelUnlocked;
-                const isCurrent = i === gameState.highestLevelUnlocked;
-                const isLocked = i > gameState.highestLevelUnlocked;
-
                 const nodeContainer = document.createElement('div'); 
                 nodeContainer.className = 'level-node'; 
                 const button = document.createElement('button'); 
-
-                button.disabled = !isCurrent; // Only the current level is clickable
-
-                let buttonClasses = 'level-node-button';
-                if (isLocked) {
-                    buttonClasses += ' locked';
-                }
-                if (isCompleted) {
-                    buttonClasses += ' opacity-60 cursor-default'; // Make it faded and change cursor
-                }
-                button.className = buttonClasses;
-                
-                // Only set onclick for the current, playable level
-                if (isCurrent) {
-                    button.onclick = () => startGame(i);
-                }
+                button.disabled = !isUnlocked; 
+                button.className = `level-node-button ${isUnlocked ? '' : 'locked'}`; 
+                button.onclick = () => startGame(i);
                 
                 const content = document.createElement('div'); 
                 content.className = 'level-content';
-
-                if (isLocked) {
-                    content.innerHTML = `<div class="lock-icon-map"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div>`;
-                } else { // For both completed and current levels
+                if (isUnlocked) {
                     const label = levelData.levelType === 'sort' ? 'Puzzle' : 'Receta';
-                    let icon = levelData.levelType === 'sort' ? '🧩' : '🧑‍🍳';
-                    if (isCompleted) {
-                        icon = '✅'; // Use a checkmark for completed levels
-                    }
+                    const icon = levelData.levelType === 'sort' ? '🧩' : '🧑‍🍳';
                     content.innerHTML = `<div class="level-number">${i + 1}</div><div class="level-text-label">${icon} ${label}</div>`;
+                } else {
+                    content.innerHTML = `<div class="lock-icon-map"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z"></path></svg></div>`;
                 }
-
                 button.appendChild(content); 
                 nodeContainer.appendChild(button); 
                 levelMapContainer.appendChild(nodeContainer);
             }
         }
-
 
         function showLevelMap() { renderLevelMap(); showScreen(levelMapScreenEl); }
         
@@ -755,28 +301,23 @@
             if (timerInterval) clearInterval(timerInterval);
 
             if (gameState.levelOrderQueue.length === 0) {
-                console.error("serveNewOrder called with empty queue.");
+                console.log("Attempted to serve new order, but queue is empty. Finishing level.");
                 handleLevelComplete();
                 return;
             }
             
             gameState.currentRecipe = gameState.levelOrderQueue[0]; 
-            const currentLevelData = generateLevelData(gameState.currentLevelIndex);
+            const currentLevel = generateLevelData(gameState.currentLevelIndex);
             
-            // Setup for classic levels
-            if(gameState.currentLevelType === 'classic') {
-                gameState.currentRecipe.isVIP = false;
-                gameState.currentRecipe.customerType = 'normal';
+            gameState.currentRecipe.isVIP = false;
+            gameState.currentRecipe.customerType = 'normal';
+            if (currentLevel.levelType === 'classic') {
                 const randomCustomer = Math.random();
                 if (gameState.currentLevelIndex >= 5 && randomCustomer < 0.3) {
                     gameState.currentRecipe.customerType = 'picky';
                     const order = [];
-                    const recipe = gameState.currentRecipe.ingredients;
-                    for (const ing in recipe) {
-                        if (Object.hasOwnProperty.call(recipe, ing)) {
-                            // The amount for picky customers is random 1-3
-                            for(let i=0; i < (Math.floor(Math.random() * 3) + 1); i++) order.push(ing);
-                        }
+                    for(const [ing, count] of Object.entries(gameState.currentRecipe.ingredients)) { 
+                        for(let i=0; i < count; i++) order.push(ing);
                     }
                     shuffleArray(order); 
                     gameState.currentRecipe.ingredientOrder = order;
@@ -786,36 +327,10 @@
                     gameState.currentRecipe.timeLeft = 60; 
                     startTimer();
                 }
-                gameState.deck = createDeck(currentLevelData, gameState.unlockedIngredients, gameState.currentRecipe);
-            } 
-            // Setup for sort levels
-            else {
-                gameState.deck = []; // No deck for sort levels
-                let initialIngredients = [];
-                for (const [ingredientId, count] of Object.entries(gameState.currentRecipe.ingredients)) {
-                    for (let i = 0; i < count; i++) {
-                        initialIngredients.push({ 
-                            type: ingredientId, 
-                            id: `sort-${ingredientId}-${i}-${Math.random()}` 
-                        });
-                    }
-                }
-                shuffleArray(initialIngredients);
-
-                // Distribute ingredients across plates, leaving at least one empty
-                const platesForDistribution = gameState.platesUnlocked - 1;
-                if (platesForDistribution > 0) {
-                    let currentPlateIndex = 0;
-                    initialIngredients.forEach(ingredient => {
-                        if (gameState.plates[currentPlateIndex].length < MAX_INGREDIENTS_PER_PLATE) {
-                             gameState.plates[currentPlateIndex].push(ingredient);
-                        }
-                        currentPlateIndex = (currentPlateIndex + 1) % platesForDistribution;
-                    });
-                }
             }
             
             gameState.currentRecipe.needed = { ...gameState.currentRecipe.ingredients };
+            gameState.deck = createDeck(currentLevel, gameState.unlockedIngredients, gameState.currentRecipe);
             gameState.selectedStack = null; 
             renderGame();
         }
@@ -877,9 +392,9 @@
                     ingredientToDeal = neededSoonDeck.pop();
                 } else if (otherDeck.length > 0) {
                     ingredientToDeal = otherDeck.pop();
-                } else if (neededNowDeck.length > 0) {
+                } else if (neededNowDeck.length > 0) { // Fallback
                     ingredientToDeal = neededNowDeck.pop();
-                } else if (neededSoonDeck.length > 0) {
+                } else if (neededSoonDeck.length > 0) { // Fallback
                     ingredientToDeal = neededSoonDeck.pop();
                 }
                 
@@ -1213,10 +728,12 @@
                 if (recipe.ingredientOrder.length === 0) return false;
                 const nextRequired = recipe.ingredientOrder[0];
 
+                // The stack must be of the correct type (or a wildcard that can act as it)
                 if (type !== specialItems.wildcard.id && originalType !== nextRequired) {
                     return false;
                 }
 
+                // Count how many of this type are required consecutively from the start of the order
                 let consecutiveCount = 0;
                 for(const item of recipe.ingredientOrder) {
                     if (item === nextRequired) {
@@ -1225,9 +742,11 @@
                         break;
                     }
                 }
+                // To be deliverable, the selected stack must have exactly the required number of consecutive items
                 return stack.length === consecutiveCount;
             }
 
+            // Standard recipe logic
             if (type === specialItems.wildcard.id) {
                 return Object.entries(recipe.ingredients).some(([ingId, requiredCount]) => {
                     return recipe.needed[ingId] > 0 && stack.length >= requiredCount;
@@ -1311,6 +830,3 @@
         window.addEventListener('beforeunload', () => { if(window.firebaseIntegration) saveProgress(); });
         window.dishDashGame = { loadProgress, resetGameStateToDefault };
     });
-    </script>
-</body>
-</html>
