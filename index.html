@@ -232,14 +232,20 @@
             <button id="lang-toggle-button" class="btn btn-secondary">English</button>
         </div>
         <div class="my-4 animate-bounce">
-            <img src="/img/logo.png" alt="Logo de Dish & Dash" class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-white">
+            <img src="img/logo.png" alt="Logo de Dish & Dash" class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-white">
         </div>
         <p class="text-2xl text-stone-600 my-4" data-lang-key="subtitle">Un rompecabezas de cocina</p>
         <p id="user-greeting" class="text-xl text-stone-500 max-w-md mb-8" data-lang-key="login_prompt">¡Por favor, inicia sesión para empezar a cocinar!</p>
         
-        <button id="login-button" class="btn btn-primary text-2xl">
-            <span class="flex items-center gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.956 0 8.327-3.453 8.327-8.546 0-.533-.063-1.036-.121-1.472z"></path></svg> <span data-lang-key="login_google">Iniciar sesión con Google</span></span>
-        </button>
+        <div class="flex flex-col gap-4">
+            <button id="login-button" class="btn btn-primary text-2xl">
+                <span class="flex items-center gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.956 0 8.327-3.453 8.327-8.546 0-.533-.063-1.036-.121-1.472z"></path></svg> <span data-lang-key="login_google">Iniciar sesión con Google</span></span>
+            </button>
+            <button id="guest-login-button" class="btn btn-secondary text-xl">
+                 <span data-lang-key="play_as_guest">Jugar como Invitado</span>
+            </button>
+        </div>
+
 
         <button id="start-game-button" class="btn btn-primary text-2xl hidden" data-lang-key="start_cooking">
             ¡Empezar a cocinar!
@@ -278,7 +284,7 @@
             <div class="flex justify-center items-center flex-wrap gap-x-4 gap-y-2 mt-2">
                  <div id="level-display" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span data-lang-key="level_prefix">Nivel</span>: <span>1</span></div>
                  <div id="order-progress" class="bg-stone-200 text-stone-700 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><span data-lang-key="orders_prefix">Pedidos</span>: <span>0/0</span></div>
-                 <div id="star-counter" class="bg-yellow-400/80 text-yellow-900 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><img src="/img/corbys.png" alt="Estrella" class="w-4 h-4"> <span>0</span></div>
+                 <div id="star-counter" class="bg-yellow-400/80 text-yellow-900 px-3 py-1 rounded-lg shadow-sm flex items-center gap-2 text-sm"><img src="img/corbys.png" alt="Estrella" class="w-4 h-4"> <span>0</span></div>
             </div>
             <div id="order-info" class="mt-2 p-3 mx-auto max-w-2xl">
                 <div id="customer-type-badge" class="absolute -top-3 -left-3 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full transform -rotate-12 hidden"></div>
@@ -350,7 +356,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCItweZXDBw6X2E1qDVNi0HBHDq-Jo2yZE",
@@ -366,22 +372,25 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
         const loginButton = document.getElementById('login-button');
+        const guestLoginButton = document.getElementById('guest-login-button');
         const logoutButton = document.getElementById('logout-button');
         const userGreetingEl = document.getElementById('user-greeting');
         const startGameButton = document.getElementById('start-game-button');
         const resetProgressButton = document.getElementById('reset-progress-button');
+        const loginContainer = document.querySelector('.flex.flex-col.gap-4');
+
         let currentUserId = null;
         onAuthStateChanged(auth, user => {
             if (user) {
                 currentUserId = user.uid;
-                loginButton.classList.add('hidden');
+                loginContainer.classList.add('hidden');
                 logoutButton.classList.remove('hidden');
                 startGameButton.classList.remove('hidden');
                 resetProgressButton.classList.remove('hidden');
                 window.dishDashGame.loadProgress(user); 
             } else {
                 currentUserId = null;
-                loginButton.classList.remove('hidden');
+                loginContainer.classList.remove('hidden');
                 logoutButton.classList.add('hidden');
                 startGameButton.classList.add('hidden');
                 resetProgressButton.classList.add('hidden');
@@ -389,10 +398,21 @@
             }
         });
         const signInWithGoogle = async () => {
-            try { await signInWithPopup(auth, provider); } catch (error) { console.error("Error durante el inicio de sesión:", error); alert(`Error: ${error.message}`); }
+            try { await signInWithPopup(auth, provider); } catch (error) { console.error("Error during Google sign-in:", error); }
+        };
+        const signInAsGuest = async () => {
+            currentUserId = null; 
+            const loginContainer = document.querySelector('.flex.flex-col.gap-4');
+            loginContainer.classList.add('hidden');
+            document.getElementById('logout-button').classList.remove('hidden');
+            document.getElementById('start-game-button').classList.remove('hidden');
+            document.getElementById('reset-progress-button').classList.remove('hidden');
+
+            const guestUser = { isAnonymous: true, displayName: "Guest" };
+            window.dishDashGame.loadProgress(guestUser);
         };
         const logout = async () => {
-            try { await signOut(auth); window.location.reload(); } catch (error) { console.error("Error al cerrar sesión:", error); }
+            try { await signOut(auth); window.location.reload(); } catch (error) { console.error("Error signing out:", error); }
         };
         async function loadProgressFromFirestore() {
             if (!currentUserId) return null;
@@ -402,13 +422,14 @@
         }
         async function saveProgressToFirestore(progressData) {
             if (!currentUserId) return;
-            try { await setDoc(doc(db, "userProgress", currentUserId), progressData); } catch (e) { console.error("Error guardando documento: ", e); }
+            try { await setDoc(doc(db, "userProgress", currentUserId), progressData); } catch (e) { console.error("Error saving document: ", e); }
         }
         async function resetProgressInFirestore() {
             if (!currentUserId) return;
-            try { await deleteDoc(doc(db, "userProgress", currentUserId)); } catch (e) { console.error("Error reiniciando el progreso: ", e); }
+            try { await deleteDoc(doc(db, "userProgress", currentUserId)); } catch (e) { console.error("Error resetting progress: ", e); }
         }
         loginButton.addEventListener('click', signInWithGoogle);
+        guestLoginButton.addEventListener('click', signInAsGuest);
         logoutButton.addEventListener('click', logout);
         window.firebaseIntegration = { auth, loadProgressFromFirestore, saveProgressToFirestore, resetProgressInFirestore };
     </script>
@@ -421,22 +442,22 @@
         const TOTAL_LEVELS = 100;
 
         const allPossibleIngredients = [
-            { id: 'strawberry', name: 'Fresa', name_en: 'Strawberry', emoji: '🍓', imageUrl: '/img/strawberry.png' },
-            { id: 'banana', name: 'Banana', name_en: 'Banana', emoji: '🍌', imageUrl: '/img/banana.png' },
-            { id: 'grapes', name: 'Uvas', name_en: 'Grapes', emoji: '🍇', imageUrl: '/img/grape.png' },
-            { id: 'carrot', name: 'Zanahoria', name_en: 'Carrot', emoji: '🥕', imageUrl: '/img/carrot.png' },
-            { id: 'broccoli', name: 'Brócoli', name_en: 'Broccoli', emoji: '🥦', imageUrl: '/img/broccoli.png' },
-            { id: 'mushroom', name: 'Champiñón', name_en: 'Mushroom', emoji: '🍄', imageUrl: '/img/mushroom.png' },
-            { id: 'tomato', name: 'Tomate', name_en: 'Tomato', emoji: '🍅', imageUrl: '/img/tomato.png' },
-            { id: 'avocado', name: 'Aguacate', name_en: 'Avocado', emoji: '🥑', imageUrl: '/img/avocado.png' },
-            { id: 'eggplant', name: 'Berenjena', name_en: 'Eggplant', emoji: '�', imageUrl: '/img/eggplant.png' },
-            { id: 'chili', name: 'Chile', name_en: 'Chili', emoji: '🌶️', imageUrl: '/img/pepper.png' }
+            { id: 'strawberry', name: 'Fresa', name_en: 'Strawberry', emoji: '🍓', imageUrl: 'img/strawberry.png' },
+            { id: 'banana', name: 'Banana', name_en: 'Banana', emoji: '🍌', imageUrl: 'img/banana.png' },
+            { id: 'grapes', name: 'Uvas', name_en: 'Grapes', emoji: '🍇', imageUrl: 'img/grape.png' },
+            { id: 'carrot', name: 'Zanahoria', name_en: 'Carrot', emoji: '🥕', imageUrl: 'img/carrot.png' },
+            { id: 'broccoli', name: 'Brócoli', name_en: 'Broccoli', emoji: '🥦', imageUrl: 'img/broccoli.png' },
+            { id: 'mushroom', name: 'Champiñón', name_en: 'Mushroom', emoji: '🍄', imageUrl: 'img/mushroom.png' },
+            { id: 'tomato', name: 'Tomate', name_en: 'Tomato', emoji: '🍅', imageUrl: 'img/tomato.png' },
+            { id: 'avocado', name: 'Aguacate', name_en: 'Avocado', emoji: '🥑', imageUrl: 'img/avocado.png' },
+            { id: 'eggplant', name: 'Berenjena', name_en: 'Eggplant', emoji: '🍆', imageUrl: 'img/eggplant.png' },
+            { id: 'chili', name: 'Chile', name_en: 'Chili', emoji: '🌶️', imageUrl: 'img/pepper.png' }
         ];
 
         const specialItems = {
-            wildcard: { id: 'wildcard', name: 'Comodín', name_en: 'Wildcard', emoji: '🌟', imageUrl: '/img/star.png' },
-            bomb: { id: 'bomb', name: 'Bomba', name_en: 'Bomb', emoji: '💣', imageUrl: '/img/bomb.png' },
-            golden: { id: 'golden', name: 'Dorado', name_en: 'Golden', emoji: '🏆', imageUrl: '/img/golden.png' }
+            wildcard: { id: 'wildcard', name: 'Comodín', name_en: 'Wildcard', emoji: '🌟', imageUrl: 'img/star.png' },
+            bomb: { id: 'bomb', name: 'Bomba', name_en: 'Bomb', emoji: '💣', imageUrl: 'img/bomb.png' },
+            golden: { id: 'golden', name: 'Dorado', name_en: 'Golden', emoji: '🏆', imageUrl: 'img/golden.png' }
         };
 
         const allIngredientData = {
@@ -500,6 +521,8 @@
                 subtitle: "Un rompecabezas de cocina",
                 login_prompt: "¡Por favor, inicia sesión para empezar a cocinar!",
                 welcome_back: (name) => `¡Bienvenido de nuevo, ${name}!`,
+                welcome_guest: "¡Bienvenido, Invitado!",
+                play_as_guest: "Jugar como Invitado",
                 login_google: "Iniciar sesión con Google",
                 start_cooking: "¡Empezar a cocinar!",
                 how_to_play: "Cómo Jugar",
@@ -515,7 +538,6 @@
                 serve_btn: "Servir",
                 how_to_play_title: "Cómo Jugar",
                 got_it: "¡Entendido!",
-                // How-to-play text
                 h2p_classic_title: "Recetas Clásicas 🧑‍🍳",
                 h2p_classic_1: "<strong>El Pedido:</strong> Reúne los ingredientes de la tarjeta de receta. Debes crear una pila de la cantidad exacta (o más) y entregarla toda junta.",
                 h2p_classic_2: "<strong>Mover Pilas:</strong> Puedes mover una pila sobre un ingrediente del mismo tipo o sobre un comodín (🌟).",
@@ -528,7 +550,6 @@
                 h2p_trash: "<strong>Bote de Basura:</strong> Descarta los ingredientes no deseados. ¡Los usos son limitados!",
                 h2p_bomb: "<strong>Bomba:</strong> Selecciona una bomba y haz clic en cualquier plato para eliminar todos sus ingredientes.",
                 h2p_wildcard: "<strong>Comodín:</strong> Este ítem especial solo aparece en niveles Clásicos. Se puede apilar sobre cualquier cosa y cuenta como cualquier ingrediente.",
-                // Message Box Text
                 reset_confirm_title: "Reiniciar Progreso",
                 reset_confirm_text: "¿Estás seguro de que quieres empezar de nuevo? Todas tus estrellas y niveles desbloqueados se perderán para siempre.",
                 cancel: "Cancelar",
@@ -551,7 +572,6 @@
                 stalemate_title: "¡Atascado!",
                 stalemate_text: "No hay más movimientos. ¡Vamos a barajar de nuevo los ingredientes!",
                 lets_go: "¡Vamos!",
-                // Level labels
                 recipe: "Receta",
                 puzzle: "Puzzle"
             },
@@ -559,6 +579,8 @@
                 subtitle: "A cozy kitchen puzzle",
                 login_prompt: "Please sign in to start cooking!",
                 welcome_back: (name) => `Welcome back, ${name}!`,
+                welcome_guest: "Welcome, Guest!",
+                play_as_guest: "Play as Guest",
                 login_google: "Sign in with Google",
                 start_cooking: "Start Cooking!",
                 how_to_play: "How to Play",
@@ -574,7 +596,6 @@
                 serve_btn: "Serve",
                 how_to_play_title: "How to Play",
                 got_it: "Got it!",
-                 // How-to-play text
                 h2p_classic_title: "Classic Recipes 🧑‍🍳",
                 h2p_classic_1: "<strong>The Order:</strong> Gather the ingredients on the recipe card. You must create a stack of the exact amount (or more) and deliver it all at once.",
                 h2p_classic_2: "<strong>Moving Stacks:</strong> You can move a stack onto an ingredient of the same type or onto a wildcard (🌟).",
@@ -587,7 +608,6 @@
                 h2p_trash: "<strong>Trash Can:</strong> Discard unwanted ingredients. Uses are limited!",
                 h2p_bomb: "<strong>Bomb:</strong> Select a bomb and click any plate to clear all ingredients from it.",
                 h2p_wildcard: "<strong>Wildcard:</strong> This special item only appears in Classic levels. It can be stacked on anything and counts as any ingredient you need.",
-                // Message Box Text
                 reset_confirm_title: "Reset Progress",
                 reset_confirm_text: "Are you sure you want to start over? All your stars and unlocked levels will be lost forever.",
                 cancel: "Cancel",
@@ -610,7 +630,6 @@
                 stalemate_title: "Stuck!",
                 stalemate_text: "There are no more moves. Let's reshuffle the ingredients!",
                 lets_go: "Let's Go!",
-                 // Level labels
                 recipe: "Recipe",
                 puzzle: "Puzzle"
             }
@@ -626,10 +645,20 @@
 
         // --- CORE DATA & STATE FUNCTIONS ---
         async function loadProgress(user) {
+            // If it's a guest (no UID), just reset to default state. Progress is not saved/loaded.
+            if (!user || !user.uid) {
+                resetGameStateToDefault(); // Resets game state to initial values
+                setLanguage(localStorage.getItem('dishDashLang') || 'es', user); // Then apply language and guest name
+                return;
+            }
+            
+            // For real users, load from Firestore.
             if (!window.firebaseIntegration) { setTimeout(() => loadProgress(user), 100); return; }
             const savedState = await window.firebaseIntegration.loadProgressFromFirestore();
             Object.assign(gameState, initialGameState, savedState || {});
-            if (!savedState) await saveProgress();
+            if (!savedState) {
+                await saveProgress();
+            }
             
             const savedLang = localStorage.getItem('dishDashLang') || 'es';
             setLanguage(savedLang, user);
@@ -641,7 +670,7 @@
         }
         function resetGameStateToDefault() { 
             Object.assign(gameState, initialGameState);
-            setLanguage(currentLang);
+            // Don't call renderLevelMap or setLanguage here; let the caller decide.
         }
         function resetProgress() {
             showMessage(
@@ -651,7 +680,8 @@
                     {text: translations[currentLang].cancel, primary: false},
                     {text: translations[currentLang].yes_reset, primary: true, action: async () => {
                         if (window.firebaseIntegration) await window.firebaseIntegration.resetProgressInFirestore();
-                        resetGameStateToDefault(); 
+                        resetGameStateToDefault();
+                        renderLevelMap();
                     }}
                 ]
             );
@@ -1095,7 +1125,7 @@
                         }
                     }
                 } else {
-                    plateArea.classList.add('locked'); plateArea.innerHTML = `<div class="lock-icon"><span><img src="/img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></span></div>`;
+                    plateArea.classList.add('locked'); plateArea.innerHTML = `<div class="lock-icon"><span><img src="img/padlock.png" alt="Candado" style="width: 100%; height: 100%;"></span></div>`;
                     wrapper.onclick = () => handleUnlockPlateClick(); 
                 }
             });
@@ -1357,9 +1387,9 @@
                 }
             }
 
-            let starsEarned = type === specialItems.golden.id ? 150 : 40;
-            if (gameState.currentRecipe.isVIP) starsEarned += 400;
-            if (gameState.currentRecipe.customerType === 'picky') starsEarned += 200;
+            let starsEarned = type === specialItems.golden.id ? 50 : 15;
+            if (gameState.currentRecipe.isVIP) starsEarned += 20;
+            if (gameState.currentRecipe.customerType === 'picky') starsEarned += 10;
             gameState.stars += starsEarned;
             gameState.selectedStack = null;
             const deliveredIngredients = gameState.plates[fromPlate].splice(-stack.length);
@@ -1592,7 +1622,11 @@
 
             // Update dynamic text
             if (user) {
-                uiElements.userGreeting.textContent = translations[lang].welcome_back(user.displayName.split(' ')[0]);
+                if (user.isAnonymous) {
+                     uiElements.userGreeting.textContent = translations[lang].welcome_guest;
+                } else {
+                    uiElements.userGreeting.textContent = translations[lang].welcome_back(user.displayName.split(' ')[0]);
+                }
             } else {
                  uiElements.userGreeting.textContent = translations[lang].login_prompt;
             }
@@ -1602,21 +1636,21 @@
             h2pContainer.innerHTML = `
                 <div class="p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <h3 class="font-bold text-lg text-amber-900 mb-2">${translations[lang].h2p_classic_title}</h3>
-                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/note.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_classic_1}</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/upfinger.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_classic_2}</p></div>
+                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="img/note.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_classic_1}</p></div>
+                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="img/upfinger.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_classic_2}</p></div>
                 </div>
                 <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
                     <h3 class="font-bold text-lg text-sky-900 mb-2">${translations[lang].h2p_sort_title}</h3>
-                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/tube.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_1}</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/up.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_2}</p></div>
-                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/box.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_3}</p></div>
+                    <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="img/tube.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_1}</p></div>
+                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="img/up.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_2}</p></div>
+                    <div class="flex items-start gap-4 mt-2"> <span class="w-8 h-8 flex-shrink-0"><img src="img/box.png" alt="Icon" class="rounded-md"></span> <p>${translations[lang].h2p_sort_3}</p></div>
                 </div>
                 <hr class="my-4">
                 <h3 class="font-bold text-lg text-stone-800 text-center">${translations[lang].h2p_special_title}</h3>
-                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/golden.png" alt="Icon"></span> <p>${translations[lang].h2p_golden}</p></div>
-                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/trash.png" alt="Icon"></span> <p>${translations[lang].h2p_trash}</p></div>
-                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/bomb.png" alt="Icon"></span> <p>${translations[lang].h2p_bomb}</p></div>
-                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="/img/star.png" alt="Icon"></span> <p>${translations[lang].h2p_wildcard}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="img/golden.png" alt="Icon"></span> <p>${translations[lang].h2p_golden}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="img/trash.png" alt="Icon"></span> <p>${translations[lang].h2p_trash}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="img/bomb.png" alt="Icon"></span> <p>${translations[lang].h2p_bomb}</p></div>
+                <div class="flex items-start gap-4"> <span class="w-8 h-8 flex-shrink-0"><img src="img/star.png" alt="Icon"></span> <p>${translations[lang].h2p_wildcard}</p></div>
             `;
 
 
@@ -1636,7 +1670,6 @@
 
         function toggleLanguage() {
             const newLang = currentLang === 'es' ? 'en' : 'es';
-            // Correctly access the currentUser from the auth object, not the integration object
             setLanguage(newLang, window.firebaseIntegration.auth.currentUser);
         }
         
